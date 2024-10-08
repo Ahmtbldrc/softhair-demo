@@ -26,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 export default function Home() {
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -230,7 +231,7 @@ export default function Home() {
             <CardContent className="grid gap-8">
               <div className="flex items-center gap-4">
                 <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src="/avatars/01.png" alt="Avatar" />
+                  <AvatarImage alt="Avatar" />
                   <AvatarFallback>OM</AvatarFallback>
                 </Avatar>
                 <div className="grid gap-1">
@@ -245,7 +246,7 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-4">
                 <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src="/avatars/02.png" alt="Avatar" />
+                  <AvatarImage alt="Avatar" />
                   <AvatarFallback>JL</AvatarFallback>
                 </Avatar>
                 <div className="grid gap-1">
@@ -260,7 +261,7 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-4">
                 <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src="/avatars/03.png" alt="Avatar" />
+                  <AvatarImage alt="Avatar" />
                   <AvatarFallback>IN</AvatarFallback>
                 </Avatar>
                 <div className="grid gap-1">
@@ -275,7 +276,7 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-4">
                 <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src="/avatars/04.png" alt="Avatar" />
+                  <AvatarImage alt="Avatar" />
                   <AvatarFallback>WK</AvatarFallback>
                 </Avatar>
                 <div className="grid gap-1">
@@ -290,7 +291,7 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-4">
                 <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src="/avatars/05.png" alt="Avatar" />
+                  <AvatarImage alt="Avatar" />
                   <AvatarFallback>SD</AvatarFallback>
                 </Avatar>
                 <div className="grid gap-1">
