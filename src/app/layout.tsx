@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import MainLayout from "@/components/MainLayout";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "SoftHair",
@@ -23,7 +23,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster />
         </ThemeProvider>
+
       </body>
     </html>
   );

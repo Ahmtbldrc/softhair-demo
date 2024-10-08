@@ -26,7 +26,7 @@ const NavLink = React.memo(({ href, children }: { href: string; children: React.
     <Link
       href={href}
       className={`text-muted-foreground font-semibold transition-colors hover:text-foreground dark:hover:text-white ${
-        isActive ? "text-foreground dark:text-white font-semibold" : ""
+        isActive ? "text-black dark:text-white  font-semibold" : ""
       }`}
     >
       {children}
@@ -37,15 +37,15 @@ NavLink.displayName = "NavLink"
 
 const NavLinks = React.memo(() => (
   <>
-    <NavLink href="/">Dashboard</NavLink>
-    <NavLink href="/staff">Staff</NavLink>
-    <NavLink href="/services">Services</NavLink>
-    <NavLink href="/reservation">Reservation</NavLink>
+    <NavLink href="/admin">Dashboard</NavLink>
+    <NavLink href="/admin/staff">Staff</NavLink>
+    <NavLink href="/admin/services">Services</NavLink>
+    <NavLink href="/admin/reservation">Reservation</NavLink>
   </>
 ))
 NavLinks.displayName = "NavLinks"
 
-export default function MainLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { setTheme } = useTheme()
 
   return (
@@ -53,12 +53,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
         <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
           <Link
-            href="/"
+            href="/admin"
             className="flex items-center gap-2 text-lg font-semibold md:text-base"
-            aria-label="Softhair Home"
+            aria-label="SoftHair Admin Home"
           >
             <Scissors className="h-6 w-6" />
-            <span className="sr-only">Softhair</span>
+            <span className="sr-only">SoftHair</span>
           </Link>
           <NavLinks />
         </nav>
@@ -76,12 +76,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <SheetContent side="left">
             <nav className="grid gap-6 text-lg font-medium">
               <Link
-                href="/"
+                href="/admin"
                 className="flex items-center gap-2 text-lg font-semibold"
-                aria-label="Softhair Home"
+                aria-label="SoftHair Admin Home"
               >
                 <Scissors className="h-6 w-6" />
-                Softhair
+                SoftHair
               </Link>
               <NavLinks />
             </nav>
