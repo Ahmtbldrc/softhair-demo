@@ -52,7 +52,7 @@ export default function LoginPage() {
               <CardContent>
                   <div className="space-y-2">
                     <div className="space-y-1">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email">Username</Label>
                       <Input
                         id="username"
                         type="username"

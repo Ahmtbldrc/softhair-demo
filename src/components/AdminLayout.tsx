@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { CircleUser, Menu, Search, Moon, Sun, Scissors } from "lucide-react"
@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { supabase } from "@/lib/supabase"
+import { User } from "@supabase/supabase-js"
 
 const NavLink = React.memo(({ href, children }: { href: string; children: React.ReactNode }) => {
   const pathname = usePathname()
@@ -45,9 +47,18 @@ const NavLinks = React.memo(() => (
 ))
 NavLinks.displayName = "NavLinks"
 
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { setTheme } = useTheme()
+  const[user, setUser] = useState<User | null>()
 
+useEffect(() => {
+  supabase.auth.getSession().then(({ data: { session } } ) => {
+    setUser(session?.user as any)
+
+  })
+}, [])
+  
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -126,7 +137,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{user?.email as any}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,8 +21,9 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 interface Service {
   id: number;
@@ -31,11 +32,20 @@ interface Service {
 }
 
 export default function Services() {
-  const [services, setServices] = useState<Service[]>([
-    { id: 1, name: "Saç Kesimi", price: 1000.0 },
-    { id: 2, name: "Boyama", price: 800.5 },
-    { id: 3, name: "Tırnak Bakım", price: 1200.75 },
-  ]);
+  const [services, setServices] = useState<Service[]>([]);
+
+  const getServices = async () => {
+    const { data, error } = await supabase.from("services").select("*");
+    console.log(data);
+    return data;
+  };
+
+  useEffect(() => {
+    getServices().then((data) => {
+      setServices(data as Service[]);
+      console.log(data);
+    });
+  }, []);
 
   const [newService, setNewService] = useState<Omit<Service, "id">>({
     name: "",
@@ -58,7 +68,21 @@ export default function Services() {
       return;
     }
     setIsLoading(true);
-    setTimeout(() => {
+    setTimeout(async () => {
+
+      const { error } = await supabase
+      .from('services')
+      .insert({ price: newService.price, name: newService.name });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+    
       setServices([
         ...services,
         {
@@ -80,7 +104,19 @@ export default function Services() {
   const handleEditService = () => {
     if (editingService && editingService.price > 0) {
       setIsLoading(true);
-      setTimeout(() => {
+      setTimeout(async () => {
+        const { error } = await supabase
+          .from("services")
+          .update({ price: editingService.price })
+          .eq("id", editingService.id);
+        if (error) {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+          return;
+        }
         setServices(
           services.map((service) =>
             service.id === editingService.id
@@ -111,7 +147,17 @@ export default function Services() {
   const handleDeleteService = () => {
     if (serviceToDelete) {
       setIsLoading(true);
-      setTimeout(() => {
+      setTimeout(async () => {
+        const response = await supabase.from("services").delete().eq("id", serviceToDelete.id);
+        if (response.error) {
+          toast({
+            title: "Error",
+            description: response.error.message,
+            variant: "destructive",
+          });
+          return;
+        }
+
         setServices(
           services.filter((service) => service.id !== serviceToDelete.id)
         );

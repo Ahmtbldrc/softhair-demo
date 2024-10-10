@@ -1,4 +1,6 @@
 import AdminLayout from "@/components/AdminLayout";
+import { Toaster } from "@/components/ui/toaster";
+
 
 export default function MainAppLayout({
   children,
@@ -7,5 +9,6 @@ export default function MainAppLayout({
 }>) {
   return <AdminLayout>
     {children}
+    <Toaster />
     </AdminLayout>;
 }
