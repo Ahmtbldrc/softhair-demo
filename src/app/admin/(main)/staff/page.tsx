@@ -59,6 +59,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import Link from "next/link"
 
 const initialStaff = [
   {
@@ -157,10 +158,13 @@ export default function StaffPage() {
                 <TabsTrigger value="passive">Passive</TabsTrigger>
               </TabsList>
               <div className="flex items-center gap-2">
+                <Link href="/admin/staff/add">
                 <Button size="sm" className="h-8">
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Add Staff
                 </Button>
+                </Link>
+                
               </div>
             </div>
             <TabsContent value="all" className="space-y-4">
