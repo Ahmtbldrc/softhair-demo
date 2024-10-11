@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
@@ -28,7 +28,6 @@ import {
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -60,70 +59,27 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import Link from "next/link"
+import { supabase } from "@/lib/supabase"
 
-const initialStaff = [
-  {
-    id: 1,
-    username: "alex_cosacs",
-    status: "Active",
-    image: "/image/staff-1.png",
-    services: ["Coloring", "Makeup", "Haircut"],
-  },
-  {
-    id: 2,
-    username: "maria_morais",
-    status: "Active",
-    image: "/image/staff-2.png",
-    services:  ["Coloring", "Makeup"],
-  },
-  {
-    id: 3,
-    username: "aeron_shgray",
-    status: "Active",
-    image: "/image/staff-3.png",
-    services:  ["Skincare", "Makeup"],
-  },
-  {
-    id: 4,
-    username: "heinz_hofmeister",
-    status: "Passive",
-    image: "/image/staff-4.png",
-    services:  ["Haircut", "Hair Wash"],
-  },
-  {
-    id: 5,
-    username: "luna_lucia",
-    status: "Active",
-    image: "/image/staff-5.png",
-    services:  ["Haircut", "Hair Wash", "Coloring"],
-  },
-  {
-    id: 6,
-    username: "marry_quill",
-    status: "Passive",
-    image: "/image/staff-6.png",
-    services:  ["Coloring", "Makeup"],
-  },
-  {
-    id: 7,
-    username: "john_doe",
-    status: "Active",
-    image: "/image/staff-7.png",
-    services:  ["Coloring", "Makeup"],
-  },
-  {
-    id: 8,
-    username: "jane_smith",
-    status: "Active",
-    image: "/image/staff-8.png",
-    services:  ["Coloring", "Makeup"],
-  },
-]
+type StaffType = {
+  id: number,
+  firstName: string,
+  lastName: string,
+  username: string,
+  image: string,
+  status: string,
+  services: {
+    service: {
+      id: number,
+      name: string
+    }
+  }[]
+}
 
 export default function StaffPage() {
   const router = useRouter()
   const [filter, setFilter] = useState("all")
-  const [staff, setStaff] = useState(initialStaff)
+  const [staff, setStaff] = useState<StaffType[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 5
   
@@ -146,6 +102,17 @@ export default function StaffPage() {
     currentPage * itemsPerPage
   )
 
+  useEffect(() => {
+    supabase.from('staff').select("*, services:staff_services(service:service_id(id, name))").then(({ data, error }) => {
+      if (error) {
+        console.error(error)
+      } else {
+        setStaff(data)
+        console.log('data', data)
+      }
+    })
+  }, []);
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -154,8 +121,8 @@ export default function StaffPage() {
             <div className="flex items-center justify-between">
               <TabsList>
                 <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="active">Active</TabsTrigger>
-                <TabsTrigger value="passive">Passive</TabsTrigger>
+                <TabsTrigger value="true">Active</TabsTrigger>
+                <TabsTrigger value="false">Passive</TabsTrigger>
               </TabsList>
               <div className="flex items-center gap-2">
                 <Link href="/admin/staff/add">
@@ -182,7 +149,7 @@ export default function StaffPage() {
                         <TableHead className="hidden w-[100px] sm:table-cell">
                           <span className="sr-only">Image</span>
                         </TableHead>
-                        <TableHead>Username</TableHead>
+                        <TableHead>FullName</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="hidden md:table-cell">
                           Services
@@ -195,7 +162,7 @@ export default function StaffPage() {
                         <TableRow key={member.id}>
                           <TableCell className="hidden sm:table-cell">
                             <Image
-                              alt={`${member.username} image`}
+                              alt={`${member.firstName} ${member.lastName} image`}
                               className="aspect-square rounded-md object-cover"
                               height="64"
                               src={member.image}
@@ -203,20 +170,20 @@ export default function StaffPage() {
                             />
                           </TableCell>
                           <TableCell className="font-medium">
-                            {member.username}
+                            {`${member.firstName} ${member.lastName}`}
                           </TableCell>
                           <TableCell>
                             <Badge 
-                              variant={member.status === "Active" ? "default" : "destructive"}
-                              className={member.status === "Active" ? "bg-green-500 text-white hover:bg-green-600" : "bg-red-500"}
+                              variant={member.status ? "default" : "destructive"}
+                              className={member.status ? "bg-green-500 text-white hover:bg-green-600" : "bg-red-500"}
                             >
-                              {member.status}
+                              {member.status ? "Active" : "Passive"}
                             </Badge>
                           </TableCell>
                           <TableCell className="hidden md:table-cell">
-                            {member.services.map((service, index) => (
+                            {member.services?.map((service, index) => (
                               <Badge key={index} variant="outline" className="mr-1 mb-1">
-                                {service}
+                                {service.service.name}
                               </Badge>
                             ))}
                           </TableCell>

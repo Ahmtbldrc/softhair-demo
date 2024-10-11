@@ -1,9 +1,8 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from "next/image"
-import { ChevronLeft, Upload, Plus, X } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { ChevronLeft, Upload, Plus, X, CloudUpload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -25,6 +24,9 @@ import {
 } from "@/components/ui/table"
 import Link from 'next/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
+import { toast } from '@/hooks/use-toast'
 
 type TimeSlot = {
   start: string;
@@ -41,13 +43,17 @@ type Staff = {
   email: string;
   username: string;
   password: string;
-  status: 'active' | 'available' | 'inactive';
+  status: boolean;
   image: string;
-  services: string[];
+  services: {
+    service: {
+      id: string;
+      name: string;
+    }
+  }[],
   weeklyHours: WeeklyHours;
 }
 
-const allServices = ["Haircut", "Hair Wash", "Skincare", "Makeup", "Coloring"]
 const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const
 
 const emptyStaffData: Staff = {
@@ -56,9 +62,14 @@ const emptyStaffData: Staff = {
   email: "",
   username: "",
   password: "",
-  status: "active",
+  status: true,
   image: "",
-  services: [],
+  services: [{
+    service: {
+      id: "",
+      name: ""
+    }
+  }],
   weeklyHours: {
     SUN: [],
     MON: [],
@@ -70,16 +81,42 @@ const emptyStaffData: Staff = {
   }
 }
 
+type ServiceType = {
+  id: string,
+  name: string
+}
+
 export default function AddStaff() {
   const [staff, setStaff] = useState<Staff>(emptyStaffData)
+  const [services, setServices] = useState<ServiceType[]>();
+  const [staffImageName, setStaffImageName] = useState<string>("");
+  const [staffImage, setStaffImage] = useState<File | null>(null);
 
-  const handleServiceChange = (service: string) => {
-    setStaff(prev => ({
-      ...prev,
-      services: prev.services.includes(service)
-        ? prev.services.filter(s => s !== service)
-        : [...prev.services, service]
-    }))
+  const router = useRouter();
+
+  useEffect(() => {
+    supabase.from('services').select("*").then(({ data, error }) => {
+      if (error) {
+        console.log("error", error)
+      } else {
+        setServices(data)
+      }
+    })
+  }, [])
+
+  const handleServiceChange = (service: ServiceType) => {
+    const serviceIndex = staff.services.findIndex(s => s.service.name === service.name)
+    if (serviceIndex === -1) {
+      setStaff(prev => ({
+        ...prev,
+        services: [...prev.services, { service }]
+      }))
+    } else {
+      setStaff(prev => ({
+        ...prev,
+        services: prev.services.filter((_, i) => i !== serviceIndex)
+      }))
+    }
   }
 
   const handleWeeklyHoursChange = (day: keyof WeeklyHours, index: number, field: keyof TimeSlot, value: string) => {
@@ -114,12 +151,60 @@ export default function AddStaff() {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleUploadStaffImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const objectUrl = URL.createObjectURL(file);
+      setStaffImageName(objectUrl);
+      setStaffImage(file);
+      console.log('files', e.target.files);
+      const fileExtension = e.target.files[0]?.name.split('.').pop()
+      console.log(fileExtension);
+      const fileName = `/${staff.firstName.toLowerCase()}-${staff.lastName.toLowerCase()}.${fileExtension}`
+      staff.image = fileName;
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Here you would typically send the staff data to your backend
     console.log("Submitting staff data:", staff)
-    // Reset the form after submission
-    setStaff(emptyStaffData)
+    const { data, error } = await supabase.from('staff').insert({
+      firstName: staff.firstName,
+      lastName: staff.lastName,
+      email: staff.email,
+      username: staff.username,
+      password: staff.password,
+      status: staff.status,
+      image: staff.image,
+      weeklyHours: staff.weeklyHours
+    }).select('id')
+
+    if (error){
+      console.log("error", error)
+      toast({
+        title: "error",
+        description: "Error adding staff member"
+      })
+    }else {
+      const staffId = data[0].id;
+
+      console.log(data, error);
+
+      staff.services.forEach(async (service) => {
+        const { error: serviceError } = await supabase.from('staff_services').insert({
+          staff_id: staffId,
+          service_id: service.service.id
+        })
+
+        console.log(serviceError);
+      })
+
+      await supabase.storage.from('staff').upload(staff.image, staffImage as File);
+
+      router.push("/admin/staff");
+
+      toast({title: "Success", description: "Staff member added successfully"})
+    }
   }
 
   return (
@@ -144,7 +229,7 @@ export default function AddStaff() {
                   <CardHeader>
                     <CardTitle>Staff Details</CardTitle>
                     <CardDescription>
-                      Enter the new staff member's personal information
+                      Enter the new staff member&apos;s personal information
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -213,7 +298,7 @@ export default function AddStaff() {
                   <CardHeader>
                     <CardTitle>Weekly Hours</CardTitle>
                     <CardDescription>
-                      Set the staff member's weekly working hours
+                      Set the staff member&apos;s weekly working hours
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -287,16 +372,15 @@ export default function AddStaff() {
                   </CardHeader>
                   <CardContent>
                     <Select
-                      value={staff.status}
-                      onValueChange={(value: 'active' | 'available' | 'inactive') => setStaff({...staff, status: value})}
+                      value={staff.status ? "true" : "false"}
+                      onValueChange={(value:string) => setStaff({...staff, status: value === "true"})}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="available">Available</SelectItem>
-                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="true">Active</SelectItem>
+                        <SelectItem value="false">Passive</SelectItem>
                       </SelectContent>
                     </Select>
                   </CardContent>
@@ -311,13 +395,19 @@ export default function AddStaff() {
                   <CardContent>
                     <div className="grid gap-4">
                       <div className="aspect-square w-full overflow-hidden rounded-md">
+                        {staff.image ? (
                         <Image
                           alt="Staff image"
                           className="aspect-square object-cover"
                           height={300}
-                          src={staff.image}
+                          src={staffImageName}
                           width={300}
                         />
+                        ) : (
+                          <div className="flex items-center justify-center w-full h-full bg-muted">
+                            <CloudUpload className="h-28 w-28 text-muted-foreground" />
+                          </div>
+                        )}
                       </div>
                       <div className="flex justify-center">
                         <Label htmlFor="picture" className="cursor-pointer">
@@ -330,11 +420,7 @@ export default function AddStaff() {
                             type="file"
                             accept="image/*"
                             className="sr-only"
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                setStaff({...staff, image: URL.createObjectURL(e.target.files[0])})
-                              }
-                            }}
+                            onChange={(e) => handleUploadStaffImage(e)}
                           />
                         </Label>
                       </div>
@@ -350,18 +436,18 @@ export default function AddStaff() {
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-4">
-                      {allServices.map((service) => (
-                        <div key={service} className="flex items-center space-x-2">
+                      {services?.map((service) => (
+                        <div key={service.id} className="flex items-center space-x-2">
                           <Checkbox 
-                            id={service} 
-                            checked={staff.services.includes(service)}
+                            id={service.id} 
+                            checked={staff.services.some(s => s.service.name === service.name)}
                             onCheckedChange={() => handleServiceChange(service)}
                           />
                           <label
-                            htmlFor={service}
+                            htmlFor={service.id}
                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                           >
-                            {service}
+                            {service.name}
                           </label>
                         </div>
                       ))}
