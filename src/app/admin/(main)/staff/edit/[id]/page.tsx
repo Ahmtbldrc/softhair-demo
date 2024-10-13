@@ -246,7 +246,6 @@ export default function StaffManagement() {
           console.error(error);
         } else {
           setStaff(data[0]);
-          console.log(data[0].image);
           setCurrentUsername(data[0]?.username);
           setSelectedServices(data[0]?.services.map((s: ServiceType) => s.service.id));
        }
