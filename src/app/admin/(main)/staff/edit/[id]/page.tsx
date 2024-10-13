@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from "next/image"
-import { ChevronLeft, Upload, Plus, X } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { ChevronLeft, Upload, Plus, X, CloudUpload, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -24,66 +23,54 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ServiceType, StaffType, TimeSlot, WeeklyHours } from '@/lib/types';
+import { toast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
-type TimeSlot = {
-  start: string;
-  end: string;
-}
-
-type WeeklyHours = {
-  [key: string]: TimeSlot[];
-}
-
-type Staff = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  username: string;
-  password: string;
-  status: 'active' | 'available' | 'inactive';
-  image: string;
-  services: string[];
-  weeklyHours: WeeklyHours;
-}
-
-// Simulating data coming from an API
-const staffData: Staff = {
-  firstName: "John",
-  lastName: "Doe",
-  email: "john.doe@example.com",
-  username: "johndoe",
+const staffData: StaffType = {
+  id: 0,
+  firstName: "",
+  lastName: "",
+  email: "",
+  username: "",
   password: "********",
-  status: "active",
-  image: "/image/staff-1.png",
-  services: ["Haircut", "Hair Wash"],
+  userId: "",
+  status: true,
+  image: "",
+  services: [],
   weeklyHours: {
-    SUN: [{ start: "09:00", end: "17:00" }],
-    MON: [{ start: "09:00", end: "17:00" }],
-    TUE: [{ start: "09:00", end: "17:00" }],
+    SUN: [],
+    MON: [],
+    TUE: [],
     WED: [],
-    THU: [{ start: "09:00", end: "17:00" }],
-    FRI: [{ start: "09:00", end: "17:00" }],
-    SAT: [
-      { start: "09:00", end: "17:00" },
-      { start: "18:00", end: "19:00" }
-    ],
+    THU: [],
+    FRI: [],
+    SAT: [],
   }
 }
 
-const allServices = ["Haircut", "Hair Wash", "Skincare", "Makeup", "Coloring"]
 const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const
 
 export default function StaffManagement() {
-  const [staff, setStaff] = useState<Staff>(staffData)
+  const [staff, setStaff] = useState<StaffType>(staffData);
+  const [staffImageName, setStaffImageName] = useState<string>("");
+  const [staffImage, setStaffImage] = useState<File | null>(null);
+  const [services, setServices] = useState<{ id: number; name: string }[]>();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [currentUsername, setCurrentUsername] = useState<string>("");
+  const [selectedServices, setSelectedServices] = useState<number[]>([]);
 
-  const handleServiceChange = (service: string) => {
-    setStaff(prev => ({
-      ...prev,
-      services: prev.services.includes(service)
-        ? prev.services.filter(s => s !== service)
-        : [...prev.services, service]
-    }))
-  }
+  const router = useRouter();
+
+  const handleServiceChange = (serviceId: number) => {
+    setSelectedServices(prevSelectedServices =>
+      prevSelectedServices.includes(serviceId)
+        ? prevSelectedServices.filter(id => id !== serviceId)
+        : [...prevSelectedServices, serviceId]
+    );
+  };
 
   const handleWeeklyHoursChange = (day: keyof WeeklyHours, index: number, field: keyof TimeSlot, value: string) => {
     setStaff(prev => ({
@@ -117,34 +104,178 @@ export default function StaffManagement() {
     }))
   }
 
+  const handleUploadStaffImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const objectUrl = URL.createObjectURL(file);
+
+      setStaffImageName(objectUrl);
+      setStaffImage(file);
+
+      const fileExtension = e.target.files[0]?.name.split(".").pop();
+      const fileName = `${staff.firstName.toLowerCase()}-${staff.lastName.toLowerCase()}.${fileExtension}`;
+
+      staff.image = fileName;
+      setStaff(staff);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+  
+    if (currentUsername !== staff.username) {
+      const { data: existUser } = await supabase
+        .from("staff")
+        .select("*")
+        .eq("username", staff.username);
+  
+      if (existUser?.length) {
+        toast({
+          title: "Error!",
+          description: `User already exists (${staff.username})`,
+        });
+        setIsSubmitting(false);
+        return;
+      }
+    }
+  
+    const { error } = await supabase
+      .from("staff")
+      .update({
+        firstName: staff.firstName,
+        lastName: staff.lastName,
+        email: staff.email,
+        username: staff.username,
+        password: staff.password,
+        status: staff.status,
+        image: staff.image,
+        weeklyHours: staff.weeklyHours,
+      })
+      .eq("id", staff.id);
+  
+    if (error) {
+      toast({
+        title: "error",
+        description: "Error adding staff member",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+  
+    const { data: existingItems } = await supabase
+      .from("staff_services")
+      .select("service_id")
+      .eq("staff_id", staff.id);
+  
+    const existingIds = existingItems?.map((item) => item.service_id);
+  
+    const toAdd = selectedServices.filter((id) => !existingIds?.includes(id));
+    const toDelete = existingIds!.filter((id) => !selectedServices.includes(id));
+  
+    if (toAdd.length > 0) {
+      const { error: toAddError } = await supabase
+        .from("staff_services")
+        .insert(toAdd.map((service_id) => ({ staff_id: staff.id, service_id })));
+  
+      if (toAddError) {
+        console.error(toAddError);
+      }
+    }
+  
+    if (toDelete.length > 0) {
+      const { error: toDeleteError } = await supabase
+        .from("staff_services")
+        .delete()
+        .in("service_id", toDelete)
+        .eq("staff_id", staff.id);
+  
+      if (toDeleteError) {
+        console.error(toDeleteError);
+      }
+    }
+  
+    if (staffImage != null) {
+      await supabase.storage
+        .from("staff")
+        .upload(staff.image, staffImage as File,  {
+          cacheControl: '3600',
+          upsert: true
+        });
+    }
+  
+    const { error: authError } = await supabase.auth.admin.updateUserById(
+      staff.userId,
+      {
+        email: `${staff.username.toLowerCase()}@softsidedigital.com`,
+        password: staff.password,
+      }
+    );
+  
+    if (authError) {
+      console.error(authError);
+    }
+  
+    router.push("/admin/staff");
+  
+    toast({
+      title: "Success",
+      description: "Staff member updated successfully",
+    });
+  
+    setIsSubmitting(false);
+  };
+
+  useEffect(() => {
+    supabase
+      .from("services")
+      .select("*")
+      .then(({ data, error }) => {
+        if (error) {
+          console.log("error", error);
+        } else {
+          setServices(data);
+        }
+      });
+    
+    supabase
+      .from("staff")
+      .select("*, services:staff_services(service:service_id(id, name))")
+      .then(({ data, error }) => {
+        if (error) {
+          console.error(error);
+        } else {
+          setStaff(data[0]);
+          console.log(data[0].image);
+          setCurrentUsername(data[0]?.username);
+          setSelectedServices(data[0]?.services.map((s: ServiceType) => s.service.id));
+       }
+      });
+  }, []);
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-          <div className="mx-auto grid max-w-[59rem] flex-1 auto-rows-max gap-4">
-            <div className="flex items-center gap-4">
-                <Link href="/admin/staff">
-                <Button variant="outline" size="icon" className="h-7 w-7">
+        <div className="mx-auto grid max-w-[59rem] flex-1 auto-rows-max gap-4">
+          <div className="flex items-center gap-4">
+            <Link href="/admin/staff">
+              <Button variant="outline" size="icon" className="h-7 w-7">
                 <ChevronLeft className="h-4 w-4" />
                 <span className="sr-only">Back</span>
-              </Button></Link>
-              
-              <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-                {staff.firstName} {staff.lastName}
-              </h1>
-              <div className="hidden items-center gap-2 md:ml-auto md:flex">
-                <Button variant="outline" size="sm">
-                  Discard
-                </Button>
-                <Button size="sm">Save Staff</Button>
-              </div>
-            </div>
+              </Button>
+            </Link>
+            <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
+              {`${staff.firstName} ${staff.lastName}`}
+            </h1>
+          </div>
+          <form onSubmit={handleSubmit}>
             <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
               <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
                 <Card>
                   <CardHeader>
                     <CardTitle>Staff Details</CardTitle>
                     <CardDescription>
-                      Update the staff member's personal information
+                      Enter the staff member&apos;s personal information
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -157,7 +288,10 @@ export default function StaffManagement() {
                             type="text"
                             className="w-full"
                             value={staff.firstName}
-                            onChange={(e) => setStaff({...staff, firstName: e.target.value})}
+                            onChange={(e) =>
+                              setStaff({ ...staff, firstName: e.target.value })
+                            }
+                            required
                           />
                         </div>
                         <div>
@@ -167,7 +301,10 @@ export default function StaffManagement() {
                             type="text"
                             className="w-full"
                             value={staff.lastName}
-                            onChange={(e) => setStaff({...staff, lastName: e.target.value})}
+                            onChange={(e) =>
+                              setStaff({ ...staff, lastName: e.target.value })
+                            }
+                            required
                           />
                         </div>
                       </div>
@@ -178,7 +315,10 @@ export default function StaffManagement() {
                           type="email"
                           className="w-full"
                           value={staff.email}
-                          onChange={(e) => setStaff({...staff, email: e.target.value})}
+                          onChange={(e) =>
+                            setStaff({ ...staff, email: e.target.value })
+                          }
+                          required
                         />
                       </div>
                       <div>
@@ -188,7 +328,10 @@ export default function StaffManagement() {
                           type="text"
                           className="w-full"
                           value={staff.username}
-                          onChange={(e) => setStaff({...staff, username: e.target.value})}
+                          onChange={(e) =>
+                            setStaff({ ...staff, username: e.target.value })
+                          }
+                          required
                         />
                       </div>
                       <div>
@@ -198,7 +341,11 @@ export default function StaffManagement() {
                           type="password"
                           className="w-full"
                           value={staff.password}
-                          onChange={(e) => setStaff({...staff, password: e.target.value})}
+                          onChange={(e) =>
+                            setStaff({ ...staff, password: e.target.value })
+                          }
+                          minLength={6}
+                          required
                         />
                       </div>
                     </div>
@@ -208,7 +355,7 @@ export default function StaffManagement() {
                   <CardHeader>
                     <CardTitle>Weekly Hours</CardTitle>
                     <CardDescription>
-                      Set the staff member's weekly working hours
+                      Set the staff member&apos;s weekly working hours
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -226,28 +373,50 @@ export default function StaffManagement() {
                             <TableCell className="font-medium">{day}</TableCell>
                             <TableCell>
                               {staff.weeklyHours[day].length === 0 ? (
-                                <span className="text-muted-foreground">Unavailable</span>
+                                <span className="text-muted-foreground">
+                                  Unavailable
+                                </span>
                               ) : (
                                 <div className="flex flex-col space-y-2">
                                   {staff.weeklyHours[day].map((slot, index) => (
-                                    <div key={index} className="flex items-center space-x-2">
+                                    <div
+                                      key={index}
+                                      className="flex items-center space-x-2"
+                                    >
                                       <Input
                                         type="time"
                                         value={slot.start}
-                                        onChange={(e) => handleWeeklyHoursChange(day, index, 'start', e.target.value)}
+                                        onChange={(e) =>
+                                          handleWeeklyHoursChange(
+                                            day,
+                                            index,
+                                            "start",
+                                            e.target.value
+                                          )
+                                        }
                                         className="w-24"
                                       />
                                       <span>-</span>
                                       <Input
                                         type="time"
                                         value={slot.end}
-                                        onChange={(e) => handleWeeklyHoursChange(day, index, 'end', e.target.value)}
+                                        onChange={(e) =>
+                                          handleWeeklyHoursChange(
+                                            day,
+                                            index,
+                                            "end",
+                                            e.target.value
+                                          )
+                                        }
                                         className="w-24"
                                       />
                                       <Button
+                                        type="button"
                                         variant="ghost"
                                         size="icon"
-                                        onClick={() => removeTimeSlot(day, index)}
+                                        onClick={() =>
+                                          removeTimeSlot(day, index)
+                                        }
                                       >
                                         <X className="h-4 w-4" />
                                       </Button>
@@ -258,6 +427,7 @@ export default function StaffManagement() {
                             </TableCell>
                             <TableCell className="text-right">
                               <Button
+                                type="button"
                                 variant="outline"
                                 size="sm"
                                 onClick={() => addTimeSlot(day)}
@@ -279,11 +449,20 @@ export default function StaffManagement() {
                     <CardTitle>Staff Status</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex justify-center">
-                      <Badge className={`text-lg py-1 px-3 ${staff.status === 'active' ? 'bg-green-500' : staff.status === 'available' ? 'bg-yellow-500' : 'bg-red-500'} text-white`}>
-                        {staff.status.charAt(0).toUpperCase() + staff.status.slice(1)}
-                      </Badge>
-                    </div>
+                    <Select
+                      value={staff.status ? "true" : "false"}
+                      onValueChange={(value: string) =>
+                        setStaff({ ...staff, status: value === "true" })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="true">Active</SelectItem>
+                        <SelectItem value="false">Passive</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </CardContent>
                 </Card>
                 <Card className="overflow-hidden">
@@ -296,13 +475,21 @@ export default function StaffManagement() {
                   <CardContent>
                     <div className="grid gap-4">
                       <div className="aspect-square w-full overflow-hidden rounded-md">
-                        <Image
-                          alt="Staff image"
-                          className="aspect-square object-cover"
-                          height={300}
-                          src={staff.image}
-                          width={300}
-                        />
+                        {staff.image ? (
+                          <Image
+                            alt="Staff image"
+                            className="aspect-square object-cover"
+                            height={300}
+                            src={ staffImageName.length === 0 
+                              ? `https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}?t=${new Date().getTime()}` 
+                              : staffImageName}
+                            width={300}
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center w-full h-full bg-muted">
+                            <CloudUpload className="h-28 w-28 text-muted-foreground" />
+                          </div>
+                        )}
                       </div>
                       <div className="flex justify-center">
                         <Label htmlFor="picture" className="cursor-pointer">
@@ -315,11 +502,7 @@ export default function StaffManagement() {
                             type="file"
                             accept="image/*"
                             className="sr-only"
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                setStaff({...staff, image: URL.createObjectURL(e.target.files[0])})
-                              }
-                            }}
+                            onChange={(e) => handleUploadStaffImage(e)}
                           />
                         </Label>
                       </div>
@@ -335,18 +518,21 @@ export default function StaffManagement() {
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-4">
-                      {allServices.map((service) => (
-                        <div key={service} className="flex items-center space-x-2">
-                          <Checkbox 
-                            id={service} 
-                            checked={staff.services.includes(service)}
-                            onCheckedChange={() => handleServiceChange(service)}
-                          />
+                      {services?.map((service) => (
+                        <div
+                          key={service.id}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            id={service.id.toString()}
+                            checked={selectedServices.includes(service.id)}
+                            onCheckedChange={() => handleServiceChange(service.id)}
+                          /> 
                           <label
-                            htmlFor={service}
+                            htmlFor={service.id.toString()}
                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                           >
-                            {service}
+                            {service.name}
                           </label>
                         </div>
                       ))}
@@ -355,14 +541,21 @@ export default function StaffManagement() {
                 </Card>
               </div>
             </div>
-            <div className="flex items-center justify-center gap-2 md:hidden">
-              <Button variant="outline" size="sm">
+            <div className="flex items-center justify-end gap-2 mt-4">
+              <Button type="button" variant="outline">
                 Discard
               </Button>
-              <Button size="sm">Save Staff</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
+                Save changes
+              </Button>
             </div>
-          </div>
-        </main>
+          </form>
+        </div>
+      </main>
+
       </div>
   )
 }
