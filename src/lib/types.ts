@@ -5,6 +5,7 @@ export type StaffType = {
   email: string,
   username: string,
   password: string,
+  userId: string,
   image: string,
   status: boolean,
   services: ServiceType[],
@@ -25,4 +26,9 @@ export type ServiceType = {
     id: number,
     name: string
   }
+}
+
+export enum Roles {
+  ADMIN = 'admin',
+  STAFF = 'staff'
 }

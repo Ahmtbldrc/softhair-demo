@@ -40,7 +40,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { StaffType, TimeSlot, WeeklyHours } from "@/lib/types";
+import { Roles, StaffType, TimeSlot, WeeklyHours } from "@/lib/types";
 
 const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const;
 
@@ -51,16 +51,10 @@ const emptyStaffData: StaffType = {
   email: "",
   username: "",
   password: "",
+  userId: "",
   status: true,
   image: "",
-  services: [
-    {
-      service: {
-        id: 0,
-        name: "",
-      },
-    },
-  ],
+  services: [],
   weeklyHours: {
     SUN: [],
     MON: [],
@@ -164,12 +158,11 @@ export default function AddStaff() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const { data: existUser, error: existUserError } = await supabase
+    const { data: existUser } = await supabase
     .from("staff")
     .select("*")
     .eq("username", staff.username);
 
-    console.log(existUser, existUserError);
     if (existUser?.length){
       toast({
         title: "Error!",
@@ -179,6 +172,20 @@ export default function AddStaff() {
       return;
     }
 
+    const { data:authData, error: authError } = await supabase.auth.admin.createUser({
+      email: `${staff.username.toLowerCase()}@softsidedigital.com`,
+      password: staff.password,
+      role: Roles.STAFF,
+      email_confirm: false,
+      user_metadata: {
+        fullName: `${staff.firstName} ${staff.lastName}`,
+        username: staff.username,
+      }
+    })
+
+    if (authError)
+      console.log(authError);
+
     const { data, error } = await supabase
       .from("staff")
       .insert({
@@ -187,6 +194,7 @@ export default function AddStaff() {
         email: staff.email,
         username: staff.username,
         password: staff.password,
+        userId: authData.user?.id,
         status: staff.status,
         image: staff.image,
         weeklyHours: staff.weeklyHours,
@@ -202,21 +210,18 @@ export default function AddStaff() {
     } else {
       const staffId = data[0].id;
 
-      staff.services.forEach(async (service) => {
-        await supabase.from("staff_services").insert({
-          staff_id: staffId,
-          service_id: service.service.id,
-        });
-      });
+      const toAddServices = staff.services.map(service => ({staff_id: staffId, service_id: service.service.id}));
+      await supabase.from("staff_services").insert(toAddServices);
 
-      await supabase.storage
+      const { error: storageError } = await supabase.storage
         .from("staff")
-        .upload(staff.image, staffImage as File);
-
-      await supabase.auth.signUp({
-        email: staff.username,
-        password: staff.password
-      });
+        .upload(staff.image, staffImage as File,  {
+          cacheControl: '3600',
+          upsert: true
+        });
+      
+      if (storageError)
+        console.log(storageError);
 
       router.push("/admin/staff");
 
@@ -318,6 +323,7 @@ export default function AddStaff() {
                           onChange={(e) =>
                             setStaff({ ...staff, password: e.target.value })
                           }
+                          minLength={6}
                           required
                         />
                       </div>

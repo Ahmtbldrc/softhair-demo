@@ -20,13 +20,14 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
+import { StaffType } from "@/lib/types";
 
 type Props = {
-  memberId: number;
+  staff: StaffType,
   handleDelete: () => Promise<void>;
 };
 
-function ActionToggleMenu({ memberId, handleDelete }: Props) {
+function ActionToggleMenu({ staff,  handleDelete }: Props) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
@@ -34,7 +35,16 @@ function ActionToggleMenu({ memberId, handleDelete }: Props) {
   const handleSubmitDelete = async () => {
     setIsDeleting(true);
     await handleDelete();
-    await supabase.auth.admin.deleteUser(memberId.toString());
+    const {error} = await supabase.auth.admin.deleteUser(staff.userId);
+
+    if (error)
+      console.log(error);
+
+    const {error: storageError} = await supabase.storage.from("staff").remove([staff.image])
+    
+    if (storageError)
+      console.log(storageError);
+      
     setIsDeleting(false);
     setIsDeleteDialogOpen(false);
     toast({
@@ -54,7 +64,7 @@ function ActionToggleMenu({ memberId, handleDelete }: Props) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuItem asChild>
-          <Link href={`/admin/staff/edit/${memberId}`}>Edit</Link>
+          <Link href={`/admin/staff/edit/${staff.id}`}>Edit</Link>
         </DropdownMenuItem>
 
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
