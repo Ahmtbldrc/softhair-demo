@@ -17,9 +17,9 @@ function Member({ member, handleDelete }: Props) {
         <Image
           alt={`${member.firstName} ${member.lastName} image`}
           className="aspect-square rounded-md object-cover"
-          height="64"
-          src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${member.image}`}
-          width="64"
+          src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${member.image}?t=${new Date().getTime()}`}
+          width={64}
+          height={64}
         />
       </TableCell>
       <TableCell className="font-medium">
@@ -46,7 +46,7 @@ function Member({ member, handleDelete }: Props) {
       </TableCell>
       <TableCell>
         <ActionToggleMenu
-          memberId={member.id}
+          staff={member}
           handleDelete={() => handleDelete()}
         />
       </TableCell>
