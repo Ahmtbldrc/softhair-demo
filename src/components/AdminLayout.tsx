@@ -54,8 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
 useEffect(() => {
   supabase.auth.getSession().then(({ data: { session } } ) => {
-    setUser(session?.user as any)
-
+    setUser(session?.user as User)
   })
 }, [])
   
@@ -137,7 +136,7 @@ useEffect(() => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{user?.email as any}</DropdownMenuLabel>
+              <DropdownMenuLabel>{user?.user_metadata?.fullName as string}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>
