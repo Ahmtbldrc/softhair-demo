@@ -23,7 +23,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { toast } from "@/hooks/use-toast";
 import { StaffType } from "@/lib/types";
 import Member from "./member";
 import Pagination from "./pagination";
@@ -43,11 +42,7 @@ export default function StaffPage() {
   const handleDelete = async (id: number) => {
     await supabase.from("staff").delete().eq("id", id);
     setStaff(staff.filter((member) => member.id !== id));
-    toast({
-      title: "Success!",
-      description: "Staff member has been deleted.",
-    });
-  };
+   };
 
   const paginatedStaff = filteredStaff.slice(
     (currentPage - 1) * itemsPerPage,
