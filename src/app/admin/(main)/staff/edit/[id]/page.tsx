@@ -209,6 +209,11 @@ export default function StaffManagement() {
       {
         email: `${staff.username.toLowerCase()}@softsidedigital.com`,
         password: staff.password,
+        user_metadata: {
+          fullName: `${staff.firstName} ${staff.lastName}`,
+          username: staff.username,
+          email: staff.email
+        },
       }
     );
   

@@ -180,6 +180,7 @@ export default function AddStaff() {
       user_metadata: {
         fullName: `${staff.firstName} ${staff.lastName}`,
         username: staff.username,
+        email: staff.email
       }
     })
 
