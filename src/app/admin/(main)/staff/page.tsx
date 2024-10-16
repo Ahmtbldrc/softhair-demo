@@ -50,6 +50,13 @@ export default function StaffPage() {
   );
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (error) {
+        console.error(error);
+      }
+      console.log(data);
+    })
+    
     supabase
       .from("staff")
       .select("*, services:staff_services(service:service_id(id, name))")

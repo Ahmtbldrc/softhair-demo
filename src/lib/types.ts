@@ -30,5 +30,6 @@ export type ServiceType = {
 
 export enum Roles {
   ADMIN = 'admin',
-  STAFF = 'staff'
+  STAFF = 'staff',
+  USER = 'user'
 }

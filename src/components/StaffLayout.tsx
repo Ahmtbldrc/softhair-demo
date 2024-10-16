@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { CircleUser, Menu, Search, Moon, Sun, Scissors } from "lucide-react"
@@ -17,6 +17,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { logout } from "@/lib/auth"
+import { User } from "@supabase/supabase-js"
+import { supabase } from "@/lib/supabase"
+import { Roles } from "@/lib/types"
 
 const NavLink = React.memo(({ href, children }: { href: string; children: React.ReactNode }) => {
   const pathname = usePathname()
@@ -38,15 +42,28 @@ NavLink.displayName = "NavLink"
 const NavLinks = React.memo(() => (
   <>
     <NavLink href="/staff">Dashboard</NavLink>
-    <NavLink href="/staff/staff">Staff</NavLink>
-    <NavLink href="/staff/services">Services</NavLink>
     <NavLink href="/staff/reservation">Reservation</NavLink>
+    <NavLink href="/staff/my-account">My Account</NavLink>
   </>
 ))
 NavLinks.displayName = "NavLinks"
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function StaffLayout ({ children }: { children: React.ReactNode }) {
   const { setTheme } = useTheme()
+  const[user, setUser] = useState<User | null>()
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } } ) => {
+      const userRole = session?.user?.user_metadata.role;
+
+      if (userRole === Roles.ADMIN)
+        window.location.href = "/admin";
+      else if (userRole !== Roles.STAFF)
+        window.location.href = "/not-found";
+
+      setUser(session?.user as User)
+    })
+  }, [])
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -126,12 +143,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{user?.user_metadata?.fullName as string}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem> 
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

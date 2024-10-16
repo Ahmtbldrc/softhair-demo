@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+import { Roles } from '@/lib/types';
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -26,8 +27,15 @@ export default function LoginPage() {
         email: `${username}@softsidedigital.com`,
         password,
       });
-      if (error) throw error;
-      console.log(data);
+
+      if (error){
+        throw error;
+      }
+
+      const userRole = data.session?.user?.user_metadata.role;
+
+      window.location.href = userRole == Roles.ADMIN ? '/admin' : '/staff';
+
     } catch {
       toast({
         title: 'Warning',

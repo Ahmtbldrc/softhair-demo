@@ -175,12 +175,12 @@ export default function AddStaff() {
     const { data:authData, error: authError } = await supabase.auth.admin.createUser({
       email: `${staff.username.toLowerCase()}@softsidedigital.com`,
       password: staff.password,
-      role: Roles.STAFF,
-      email_confirm: false,
+      email_confirm: true,
       user_metadata: {
         fullName: `${staff.firstName} ${staff.lastName}`,
         username: staff.username,
-        email: staff.email
+        email: staff.email,
+        role: Roles.STAFF
       }
     })
 

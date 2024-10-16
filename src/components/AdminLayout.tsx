@@ -19,6 +19,8 @@ import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { supabase } from "@/lib/supabase"
 import { User } from "@supabase/supabase-js"
+import { logout } from "@/lib/auth"
+import { Roles } from "@/lib/types"
 
 const NavLink = React.memo(({ href, children }: { href: string; children: React.ReactNode }) => {
   const pathname = usePathname()
@@ -52,11 +54,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { setTheme } = useTheme()
   const[user, setUser] = useState<User | null>()
 
-useEffect(() => {
-  supabase.auth.getSession().then(({ data: { session } } ) => {
-    setUser(session?.user as User)
-  })
-}, [])
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } } ) => {
+      if (!session)
+        window.location.href = "/login"
+
+      const role = session?.user.user_metadata.role;
+
+      if (role === Roles.STAFF)
+        window.location.href = "/staff"
+      else if (role !== Roles.ADMIN)
+        window.location.href = "/not-found"
+
+      setUser(session?.user as User)
+    })
+  }, [])
   
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -141,7 +153,7 @@ useEffect(() => {
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
