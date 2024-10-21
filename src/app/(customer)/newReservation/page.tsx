@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addMinutes, isWithinInterval, parse, set } from 'date-fns'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -17,38 +17,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { toast } from '@/hooks/use-toast';
 import Image from 'next/image'
+import { supabase } from '@/lib/supabase'
+import { StaffType, ServiceType, WeeklyHours, TimeSlot } from '@/lib/types'
 
-// Mock data for services and staff
-const services = [
-  { id: 1, name: "Haircut", duration: 60, price: 50, availableStaff: [1, 2, 3] },
-  { id: 2, name: "Color", duration: 120, price: 100, availableStaff: [1, 2] },
-  { id: 3, name: "Styling", duration: 45, price: 40, availableStaff: [2, 3] },
-]
-
-const staffMembers = [
-  { 
-    id: 1, 
-    name: "John Doe",
-    workingDays: ["MON", "TUE", "WED", "THU", "FRI"],
-    workingHours: { start: "09:00", end: "17:00" },
-    image: "/image/staff-1.png"
-  },
-  { 
-    id: 2, 
-    name: "Jane Smith",
-    workingDays: ["TUE", "WED", "THU", "FRI", "SAT"],
-    workingHours: { start: "10:00", end: "18:00" },
-    image: "/image/staff-2.png"
-  },
-  { 
-    id: 3, 
-    name: "Alex Johnson",
-    workingDays: ["MON", "WED", "FRI", "SAT", "SUN"],
-    workingHours: { start: "08:00", end: "16:00" },
-    image: "/image/staff-3.png"
-  },
-]
+interface Service {
+  id: number;
+  name: string;
+  price: number;
+  duration: number;
+}
 
 type Appointment = {
   id: number;
@@ -58,20 +37,15 @@ type Appointment = {
   end: Date;
 }
 
-// Mock existing appointments
-const existingAppointments: Appointment[] = [
-  { id: 1, serviceId: 1, staffId: 1, start: new Date(2024, 10, 14, 10, 0), end: new Date(2024, 10, 14, 11, 0) },
-  { id: 2, serviceId: 2, staffId: 2, start: new Date(2024, 10, 14, 14, 0), end: new Date(2024, 10, 14, 16, 0) },
-  { id: 3, serviceId: 3, staffId: 3, start: new Date(2024, 10, 15, 9, 0), end: new Date(2024, 10, 15, 9, 45) },
-  { id: 4, serviceId: 1, staffId: 1, start: new Date(2024, 10, 16, 11, 0), end: new Date(2024, 10, 16, 12, 0) },
-  { id: 5, serviceId: 2, staffId: 2, start: new Date(2024, 10, 17, 13, 0), end: new Date(2024, 10, 17, 15, 0) },
-]
-
 export default function NewReservation() {
-  const [currentDate, setCurrentDate] = useState(new Date(2024, 10, 16)) 
+  const [currentDate, setCurrentDate] = useState(new Date()) 
   const [selectedService, setSelectedService] = useState<number | null>(null)
   const [selectedStaff, setSelectedStaff] = useState<number | null>(null)
   const [selectedTime, setSelectedTime] = useState<Date | null>(null)
+  const [staff, setStaff] = useState<StaffType[]>([])
+  const [services, setServices] = useState<Service[]>([])
+  const [existingAppointments, setExistingAppointments] = useState<Appointment[]>([])
+
   const [customerInfo, setCustomerInfo] = useState({
     firstName: "",
     lastName: "",
@@ -79,10 +53,72 @@ export default function NewReservation() {
     phone: "",
   })
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const weekStart = startOfWeek(currentDate)
   const weekEnd = endOfWeek(currentDate)
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd })
+  const fetchServices = async () => {
+    const { data, error } = await supabase.from("services").select("*")
+    if (error) {
+      console.error("Error fetching services:", error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch services. Please try again.",
+        variant: "destructive",
+      })
+    } else {
+      setServices(data as Service[])
+    }
+  }
+
+  const fetchStaff = async () => {
+    const { data, error } = await supabase
+      .from("staff")
+      .select("*, services:staff_services(service:service_id(id, name))")
+    if (error) {
+      console.error("Error fetching staff:", error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch staff. Please try again.",
+        variant: "destructive",
+      })
+    } else {
+      setStaff(data as StaffType[])
+    }
+  }
+
+  const fetchAppointments = async () => {
+    const { data, error } = await supabase
+      .from("reservations")
+      .select("*")
+      .gte('start', weekStart.toISOString())
+      .lte('start', weekEnd.toISOString())
+    if (error) {
+      console.error("Error fetching appointments:", error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch existing appointments. Please try again.",
+        variant: "destructive",
+      })
+    } else {
+      setExistingAppointments(data.map(apt => ({
+        ...apt,
+        start: new Date(apt.start),
+        end: new Date(apt.end)
+      })))
+    }
+  }
+
+  useEffect(() => {
+   
+    fetchAppointments()
+  }, [weekStart, weekEnd])
+
+  useEffect(() => {
+    fetchServices()
+    fetchStaff()
+  }, [selectedService])  
 
   const handlePrevWeek = () => {
     setCurrentDate(addDays(currentDate, -7))
@@ -93,19 +129,17 @@ export default function NewReservation() {
   }
 
   const isStaffWorkingOnDay = (staffId: number, day: Date) => {
-    const staff = staffMembers.find(s => s.id === staffId)
-    if (!staff) return false
+    const staffMember = staff.find(s => s.id === staffId)
+    if (!staffMember) return false
     const dayName = format(day, 'EEE').toUpperCase()
-    return staff.workingDays.includes(dayName)
+    return staffMember.weeklyHours && staffMember.weeklyHours[dayName] && staffMember.weeklyHours[dayName].length > 0
   }
 
-  const getStaffWorkingHours = (staffId: number) => {
-    const staff = staffMembers.find(s => s.id === staffId)
-    if (!staff) return null
-    return {
-      start: parse(staff.workingHours.start, 'HH:mm', new Date()),
-      end: parse(staff.workingHours.end, 'HH:mm', new Date())
-    }
+  const getStaffWorkingHours = (staffId: number, day: Date): TimeSlot[] | null => {
+    const staffMember = staff.find(s => s.id === staffId)
+    if (!staffMember || !staffMember.weeklyHours) return null
+    const dayName = format(day, 'EEE').toUpperCase()
+    return staffMember.weeklyHours[dayName] || null
   }
 
   const getAvailableTimesForDay = (day: Date) => {
@@ -114,43 +148,101 @@ export default function NewReservation() {
     const service = services.find(s => s.id === selectedService)
     if (!service) return []
 
-    if (!isStaffWorkingOnDay(selectedStaff, day)) return []
+    const workingHours = getStaffWorkingHours(selectedStaff, day)
+    if (!workingHours || workingHours.length === 0) return []
 
-    const workingHours = getStaffWorkingHours(selectedStaff)
-    if (!workingHours) return []
-
-    const dayStart = set(day, { hours: workingHours.start.getHours(), minutes: workingHours.start.getMinutes(), seconds: 0, milliseconds: 0 })
-    const dayEnd = set(day, { hours: workingHours.end.getHours(), minutes: workingHours.end.getMinutes(), seconds: 0, milliseconds: 0 })
     const availableTimes: { time: Date; available: boolean }[] = []
 
-    let currentTime = dayStart
-    while (currentTime < dayEnd) {
-      const endTime = addMinutes(currentTime, service.duration)
-      const isAvailable = !existingAppointments.some(apt => 
-        apt.staffId === selectedStaff &&
-        isSameDay(apt.start, day) &&
-        (isWithinInterval(currentTime, { start: apt.start, end: apt.end }) ||
-        isWithinInterval(endTime, { start: apt.start, end: apt.end }) ||
-        (currentTime <= apt.start && endTime >= apt.end))
-      )
+    workingHours.forEach(slot => {
+      let currentTime = parse(slot.start, 'HH:mm', day)
+      const endTime = parse(slot.end, 'HH:mm', day)
 
-      availableTimes.push({ time: new Date(currentTime), available: isAvailable })
-      currentTime = addMinutes(currentTime, 30) // 30-minute intervals
-    }
+      while (currentTime < endTime) {
+        const slotEndTime = addMinutes(currentTime, 60) // Always use 30-minute intervals
+        const isAvailable = !existingAppointments.some(apt => 
+          apt.staffId === selectedStaff &&
+          isSameDay(apt.start, day) &&
+          (isWithinInterval(currentTime, { start: apt.start, end: apt.end }) ||
+          isWithinInterval(slotEndTime, { start: apt.start, end: apt.end }) ||
+          (currentTime <= apt.start && slotEndTime >= apt.end))
+        )
+
+        availableTimes.push({ time: new Date(currentTime), available: isAvailable })
+        currentTime = slotEndTime
+      }
+    })
 
     return availableTimes
   }
 
-  const handleReservation = () => {
-    // Here you would typically send the reservation data to your backend
-    console.log("Reservation made:", {
-      service: services.find(s => s.id === selectedService)?.name,
-      staff: staffMembers.find(s => s.id === selectedStaff)?.name,
-      time: selectedTime,
-      customerInfo
-    })
+  const handleReservation = async () => {
+    if (!selectedService || !selectedStaff || !selectedTime) {
+      toast({
+        title: "Error",
+        description: "Please select a service, staff, and time.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+
+    const service = services.find(s => s.id === selectedService)
+    if (!service) {
+      toast({
+        title: "Error",
+        description: "Selected service not found.",
+        variant: "destructive",
+      })
+      setIsSubmitting(false)
+      return
+    }
+
+    const endTime = addMinutes(selectedTime, 59)
+
+    const newReservation = {
+      serviceId: selectedService,
+      staffId: selectedStaff,
+      start: selectedTime,
+      end: endTime,
+      customer: {
+        firstName: customerInfo.firstName,
+        lastName: customerInfo.lastName,
+        email: customerInfo.email,
+        phone: customerInfo.phone,
+      }
+    }
+
+    const { data, error } = await supabase
+      .from('reservations')
+      .insert([newReservation])
+
+    if (error) {
+      console.error("Error creating reservation:", error)
+      toast({
+        title: "Error",
+        description: "Failed to create reservation. Please try again.",
+        variant: "destructive",
+      })
+    } else {
+      toast({
+        title: "Success",
+        description: "Reservation created successfully!",
+      })
+      // Reset form or navigate to confirmation page
+      setSelectedService(null)
+      setSelectedStaff(null)
+      setSelectedTime(null)
+      setCustomerInfo({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+      })
+    }
+
+    setIsSubmitting(false)
     setIsConfirmDialogOpen(false)
-    // Reset form or navigate to confirmation page
   }
 
   return (
@@ -226,26 +318,28 @@ export default function NewReservation() {
               <div>
                 <Label>Select Staff</Label>
                 <div className="grid grid-cols-6 gap-4 mt-2">
-                  {staffMembers
-                    .filter(staff => services.find(s => s.id === selectedService)?.availableStaff.includes(staff.id))
-                    .map((staff) => (
+                  {staff
+                    .filter(staffMember => 
+                      staffMember.services.some(s => s.service.id === selectedService)
+                    )
+                    .map((staffMember) => (
                       <Card 
-                        key={staff.id} 
-                        className={`cursor-pointer transition-all ${selectedStaff === staff.id ? 'ring-2 ring-primary' : ''}`}
+                        key={staffMember.id} 
+                        className={`cursor-pointer transition-all ${selectedStaff === staffMember.id ? 'ring-2 ring-primary' : ''}`}
                         onClick={() => {
-                          setSelectedStaff(staff.id)
+                          setSelectedStaff(staffMember.id)
                           setSelectedTime(null)
                         }}
                       >
                         <CardContent className="flex flex-col items-center p-4">
                           <Image
-                            src={staff.image}
-                            alt={staff.name}
+                            src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staffMember.image}?t=${new Date().getTime()}`}
+                            alt={`${staffMember.firstName} ${staffMember.lastName}`}
                             width={100}
                             height={100}
                             className="rounded-md mb-2"
                           />
-                          <p className="font-semibold text-center">{staff.name}</p>
+                          <p className="font-semibold text-center">{`${staffMember.firstName} ${staffMember.lastName}`}</p>
                         </CardContent>
                       </Card>
                     ))}
@@ -301,7 +395,7 @@ export default function NewReservation() {
           )}
         </CardContent>
         <CardFooter>
-          <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+          <Dialog open={isConfirmDialogOpen}   onOpenChange={setIsConfirmDialogOpen}>
             <DialogTrigger asChild>
               <Button className="w-full" disabled={!selectedTime || !customerInfo.firstName || !customerInfo.lastName || !customerInfo.email || !customerInfo.phone}>
                 Book Appointment
@@ -314,15 +408,16 @@ export default function NewReservation() {
               </DialogHeader>
               <div className="space-y-4">
                 <p><strong>Service:</strong> {services.find(s => s.id === selectedService)?.name}</p>
-                <p><strong>Staff:</strong> {staffMembers.find(s => s.id === selectedStaff)?.name}</p>
+                <p><strong>Staff:</strong> {staff.find(s => s.id === selectedStaff)?.firstName} {staff.find(s => s.id === selectedStaff)?.lastName}</p>
                 <p><strong>Date & Time:</strong> {selectedTime && format(selectedTime, 'MMMM d, yyyy HH:mm')}</p>
                 <p><strong>Name:</strong> {customerInfo.firstName} {customerInfo.lastName}</p>
-                <p><strong>Email:</strong> 
-                 {customerInfo.email}</p>
+                <p><strong>Email:</strong> {customerInfo.email}</p>
                 <p><strong>Phone:</strong> {customerInfo.phone}</p>
               </div>
               <DialogFooter>
-                <Button onClick={handleReservation}>Confirm Reservation</Button>
+                <Button onClick={handleReservation} disabled={isSubmitting}>
+                  {isSubmitting ? 'Confirming...' : 'Confirm Reservation'}
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
