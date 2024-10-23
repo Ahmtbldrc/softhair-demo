@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addMinutes, isWithinInterval, parse, set } from 'date-fns'
+import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addMinutes, isWithinInterval, parse } from 'date-fns'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -17,10 +17,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
-import { StaffType, ServiceType, WeeklyHours, TimeSlot } from '@/lib/types'
+import { StaffType, TimeSlot } from '@/lib/types'
+import { useRouter } from 'next/navigation'
 
 interface Service {
   id: number;
@@ -38,6 +39,7 @@ type Appointment = {
 }
 
 export default function NewReservation() {
+  const router = useRouter()
   const [currentDate, setCurrentDate] = useState(new Date()) 
   const [selectedService, setSelectedService] = useState<number | null>(null)
   const [selectedStaff, setSelectedStaff] = useState<number | null>(null)
@@ -53,11 +55,13 @@ export default function NewReservation() {
     phone: "",
   })
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const weekStart = startOfWeek(currentDate)
   const weekEnd = endOfWeek(currentDate)
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd })
+
   const fetchServices = async () => {
     const { data, error } = await supabase.from("services").select("*")
     if (error) {
@@ -111,7 +115,6 @@ export default function NewReservation() {
   }
 
   useEffect(() => {
-   
     fetchAppointments()
   }, [weekStart, weekEnd])
 
@@ -158,7 +161,7 @@ export default function NewReservation() {
       const endTime = parse(slot.end, 'HH:mm', day)
 
       while (currentTime < endTime) {
-        const slotEndTime = addMinutes(currentTime, 60) // Always use 30-minute intervals
+        const slotEndTime = addMinutes(currentTime, 60) // Always use 60-minute intervals
         const isAvailable = !existingAppointments.some(apt => 
           apt.staffId === selectedStaff &&
           isSameDay(apt.start, day) &&
@@ -213,7 +216,7 @@ export default function NewReservation() {
       }
     }
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('reservations')
       .insert([newReservation])
 
@@ -225,28 +228,28 @@ export default function NewReservation() {
         variant: "destructive",
       })
     } else {
-      toast({
-        title: "Success",
-        description: "Reservation created successfully!",
-      })
-      // Reset form or navigate to confirmation page
-      setSelectedService(null)
-      setSelectedStaff(null)
-      setSelectedTime(null)
-      setCustomerInfo({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-      })
+      setIsSuccessDialogOpen(true)
     }
 
     setIsSubmitting(false)
     setIsConfirmDialogOpen(false)
   }
 
+  const resetForm = () => {
+    setSelectedService(null)
+    setSelectedStaff(null)
+    setSelectedTime(null)
+    setCustomerInfo({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+    })
+    setCurrentDate(new Date())
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-black text-whitep-4">
       <Card className="w-full max-w-[60%]">
         <CardHeader>
           <CardTitle>New Reservation</CardTitle>
@@ -385,6 +388,7 @@ export default function NewReservation() {
                           ))
                         ) : (
                           <p className="text-xs text-muted-foreground">Not available</p>
+                
                         )}
                       </ScrollArea>
                     </CardContent>
@@ -395,7 +399,7 @@ export default function NewReservation() {
           )}
         </CardContent>
         <CardFooter>
-          <Dialog open={isConfirmDialogOpen}   onOpenChange={setIsConfirmDialogOpen}>
+          <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
             <DialogTrigger asChild>
               <Button className="w-full" disabled={!selectedTime || !customerInfo.firstName || !customerInfo.lastName || !customerInfo.email || !customerInfo.phone}>
                 Book Appointment
@@ -415,6 +419,7 @@ export default function NewReservation() {
                 <p><strong>Phone:</strong> {customerInfo.phone}</p>
               </div>
               <DialogFooter>
+                <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>Cancel</Button>
                 <Button onClick={handleReservation} disabled={isSubmitting}>
                   {isSubmitting ? 'Confirming...' : 'Confirm Reservation'}
                 </Button>
@@ -423,6 +428,26 @@ export default function NewReservation() {
           </Dialog>
         </CardFooter>
       </Card>
+
+      <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reservation Completed</DialogTitle>
+            <DialogDescription>
+              Your reservation has been successfully made. Please check your email for confirmation.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => {
+              setIsSuccessDialogOpen(false)
+              resetForm()
+              router.push('/') // Assuming '/' is the main page route
+            }}>
+              Return to Main Page
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
