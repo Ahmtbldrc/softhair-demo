@@ -441,7 +441,7 @@ export default function NewReservation() {
             <Button onClick={() => {
               setIsSuccessDialogOpen(false)
               resetForm()
-              router.push('/') // Assuming '/' is the main page route
+              router.push('/')
             }}>
               Return to Main Page
             </Button>
