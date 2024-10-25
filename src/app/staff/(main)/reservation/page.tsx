@@ -26,13 +26,6 @@ import { supabase } from '@/lib/supabase'
 import { toast } from '@/hooks/use-toast'
 import { User } from '@supabase/supabase-js'
 
-type Staff = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  image: string;
-}
-
 type Service = {
   id: number;
   name: string;
@@ -79,7 +72,7 @@ export default function AppointmentCalendar() {
       .channel('reservations')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'reservations' }, payload => {
         if (payload.eventType === 'INSERT') {
-          setReservations(prev => [...prev, parseReservation(payload.new)])
+          setReservations(prev => [...prev, parseReservation(payload.new as Reservation)])
         } else if (payload.eventType === 'DELETE') {
           setReservations(prev => prev.filter(res => res.id !== payload.old.id))
         }
@@ -118,7 +111,7 @@ export default function AppointmentCalendar() {
     }
   }
 
-  const parseReservation = (res: any): Reservation => {
+  const parseReservation = (res:Reservation ): Reservation => {
     return {
       ...res,
       start: new Date(res.start),

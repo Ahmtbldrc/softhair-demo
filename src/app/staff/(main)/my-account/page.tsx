@@ -27,7 +27,7 @@ import { supabase } from '@/lib/supabase';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ServiceType, StaffType, TimeSlot, WeeklyHours } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
-import { useParams, useRouter } from 'next/navigation';
+import {  useRouter } from 'next/navigation';
 
 const staffData: StaffType = {
   id: 0,
