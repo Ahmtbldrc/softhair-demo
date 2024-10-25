@@ -27,7 +27,7 @@ import { supabase } from '@/lib/supabase';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ServiceType, StaffType, TimeSlot, WeeklyHours } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 const staffData: StaffType = {
   id: 0,
@@ -61,6 +61,7 @@ export default function StaffManagement() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [currentUsername, setCurrentUsername] = useState<string>("");
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
+  const { id: staffId} = useParams();
 
   const router = useRouter();
 
@@ -246,13 +247,15 @@ export default function StaffManagement() {
     supabase
       .from("staff")
       .select("*, services:staff_services(service:service_id(id, name))")
+      .eq("id", staffId)
+      .single()
       .then(({ data, error }) => {
         if (error) {
           console.error(error);
         } else {
-          setStaff(data[0]);
-          setCurrentUsername(data[0]?.username);
-          setSelectedServices(data[0]?.services.map((s: ServiceType) => s.service.id));
+          setStaff(data);
+          setCurrentUsername(data?.username);
+          setSelectedServices(data?.services.map((s: ServiceType) => s.service.id));
        }
       });
   }, []);
