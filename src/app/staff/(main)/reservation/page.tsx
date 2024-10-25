@@ -15,8 +15,7 @@ import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
+  AlertDialogContent,  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -158,6 +157,7 @@ export default function AppointmentCalendar() {
       toast({ title: 'Error', description: 'Failed to cancel reservation.', variant: 'destructive' })
     } else {
       toast({ title: 'Success', description: 'Reservation cancelled successfully.' })
+      setReservations(prev => prev.filter(res => res.id !== reservationId))
       setIsDetailsDialogOpen(false)
     }
   }
