@@ -220,7 +220,7 @@ export default function StaffManagement() {
     if (authError) {
       console.error(authError);
     }
-  
+
     router.push("/staff");
   
     toast({
@@ -232,32 +232,6 @@ export default function StaffManagement() {
   };
 
   useEffect(() => {
-    // supabase
-    //   .from("services")
-    //   .select("*")
-    //   .then(({ data, error }) => {
-    //     if (error) {
-    //       console.log("error", error);
-    //     } else {
-    //       setServices(data);
-    //     }
-    //   });
-    
-    // supabase
-    //   .from("staff")
-    //   .select("*, services:staff_services(service:service_id(id, name))")
-    //   .eq("id", staffId)
-    //   .single()
-    //   .then(({ data, error }) => {
-    //     if (error) {
-    //       console.error(error);
-    //     } else {
-    //       setStaff(data);
-    //       setCurrentUsername(data?.username);
-    //       setSelectedServices(data?.services.map((s: ServiceType) => s.service.id));
-    //    }
-    //   });
-
     fetchServices();
     fetchStaff();
   }, []);

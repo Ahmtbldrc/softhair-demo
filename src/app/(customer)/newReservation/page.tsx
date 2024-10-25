@@ -22,6 +22,7 @@ import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { StaffType, TimeSlot } from '@/lib/types'
 import { useRouter } from 'next/navigation'
+import useMail from '@/hooks/use-mail'
 
 interface Service {
   id: number;
@@ -61,6 +62,8 @@ export default function NewReservation() {
   const weekStart = startOfWeek(currentDate)
   const weekEnd = endOfWeek(currentDate)
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd })
+
+  const mail = useMail();
 
   const fetchServices = async () => {
     const { data, error } = await supabase.from("services").select("*")
@@ -231,6 +234,23 @@ export default function NewReservation() {
       setIsSuccessDialogOpen(true)
     }
 
+    mail.sendMail({
+      to: customerInfo.email,
+      subject: 'Appointment Confirmation',
+      html: `
+        <p>Hi ${customerInfo.firstName},</p>
+        <p>Your appointment has been successfully booked for ${format(selectedTime, 'MMMM d, yyyy HH:mm')}.</p>
+        <p>Service: ${service.name}</p>
+        <p>Staff: ${staff.find(s => s.id === selectedStaff)?.firstName} ${staff.find(s => s.id === selectedStaff)?.lastName}</p>
+        <p>Price: $${service.price}</p>
+        <p>Duration: ${service.duration} minutes</p>
+        <p>Email:
+          <a href="mailto:${staff.find(s => s.id === selectedStaff)?.email}">
+            ${staff.find(s => s.id === selectedStaff)?.email}
+          </a>
+        </p>
+        `
+    })
     setIsSubmitting(false)
     setIsConfirmDialogOpen(false)
   }
