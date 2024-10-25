@@ -51,6 +51,7 @@ NavLinks.displayName = "NavLinks"
 export default function StaffLayout ({ children }: { children: React.ReactNode }) {
   const { setTheme } = useTheme()
   const[user, setUser] = useState<User | null>()
+  //staff layout
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } } ) => {
