@@ -77,7 +77,7 @@ export default function AppointmentCalendar() {
       .channel('reservations')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'reservations' }, payload => {
         if (payload.eventType === 'INSERT') {
-          setReservations(prev => [...prev, parseReservation(payload.new)])
+          setReservations(prev => [...prev, parseReservation(payload.new as Reservation)])
         } else if (payload.eventType === 'DELETE') {
           setReservations(prev => prev.filter(res => res.id !== payload.old.id))
         }
@@ -123,7 +123,7 @@ export default function AppointmentCalendar() {
     }
   }
 
-  const parseReservation = (res: any): Reservation => {
+  const parseReservation = (res: Reservation): Reservation => {
     console.log('Reservation data:', res);
     return {
       ...res,
