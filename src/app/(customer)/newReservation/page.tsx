@@ -242,7 +242,7 @@ export default function NewReservation() {
         <p>Your appointment has been successfully booked for ${format(selectedTime, 'MMMM d, yyyy HH:mm')}.</p>
         <p>Service: ${service.name}</p>
         <p>Staff: ${staff.find(s => s.id === selectedStaff)?.firstName} ${staff.find(s => s.id === selectedStaff)?.lastName}</p>
-        <p>Price: $${service.price}</p>
+        <p>Price: ${service.price} CHF</p>
         <p>Duration: ${service.duration} minutes</p>
         <p>Email:
           <a href="mailto:${staff.find(s => s.id === selectedStaff)?.email}">
@@ -331,7 +331,7 @@ export default function NewReservation() {
                 <SelectContent>
                   {services.map((service) => (
                     <SelectItem key={service.id} value={service.id.toString()}>
-                      {service.name} (${service.price})
+                      {service.name} ({service.price} CHF)
                     </SelectItem>
                   ))}
                 </SelectContent>

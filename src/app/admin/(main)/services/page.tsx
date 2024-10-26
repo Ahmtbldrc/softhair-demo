@@ -257,7 +257,7 @@ export default function Services() {
                     <TableCell className="font-medium">
                       {service.name}
                     </TableCell>
-                    <TableCell>${service.price.toFixed(2)}</TableCell>
+                    <TableCell>{service.price.toFixed(2)} CHF</TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
                         <Dialog

@@ -231,7 +231,7 @@ export default function AppointmentCalendar() {
                     </div>
                     <div className="mb-4">
                       <h3 className="font-semibold">Price</h3>
-                      <p>${services.find(s => s.id === selectedReservation.serviceId)?.price}</p>
+                      <p>{services.find(s => s.id === selectedReservation.serviceId)?.price} CHF</p>
                     </div>
                     <div>
                       <h3 className="font-semibold mb-2">Customer Information</h3>
