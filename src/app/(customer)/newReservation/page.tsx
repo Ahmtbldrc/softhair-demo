@@ -361,6 +361,7 @@ export default function NewReservation() {
                             width={100}
                             height={100}
                             className="rounded-md mb-2"
+                            unoptimized
                           />
                           <p className="text-center">{`${staffMember.firstName} ${staffMember.lastName}`}</p>
                         </CardContent>

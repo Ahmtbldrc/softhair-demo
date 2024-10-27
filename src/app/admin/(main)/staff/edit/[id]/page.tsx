@@ -491,6 +491,7 @@ export default function StaffManagement() {
                               ? `https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}` 
                               : staffImageName}
                             width={300}
+                            unoptimized
                           />
                         ) : (
                           <div className="flex items-center justify-center w-full h-full bg-muted">

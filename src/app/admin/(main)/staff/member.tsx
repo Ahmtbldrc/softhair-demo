@@ -20,6 +20,7 @@ function Member({ member, handleDelete }: Props) {
           src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${member.image}`}
           width={64}
           height={64}
+          unoptimized
         />
       </TableCell>
       <TableCell className="font-medium">

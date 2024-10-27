@@ -214,13 +214,14 @@ export default function AppointmentCalendar() {
                 onClick={() => setSelectedStaff(staff.id.toString())}
               >
                 <CardContent className="flex flex-col items-center p-4">
-                <Image
-                            src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`}
-                            alt={`${staff.firstName} ${staff.lastName}`}
-                            width={100}
-                            height={100}
-                            className="rounded-md mb-2"
-                          />
+                  <Image
+                    src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`}
+                    alt={`${staff.firstName} ${staff.lastName}`}
+                    width={100}
+                    height={100}
+                    className="rounded-md mb-2"
+                    unoptimized
+                  />
                   <p className="font-semibold text-center">{staff.firstName} {staff.lastName}</p>
                 </CardContent>
               </Card>
