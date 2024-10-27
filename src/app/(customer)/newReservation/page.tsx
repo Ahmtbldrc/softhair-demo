@@ -119,7 +119,7 @@ export default function NewReservation() {
 
   useEffect(() => {
     fetchAppointments()
-  }, [weekStart, weekEnd])
+  }, [currentDate])
 
   useEffect(() => {
     fetchServices()
@@ -362,7 +362,7 @@ export default function NewReservation() {
                             height={100}
                             className="rounded-md mb-2"
                           />
-                          <p className="font-semibold text-center">{`${staffMember.firstName} ${staffMember.lastName}`}</p>
+                          <p className="text-center">{`${staffMember.firstName} ${staffMember.lastName}`}</p>
                         </CardContent>
                       </Card>
                     ))}
@@ -379,7 +379,7 @@ export default function NewReservation() {
                 </h2>
                 <Button onClick={handleNextWeek}>Next Week &gt;</Button>
               </div>
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid grid-cols-7 gap-2 select-none">
                 {days.map((day) => (
                   <Card key={day.toString()} className="p-2">
                     <CardHeader className="p-2">
