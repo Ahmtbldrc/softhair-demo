@@ -215,7 +215,7 @@ export default function AppointmentCalendar() {
               >
                 <CardContent className="flex flex-col items-center p-4">
                 <Image
-                            src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}?t=${new Date().getTime()}`}
+                            src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`}
                             alt={`${staff.firstName} ${staff.lastName}`}
                             width={100}
                             height={100}

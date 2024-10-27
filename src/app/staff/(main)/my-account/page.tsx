@@ -497,7 +497,7 @@ export default function StaffManagement() {
                             className="aspect-square object-cover"
                             height={300}
                             src={ staffImageName.length === 0 
-                              ? `https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}?t=${new Date().getTime()}` 
+                              ? `https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}` 
                               : staffImageName}
                             width={300}
                           />
