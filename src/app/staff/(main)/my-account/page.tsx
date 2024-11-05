@@ -1,19 +1,27 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import Image from "next/image"
-import { ChevronLeft, Upload, Plus, X, CloudUpload, Loader2, Clock } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import {
+  ChevronLeft,
+  Upload,
+  Plus,
+  X,
+  CloudUpload,
+  Loader2,
+  Clock,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -21,14 +29,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { ServiceType, StaffType, TimeSlot, WeeklyHours } from '@/lib/types'
-import { toast } from '@/hooks/use-toast'
-import { useRouter } from 'next/navigation'
+} from "@/components/ui/table";
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ServiceType, StaffType, TimeSlot, WeeklyHours } from "@/lib/types";
+import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 const staffData: StaffType = {
   id: 0,
@@ -49,98 +67,103 @@ const staffData: StaffType = {
     THU: [],
     FRI: [],
     SAT: [],
-  }
-}
+  },
+};
 
-const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const
+const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const;
 
 export default function StaffManagement() {
-  const [staff, setStaff] = useState<StaffType>(staffData)
-  const [staffImageName, setStaffImageName] = useState<string>("")
-  const [staffImage, setStaffImage] = useState<File | null>(null)
-  const [services, setServices] = useState<{ id: number; name: string }[]>()
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
-  const [currentUsername, setCurrentUsername] = useState<string>("")
-  const [selectedServices, setSelectedServices] = useState<number[]>([])
+  const [staff, setStaff] = useState<StaffType>(staffData);
+  const [staffImageName, setStaffImageName] = useState<string>("");
+  const [staffImage, setStaffImage] = useState<File | null>(null);
+  const [services, setServices] = useState<{ id: number; name: string }[]>();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [currentUsername, setCurrentUsername] = useState<string>("");
+  const [selectedServices, setSelectedServices] = useState<number[]>([]);
 
-  const router = useRouter()
+  const router = useRouter();
 
   const handleServiceChange = (serviceId: number) => {
-    setSelectedServices(prevSelectedServices =>
+    setSelectedServices((prevSelectedServices) =>
       prevSelectedServices.includes(serviceId)
-        ? prevSelectedServices.filter(id => id !== serviceId)
+        ? prevSelectedServices.filter((id) => id !== serviceId)
         : [...prevSelectedServices, serviceId]
-    )
-  }
+    );
+  };
 
-  const handleWeeklyHoursChange = (day: keyof WeeklyHours, index: number, field: keyof TimeSlot, value: string) => {
-    setStaff(prev => ({
+  const handleWeeklyHoursChange = (
+    day: keyof WeeklyHours,
+    index: number,
+    field: keyof TimeSlot,
+    value: string
+  ) => {
+    setStaff((prev) => ({
       ...prev,
       weeklyHours: {
         ...prev.weeklyHours,
-        [day]: prev.weeklyHours[day].map((slot, i) => 
+        [day]: prev.weeklyHours[day].map((slot, i) =>
           i === index ? { ...slot, [field]: value } : slot
-        )
-      }
-    }))
-  }
+        ),
+      },
+    }));
+  };
 
   const addTimeSlot = (day: keyof WeeklyHours) => {
-    setStaff(prev => ({
+    setStaff((prev) => ({
       ...prev,
       weeklyHours: {
         ...prev.weeklyHours,
-        [day]: [...prev.weeklyHours[day], { start: "09:00", end: "17:00" }]
-      }
-    }))
-  }
+        [day]: [...prev.weeklyHours[day], { start: "09:00", end: "17:00" }],
+      },
+    }));
+  };
 
   const removeTimeSlot = (day: keyof WeeklyHours, index: number) => {
-    setStaff(prev => ({
+    setStaff((prev) => ({
       ...prev,
       weeklyHours: {
         ...prev.weeklyHours,
-        [day]: prev.weeklyHours[day].filter((_, i) => i !== index)
-      }
-    }))
-  }
+        [day]: prev.weeklyHours[day].filter((_, i) => i !== index),
+      },
+    }));
+  };
 
   const handleUploadStaffImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      const objectUrl = URL.createObjectURL(file)
+      const file = e.target.files[0];
+      const objectUrl = URL.createObjectURL(file);
 
-      setStaffImageName(objectUrl)
-      setStaffImage(file)
+      setStaffImageName(objectUrl);
+      setStaffImage(file);
 
-      const fileExtension = e.target.files[0]?.name.split(".").pop()
-      const fileName = `${staff.firstName.toLowerCase()}-${staff.lastName.toLowerCase()}.${fileExtension}`
+      const fileExtension = e.target.files[0]?.name.split(".").pop();
+      const fileName = `${staff.firstName.toLowerCase()}-${staff.lastName.toLowerCase()}.${fileExtension}`;
 
-      staff.image = fileName
-      setStaff(staff)
+      staff.image = fileName;
+      setStaff(staff);
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-  
+    e.preventDefault();
+    setIsSubmitting(true);
+
     if (currentUsername !== staff.username) {
       const { data: existUser } = await supabase
         .from("staff")
         .select("*")
-        .eq("username", staff.username)
-  
+        .eq("username", staff.username);
+
       if (existUser?.length) {
         toast({
           title: "Error!",
           description: `User already exists (${staff.username})`,
-        })
-        setIsSubmitting(false)
-        return
+        });
+        setIsSubmitting(false);
+        return;
       }
     }
-  
+
     const { error } = await supabase
       .from("staff")
       .update({
@@ -153,58 +176,62 @@ export default function StaffManagement() {
         image: staff.image,
         weeklyHours: staff.weeklyHours,
       })
-      .eq("id", staff.id)
-  
+      .eq("id", staff.id);
+
     if (error) {
       toast({
         title: "error",
         description: "Error adding staff member",
-      })
-      setIsSubmitting(false)
-      return
+      });
+      setIsSubmitting(false);
+      return;
     }
-  
+
     const { data: existingItems } = await supabase
       .from("staff_services")
       .select("service_id")
-      .eq("staff_id", staff.id)
-  
-    const existingIds = existingItems?.map((item) => item.service_id)
-  
-    const toAdd = selectedServices.filter((id) => !existingIds?.includes(id))
-    const toDelete = existingIds!.filter((id) => !selectedServices.includes(id))
-  
+      .eq("staff_id", staff.id);
+
+    const existingIds = existingItems?.map((item) => item.service_id);
+
+    const toAdd = selectedServices.filter((id) => !existingIds?.includes(id));
+    const toDelete = existingIds!.filter(
+      (id) => !selectedServices.includes(id)
+    );
+
     if (toAdd.length > 0) {
       const { error: toAddError } = await supabase
         .from("staff_services")
-        .insert(toAdd.map((service_id) => ({ staff_id: staff.id, service_id })))
-  
+        .insert(
+          toAdd.map((service_id) => ({ staff_id: staff.id, service_id }))
+        );
+
       if (toAddError) {
-        console.error(toAddError)
+        console.error(toAddError);
       }
     }
-  
+
     if (toDelete.length > 0) {
       const { error: toDeleteError } = await supabase
         .from("staff_services")
         .delete()
         .in("service_id", toDelete)
-        .eq("staff_id", staff.id)
-  
+        .eq("staff_id", staff.id);
+
       if (toDeleteError) {
-        console.error(toDeleteError)
+        console.error(toDeleteError);
       }
     }
-  
+
     if (staffImage != null) {
       await supabase.storage
         .from("staff")
-        .upload(staff.image, staffImage as File,  {
-          cacheControl: '3600',
-          upsert: true
-        })
+        .upload(staff.image, staffImage as File, {
+          cacheControl: "3600",
+          upsert: true,
+        });
     }
-  
+
     const { error: authError } = await supabase.auth.admin.updateUserById(
       staff.userId,
       {
@@ -213,61 +240,65 @@ export default function StaffManagement() {
         user_metadata: {
           fullName: `${staff.firstName} ${staff.lastName}`,
           username: staff.username,
-          email: staff.email
+          email: staff.email,
         },
       }
-    )
-  
+    );
+
     if (authError) {
-      console.error(authError)
+      console.error(authError);
     }
 
-    router.push("/staff")
-  
+    router.push("/staff");
+
     toast({
       title: "Success",
       description: "Account updated successfully",
-    })
-  
-    setIsSubmitting(false)
-  }
+    });
+
+    setIsSubmitting(false);
+  };
 
   useEffect(() => {
-    fetchServices()
-    fetchStaff()
-  }, [])
+    fetchServices();
+    fetchStaff();
+  }, []);
 
   const fetchServices = async () => {
     await supabase
-    .from("services")
-    .select("*")
-    .then(({ data, error }) => {
-      if (error) {
-        console.log("error", error)
-      } else {
-        setServices(data)
-      }
-    })
-  }
+      .from("services")
+      .select("*")
+      .then(({ data, error }) => {
+        if (error) {
+          console.log("error", error);
+        } else {
+          setServices(data);
+        }
+      });
+  };
 
   const fetchStaff = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-   await supabase
-    .from("staff")
-    .select("*, services:staff_services(service:service_id(id, name))")
-    .eq("id", session?.user.user_metadata.staffId)
-    .single()
-    .then(({ data, error }) => {
-      if (error) {
-        console.error(error)
-      } else {
-        setStaff(data)
-        setCurrentUsername(data?.username)
-        setSelectedServices(data?.services.map((s: ServiceType) => s.service.id))
-     }
-    })
-  }
+    await supabase
+      .from("staff")
+      .select("*, services:staff_services(service:service_id(id, name))")
+      .eq("id", session?.user.user_metadata.staffId)
+      .single()
+      .then(({ data, error }) => {
+        if (error) {
+          console.error(error);
+        } else {
+          setStaff(data);
+          setCurrentUsername(data?.username);
+          setSelectedServices(
+            data?.services.map((s: ServiceType) => s.service.id)
+          );
+        }
+      });
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -381,13 +412,17 @@ export default function StaffManagement() {
                           <TableRow>
                             <TableHead className="w-[100px]">Day</TableHead>
                             <TableHead>Hours</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead className="text-right">
+                              Actions
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {daysOfWeek.map((day) => (
                             <TableRow key={day}>
-                              <TableCell className="font-medium">{day}</TableCell>
+                              <TableCell className="font-medium">
+                                {day}
+                              </TableCell>
                               <TableCell>
                                 {staff.weeklyHours[day].length === 0 ? (
                                   <span className="text-muted-foreground">
@@ -395,50 +430,56 @@ export default function StaffManagement() {
                                   </span>
                                 ) : (
                                   <div className="flex flex-col space-y-2">
-                                    {staff.weeklyHours[day].map((slot, index) => (
-                                      <div
-                                        key={index}
-                                        className="flex items-center space-x-2"
-                                      >
-                                        <Input
-                                          type="time"
-                                          value={slot.start}
-                                          onChange={(e) =>
-                                            handleWeeklyHoursChange(
-                                              day,
-                                              index,
-                                              "start",
-                                              e.target.value
-                                            )
-                                          }
-                                          className="w-24"
-                                        />
-                                        <span>-</span>
-                                        <Input
-                                          type="time"
-                                          value={slot.end}
-                                          onChange={(e) =>
-                                            handleWeeklyHoursChange(
-                                              day,
-                                              index,
-                                              "end",
-                                              
-                                              e.target.value
-                                            )
-                                          }
-                                          className="w-24"
-                                        />
-                                        <Button
-                                          type="button"
-                                          variant="ghost"
-                                          size="icon"
-                                          onClick={() => removeTimeSlot(day, index)}
+                                    {staff.weeklyHours[day].map(
+                                      (slot, index) => (
+                                        <div
+                                          key={index}
+                                          className="flex items-center space-x-2"
                                         >
-                                          <X className="h-4 w-4" />
-                                          <span className="sr-only">Remove time slot</span>
-                                        </Button>
-                                      </div>
-                                    ))}
+                                          <Input
+                                            type="time"
+                                            value={slot.start}
+                                            onChange={(e) =>
+                                              handleWeeklyHoursChange(
+                                                day,
+                                                index,
+                                                "start",
+                                                e.target.value
+                                              )
+                                            }
+                                            className="w-24"
+                                          />
+                                          <span>-</span>
+                                          <Input
+                                            type="time"
+                                            value={slot.end}
+                                            onChange={(e) =>
+                                              handleWeeklyHoursChange(
+                                                day,
+                                                index,
+                                                "end",
+
+                                                e.target.value
+                                              )
+                                            }
+                                            className="w-24"
+                                          />
+                                          <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() =>
+                                              removeTimeSlot(day, index)
+                                            }
+                                          >
+                                            <X className="h-4 w-4" />
+                                            <span className="sr-only">
+                                              Remove time slot
+                                            </span>
+                                          </Button>
+                                        </div>
+                                      )
+                                    )}
                                   </div>
                                 )}
                               </TableCell>
@@ -462,7 +503,10 @@ export default function StaffManagement() {
                       {daysOfWeek.map((day) => (
                         <Popover key={day}>
                           <PopoverTrigger asChild>
-                            <Button variant="outline" className="w-full justify-start mb-2">
+                            <Button
+                              variant="outline"
+                              className="w-full justify-start mb-2"
+                            >
                               <Clock className="mr-2 h-4 w-4" />
                               {day}
                               <span className="ml-auto">
@@ -475,7 +519,10 @@ export default function StaffManagement() {
                           <PopoverContent className="w-80">
                             <div className="space-y-2">
                               {staff.weeklyHours[day].map((slot, index) => (
-                                <div key={index} className="flex items-center space-x-2">
+                                <div
+                                  key={index}
+                                  className="flex items-center space-x-2"
+                                >
                                   <Input
                                     type="time"
                                     value={slot.start}
@@ -510,7 +557,9 @@ export default function StaffManagement() {
                                     onClick={() => removeTimeSlot(day, index)}
                                   >
                                     <X className="h-4 w-4" />
-                                    <span className="sr-only">Remove time slot</span>
+                                    <span className="sr-only">
+                                      Remove time slot
+                                    </span>
                                   </Button>
                                 </div>
                               ))}
@@ -569,9 +618,11 @@ export default function StaffManagement() {
                             alt="Staff image"
                             className="aspect-square object-cover"
                             height={300}
-                            src={staffImageName.length === 0 
-                              ? `https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}` 
-                              : staffImageName}
+                            src={
+                              staffImageName.length === 0
+                                ? `https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`
+                                : staffImageName
+                            }
                             width={300}
                             unoptimized
                           />
@@ -616,8 +667,10 @@ export default function StaffManagement() {
                           <Checkbox
                             id={service.id.toString()}
                             checked={selectedServices.includes(service.id)}
-                            onCheckedChange={() => handleServiceChange(service.id)}
-                          /> 
+                            onCheckedChange={() =>
+                              handleServiceChange(service.id)
+                            }
+                          />
                           <label
                             htmlFor={service.id.toString()}
                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -646,5 +699,5 @@ export default function StaffManagement() {
         </div>
       </main>
     </div>
-  )
+  );
 }
