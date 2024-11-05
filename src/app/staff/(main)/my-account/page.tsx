@@ -321,9 +321,7 @@ export default function StaffManagement() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Staff Details</CardTitle>
-                    <CardDescription>
-                      Enter the staff member's personal information
-                    </CardDescription>
+                    <CardDescription>Enter the staff member's personal information</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-6">
@@ -401,9 +399,7 @@ export default function StaffManagement() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Weekly Hours</CardTitle>
-                    <CardDescription>
-                      Set the staff member's weekly working hours
-                    </CardDescription>
+                    <CardDescription>Set the staff member's weekly working hours</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="hidden sm:block">
