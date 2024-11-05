@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { CircleUser, Menu, Search, Moon, Sun, Scissors } from "lucide-react"
+import { CircleUser, Menu, Search, Moon, Sun, Scissors, Loader2 } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
@@ -22,7 +22,7 @@ import { User } from "@supabase/supabase-js"
 import { logout } from "@/lib/auth"
 import { Roles } from "@/lib/types"
 
-const NavLink = React.memo(({ href, children }: { href: string; children: React.ReactNode }) => {
+const NavLink = React.memo(({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) => {
   const pathname = usePathname()
   const isActive = pathname === href
 
@@ -32,6 +32,7 @@ const NavLink = React.memo(({ href, children }: { href: string; children: React.
       className={`text-muted-foreground font-semibold transition-colors hover:text-foreground dark:hover:text-white ${
         isActive ? "text-black dark:text-white  font-semibold" : ""
       }`}
+      onClick={onClick}
     >
       {children}
     </Link>
@@ -39,36 +40,61 @@ const NavLink = React.memo(({ href, children }: { href: string; children: React.
 })
 NavLink.displayName = "NavLink"
 
-const NavLinks = React.memo(() => (
+const NavLinks = React.memo(({ onClick }: { onClick?: () => void }) => (
   <>
-    <NavLink href="/admin">Dashboard</NavLink>
-    <NavLink href="/admin/staff">Staff</NavLink>
-    <NavLink href="/admin/services">Services</NavLink>
-    <NavLink href="/admin/reservation">Reservation</NavLink>
+    <NavLink href="/admin" onClick={onClick}>Dashboard</NavLink>
+    <NavLink href="/admin/staff" onClick={onClick}>Staff</NavLink>
+    <NavLink href="/admin/services" onClick={onClick}>Services</NavLink>
+    <NavLink href="/admin/reservation" onClick={onClick}>Reservation</NavLink>
   </>
 ))
 NavLinks.displayName = "NavLinks"
 
+const Loading = () => (
+  <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
+    <div className="flex flex-col items-center space-y-4">
+      <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      <p className="text-lg font-semibold text-primary">Loading...</p>
+    </div>
+  </div>
+)
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { setTheme } = useTheme()
-  const[user, setUser] = useState<User | null>()
+  const [user, setUser] = useState<User | null>()
+  const [isOpen, setIsOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } } ) => {
-      if (!session)
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
         window.location.href = "/login"
+        return
+      }
 
-      const role = session?.user.user_metadata.role;
+      const role = session.user.user_metadata.role;
 
-      if (role === Roles.STAFF)
+      if (role === Roles.STAFF) {
         window.location.href = "/staff"
-      else if (role !== Roles.ADMIN)
+      } else if (role !== Roles.ADMIN) {
         window.location.href = "/not-found"
+      } else {
+        setUser(session.user)
+      }
+      setIsLoading(false)
+    }
 
-      setUser(session?.user as User)
-    })
+    checkSession()
   }, [])
+
+  const closeMenu = () => {
+    setIsOpen(false)
+  }
+
+  if (isLoading) {
+    return <Loading />
+  }
   
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -84,7 +110,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
           <NavLinks />
         </nav>
-        <Sheet>
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button
               variant="outline"
@@ -101,11 +127,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 href="/admin"
                 className="flex items-center gap-2 text-lg font-semibold"
                 aria-label="SoftHair Admin Home"
+                onClick={closeMenu}
               >
                 <Scissors className="h-6 w-6" />
                 SoftHair
               </Link>
-              <NavLinks />
+              <NavLinks onClick={closeMenu} />
             </nav>
           </SheetContent>
         </Sheet>
@@ -116,31 +143,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Input
                 type="search"
                 placeholder="Search..."
-                className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+                className="w-full pl-8 md:w-[200px] lg:w-[300px]"
                 aria-label="Search"
               />
             </div>
           </form>
           <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          System
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="hidden md:inline-flex">
+                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                System
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full" aria-label="User menu">
@@ -149,6 +176,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{user?.user_metadata?.fullName as string}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setTheme("light")}>Light Theme</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>Dark Theme</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>System Theme</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>

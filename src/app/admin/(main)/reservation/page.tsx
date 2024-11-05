@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { supabase } from '@/lib/supabase'
 import { toast } from '@/hooks/use-toast'
-import { Users } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Users } from 'lucide-react'
 import Image from 'next/image'
 
 type Staff = {
@@ -184,149 +184,153 @@ export default function AppointmentCalendar() {
 
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Reservation Calendar</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex justify-between items-center mb-4">
-          <Button onClick={handlePrevWeek}>&lt; Previous Week</Button>
-          <h2 className="text-lg font-semibold">
-            {format(weekStart, 'MMM d, yyyy')} - {format(weekEnd, 'MMM d, yyyy')}
-          </h2>
-          <Button onClick={handleNextWeek}>Next Week &gt;</Button>
-        </div>
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">Select Staff</h3>
-          <div className="grid grid-cols-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    <CardHeader>
+      <CardTitle>Reservation Calendar</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="flex justify-between items-center mb-4">
+        <Button onClick={handlePrevWeek} size="icon" className="md:hidden"><ChevronLeft /></Button>
+        <Button onClick={handlePrevWeek} className="hidden md:inline-flex">&lt; Previous Week</Button>
+        <h2 className="text-lg font-semibold text-center">
+          <span className="hidden md:inline">{format(weekStart, 'MMM d, yyyy')} - {format(weekEnd, 'MMM d, yyyy')}</span>
+          <span className="md:hidden">{format(weekStart, 'MMM d')} - {format(weekEnd, 'MMM d')}</span>
+        </h2>
+        <Button onClick={handleNextWeek} size="icon" className="md:hidden"><ChevronRight /></Button>
+        <Button onClick={handleNextWeek} className="hidden md:inline-flex">Next Week &gt;</Button>
+      </div>
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold mb-2">Select Staff</h3>
+        <ScrollArea className="w-full">
+          <div className="flex space-x-4 pb-4 md:grid md:grid-cols-3 md:gap-4 lg:grid-cols-6">
             <Card 
-              className={`cursor-pointer transition-all ${selectedStaff === 'all' ? 'ring-2 ring-primary' : ''}`}
+              className={`flex-shrink-0 w-24 md:w-auto cursor-pointer transition-all ${selectedStaff === 'all' ? 'ring-2 ring-primary' : ''}`}
               onClick={() => setSelectedStaff('all')}
             >
               <CardContent className="flex flex-col items-center p-4">
-                <Users  width={100}
-                            height={100}
-                            className="rounded-md mb-2"  />
-                <p className="font-semibold text-center">All Staff</p>
+                <Users width={60} height={60} className="rounded-md mb-2" />
+                <p className="font-semibold text-center text-sm">All Staff</p>
               </CardContent>
             </Card>
             {staffMembers.map((staff) => (
               <Card 
                 key={staff.id} 
-                className={`cursor-pointer transition-all ${selectedStaff === staff.id.toString() ? 'ring-2 ring-primary' : ''}`}
+                className={`flex-shrink-0 w-24 md:w-auto cursor-pointer transition-all ${selectedStaff === staff.id.toString() ? 'ring-2 ring-primary' : ''}`}
                 onClick={() => setSelectedStaff(staff.id.toString())}
               >
                 <CardContent className="flex flex-col items-center p-4">
                   <Image
                     src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`}
                     alt={`${staff.firstName} ${staff.lastName}`}
-                    width={100}
-                    height={100}
+                    width={60}
+                    height={60}
                     className="rounded-md mb-2"
                     unoptimized
                   />
-                  <p className="font-semibold text-center">{staff.firstName} {staff.lastName}</p>
+                  <p className="font-semibold text-center text-sm">{staff.firstName}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
-        </div>
-        <div className="grid grid-cols-7 gap-2">
-          {days.map((day) => (
-            <Card key={day.toString()} className="p-2">
-              <CardHeader className="p-2">
-                <CardTitle className="text-sm">{format(day, 'EEE')}</CardTitle>
-                <p className="text-xs text-muted-foreground">{format(day, 'MMM d')}</p>
-              </CardHeader>
-              <CardContent className="p-2">
-                <ScrollArea className="h-40">
-                  {Object.entries(groupReservationsByTime(sortedReservations.filter((res) => isSameDay(res.start, day))))
-                    .map(([time, reservations]) => (
-                      <div key={time} className="mb-2">
-                        <p className="text-xs font-semibold">{time}</p>
-                        {reservations.map((res) => (
-                          <div 
-                            key={res.id} 
-                            className="text-xs mb-1 p-1 bg-primary text-primary-foreground rounded cursor-pointer"
-                            onClick={() => handleReservationClick(res)}
-                          >
-                            {services.find(s => s.id === res.serviceId)?.name} - {staffMembers.find(s => s.id === res.staffId)?.firstName}
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        </ScrollArea>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+        {days.map((day) => (
+          <Card key={day.toString()} className="p-2">
+            <CardHeader className="p-2">
+              <CardTitle className="text-sm">{format(day, 'EEE')}</CardTitle>
+              <p className="text-xs text-muted-foreground">{format(day, 'MMM d')}</p>
+            </CardHeader>
+            <CardContent className="p-2">
+              <ScrollArea className="h-40 md:h-60">
+                {Object.entries(groupReservationsByTime(sortedReservations.filter((res) => isSameDay(res.start, day))))
+                  .map(([time, reservations]) => (
+                    <div key={time} className="mb-2">
+                      <p className="text-xs font-semibold">{time}</p>
+                      {reservations.map((res) => (
+                        <div 
+                          key={res.id} 
+                          className="text-xs mb-1 p-1 bg-primary text-primary-foreground rounded cursor-pointer"
+                          onClick={() => handleReservationClick(res)}
+                        >
+                          <span className="md:hidden">{services.find(s => s.id === res.serviceId)?.name} - {staffMembers.find(s => s.id === res.staffId)?.firstName}</span>
+                          <span className="hidden md:inline">{services.find(s => s.id === res.serviceId)?.name} - {staffMembers.find(s => s.id === res.staffId)?.firstName}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-        <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Reservation Details</DialogTitle>
-            </DialogHeader>
-            {selectedReservation && (
-              <div className="mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{services.find(s => s.id === selectedReservation.serviceId)?.name}</CardTitle>
-                    <CardDescription>
-                      {format(selectedReservation.start, 'MMMM d, yyyy')} at {format(selectedReservation.start, 'HH:mm')} - {format(addMinutes(selectedReservation.end, 1), 'HH:mm')}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center space-x-4 mb-4">
-                      <Avatar>
-                        <AvatarImage src={staffMembers.find(s => s.id === selectedReservation.staffId)?.image} />
-                        <AvatarFallback>{staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName[0]}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="font-semibold">Staff</h3>
-                        <p>{staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName} {staffMembers.find(s => s.id === selectedReservation.staffId)?.lastName}</p>
-                      </div>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="font-semibold">Service</h3>
-                      <p>{services.find(s => s.id === selectedReservation.serviceId)?.name}</p>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="font-semibold">Price</h3>
-                      <p>{services.find(s => s.id === selectedReservation.serviceId)?.price} CHF</p>
-                    </div>
+      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Reservation Details</DialogTitle>
+          </DialogHeader>
+          {selectedReservation && (
+            <div className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{services.find(s => s.id === selectedReservation.serviceId)?.name}</CardTitle>
+                  <CardDescription>
+                    {format(selectedReservation.start, 'MMMM d, yyyy')} at {format(selectedReservation.start, 'HH:mm')} - {format(addMinutes(selectedReservation.end, 1), 'HH:mm')}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center space-x-4 mb-4">
+                    <Avatar>
+                      <AvatarImage src={staffMembers.find(s => s.id === selectedReservation.staffId)?.image} />
+                      <AvatarFallback>{staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName[0]}</AvatarFallback>
+                    </Avatar>
                     <div>
-                      <h3 className="font-semibold mb-2">Customer Information</h3>
-                      <p>Name: {selectedReservation.customer.firstName} {selectedReservation.customer.lastName}</p>
-                      <p>Email: {selectedReservation.customer.email}</p>
-                      <p>Phone: {selectedReservation.customer.phone}</p>
+                      <h3 className="font-semibold">Staff</h3>
+                      <p>{staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName} {staffMembers.find(s => s.id === selectedReservation.staffId)?.lastName}</p>
                     </div>
-                  </CardContent>
-                  <CardFooter>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive">Cancel Reservation</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently cancel the reservation.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>No, keep reservation</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleCancelReservation(selectedReservation.id)}>
-                            Yes, cancel reservation
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </CardFooter>
-                </Card>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-      </CardContent>
-    </Card>
+                  </div>
+                  <div className="mb-4">
+                    <h3 className="font-semibold">Service</h3>
+                    <p>{services.find(s => s.id === selectedReservation.serviceId)?.name}</p>
+                  </div>
+                  <div className="mb-4">
+                    <h3 className="font-semibold">Price</h3>
+                    <p>{services.find(s => s.id === selectedReservation.serviceId)?.price} CHF</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Customer Information</h3>
+                    <p>Name: {selectedReservation.customer.firstName} {selectedReservation.customer.lastName}</p>
+                    <p>Email: {selectedReservation.customer.email}</p>
+                    <p>Phone: {selectedReservation.customer.phone}</p>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" className="w-full">Cancel Reservation</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently cancel the reservation.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>No, keep reservation</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleCancelReservation(selectedReservation.id)}>
+                          Yes, cancel reservation
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </CardFooter>
+              </Card>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </CardContent>
+  </Card>
   )
 }

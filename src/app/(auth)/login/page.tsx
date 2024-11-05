@@ -48,7 +48,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen w-full">
       
       <div className="flex flex-1 items-center justify-center">
-        <div className="mx-auto w-full max-w-[390px] space-y-6">
+        <div className="mx-auto w-full max-w-[390px] space-y-6 rounded-md p-8">
           <form onSubmit={handleLogin}>
             <Card>
               <CardHeader>

@@ -9,6 +9,7 @@ import {
   X,
   CloudUpload,
   Loader2,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
@@ -348,87 +350,161 @@ export default function AddStaff() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[100px]">Day</TableHead>
-                          <TableHead>Hours</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {daysOfWeek.map((day) => (
-                          <TableRow key={day}>
-                            <TableCell className="font-medium">{day}</TableCell>
-                            <TableCell>
-                              {staff.weeklyHours[day].length === 0 ? (
-                                <span className="text-muted-foreground">
-                                  Unavailable
-                                </span>
-                              ) : (
-                                <div className="flex flex-col space-y-2">
-                                  {staff.weeklyHours[day].map((slot, index) => (
-                                    <div
-                                      key={index}
-                                      className="flex items-center space-x-2"
-                                    >
-                                      <Input
-                                        type="time"
-                                        value={slot.start}
-                                        onChange={(e) =>
-                                          handleWeeklyHoursChange(
-                                            day,
-                                            index,
-                                            "start",
-                                            e.target.value
-                                          )
-                                        }
-                                        className="w-24"
-                                      />
-                                      <span>-</span>
-                                      <Input
-                                        type="time"
-                                        value={slot.end}
-                                        onChange={(e) =>
-                                          handleWeeklyHoursChange(
-                                            day,
-                                            index,
-                                            "end",
-                                            e.target.value
-                                          )
-                                        }
-                                        className="w-24"
-                                      />
-                                      <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() =>
-                                          removeTimeSlot(day, index)
-                                        }
+                    <div className="hidden sm:block">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-[100px]">Day</TableHead>
+                            <TableHead>Hours</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {daysOfWeek.map((day) => (
+                            <TableRow key={day}>
+                              <TableCell className="font-medium">{day}</TableCell>
+                              <TableCell>
+                                {staff.weeklyHours[day].length === 0 ? (
+                                  <span className="text-muted-foreground">
+                                    Unavailable
+                                  </span>
+                                ) : (
+                                  <div className="flex flex-col space-y-2">
+                                    {staff.weeklyHours[day].map((slot, index) => (
+                                      <div
+                                        key={index}
+                                        className="flex items-center space-x-2"
                                       >
-                                        <X className="h-4 w-4" />
-                                      </Button>
-                                    </div>
-                                  ))}
+                                        <Input
+                                          type="time"
+                                          value={slot.start}
+                                          onChange={(e) =>
+                                            handleWeeklyHoursChange(
+                                              day,
+                                              index,
+                                              "start",
+                                              e.target.value
+                                            )
+                                          }
+                                          className="w-24"
+                                        />
+                                        <span>-</span>
+                                        <Input
+                                          type="time"
+                                          value={slot.end}
+                                          onChange={(e) =>
+                                            handleWeeklyHoursChange(
+                                              day,
+                                              index,
+                                              "end",
+                                              e.target.value
+                                            )
+                                          }
+                                          className="w-24"
+                                        />
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={() =>
+                                            removeTimeSlot(day, index)
+                                          }
+                                        >
+                                          <X className="h-4 w-4" />
+                                          <span className="sr-only">Remove time slot</span>
+                                        </Button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => addTimeSlot(day)}
+                                >
+                                  <Plus className="h-4 w-4 mr-2" />
+                                  Add
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    <div className="sm:hidden">
+                      {daysOfWeek.map((day) => (
+                        <Popover key={day}>
+                          <PopoverTrigger  asChild>
+                            <Button variant="outline" className="w-full justify-start mb-2">
+                              <Clock className="mr-2 h-4 w-4" />
+                              {day}
+                              <span className="ml-auto">
+                                {staff.weeklyHours[day].length === 0
+                                  ? "Unavailable"
+                                  : `${staff.weeklyHours[day].length} slot(s)`}
+                              </span>
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80">
+                            <div className="space-y-2">
+                              {staff.weeklyHours[day].map((slot, index) => (
+                                <div key={index} className="flex items-center space-x-2">
+                                  <Input
+                                    type="time"
+                                    value={slot.start}
+                                    onChange={(e) =>
+                                      handleWeeklyHoursChange(
+                                        day,
+                                        index,
+                                        "start",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-24"
+                                  />
+                                  <span>-</span>
+                                  <Input
+                                    type="time"
+                                    value={slot.end}
+                                    onChange={(e) =>
+                                      handleWeeklyHoursChange(
+                                        day,
+                                        index,
+                                        "end",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-24"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => removeTimeSlot(day, index)}
+                                  >
+                                    <X className="h-4 w-4" />
+                                    <span className="sr-only">Remove time slot</span>
+                                  </Button>
                                 </div>
-                              )}
-                            </TableCell>
-                            <TableCell className="text-right">
+                              ))}
                               <Button
                                 type="button"
                                 variant="outline"
                                 size="sm"
                                 onClick={() => addTimeSlot(day)}
+                                className="w-full"
                               >
                                 <Plus className="h-4 w-4 mr-2" />
-                                Add
+                                Add Time Slot
                               </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
