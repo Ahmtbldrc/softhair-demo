@@ -3,10 +3,6 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req) {
   const { to, subject, html } = await req.json();
-  
-  console.log("req", req);
-
-  console.log("env", process.env);
 
   const transporter = nodemailer.createTransport({
     host: process.env.NEXT_SMTP_HOST,

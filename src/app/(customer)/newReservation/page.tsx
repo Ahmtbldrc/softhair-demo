@@ -269,8 +269,8 @@ export default function NewReservation() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-whitep-4">
-      <Card className="w-full max-w-[60%]">
+    <div className="min-h-screen flex items-center justify-center bg-black text-white p-4">
+      <Card className="w-full max-w-[90%] md:max-w-[60%]">
         <CardHeader>
           <CardTitle>New Reservation</CardTitle>
           <CardDescription>Book your appointment</CardDescription>
@@ -279,7 +279,7 @@ export default function NewReservation() {
           <div className="space-y-6">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Customer Information</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="firstName">First Name</Label>
                   <Input
@@ -340,7 +340,7 @@ export default function NewReservation() {
             {selectedService && (
               <div>
                 <Label>Select Staff</Label>
-                <div className="grid grid-cols-6 gap-4 mt-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-2">
                   {staff
                     .filter(staffMember => 
                       staffMember.services.some(s => s.service.id === selectedService)
@@ -363,7 +363,7 @@ export default function NewReservation() {
                             className="rounded-md mb-2"
                             unoptimized
                           />
-                          <p className="text-center">{`${staffMember.firstName} ${staffMember.lastName}`}</p>
+                          <p className="text-center text-sm">{`${staffMember.firstName} ${staffMember.lastName}`}</p>
                         </CardContent>
                       </Card>
                     ))}
@@ -373,14 +373,14 @@ export default function NewReservation() {
           </div>
           {selectedService && selectedStaff && (
             <div className="mt-6">
-              <div className="flex justify-between items-center mb-4">
-                <Button onClick={handlePrevWeek}>&lt; Previous Week</Button>
-                <h2 className="text-lg font-semibold">
+              <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
+                <Button onClick={handlePrevWeek} className="mb-2 sm:mb-0">&lt; Previous Week</Button>
+                <h2 className="text-lg font-semibold text-center">
                   {format(weekStart, 'MMM d, yyyy')} - {format(weekEnd, 'MMM d, yyyy')}
                 </h2>
-                <Button onClick={handleNextWeek}>Next Week &gt;</Button>
+                <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">Next Week &gt;</Button>
               </div>
-              <div className="grid grid-cols-7 gap-2 select-none">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 select-none">
                 {days.map((day) => (
                   <Card key={day.toString()} className="p-2">
                     <CardHeader className="p-2">
@@ -388,7 +388,7 @@ export default function NewReservation() {
                       <p className="text-xs text-muted-foreground">{format(day, 'MMM d')}</p>
                     </CardHeader>
                     <CardContent className="p-2">
-                      <ScrollArea className="h-32">
+                      <ScrollArea className="h-32 sm:h-40">
                         {isStaffWorkingOnDay(selectedStaff, day) ? (
                           getAvailableTimesForDay(day).map(({ time, available }) => (
                             <Button
@@ -409,7 +409,6 @@ export default function NewReservation() {
                           ))
                         ) : (
                           <p className="text-xs text-muted-foreground">Not available</p>
-                
                         )}
                       </ScrollArea>
                     </CardContent>
@@ -426,7 +425,7 @@ export default function NewReservation() {
                 Book Appointment
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Confirm Your Reservation</DialogTitle>
                 <DialogDescription>Please review your reservation details.</DialogDescription>
@@ -451,7 +450,7 @@ export default function NewReservation() {
       </Card>
 
       <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Reservation Completed</DialogTitle>
             <DialogDescription>
