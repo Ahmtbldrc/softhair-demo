@@ -51,7 +51,6 @@ export function WeeklyTrendChart() {
     const fetchDailyIncomeForWeeks = async () => {
       const data = await getDailyIncomeForWeeks();
       if (data) {
-        console.log(data);
         setChartData(data);
       }
     }

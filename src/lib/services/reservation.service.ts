@@ -41,8 +41,6 @@ export const getDailyIncomeForWeeks = async () => {
         return null;
     }
 
-    console.log(data);
-
     const mappedData = data.map((item: DailyIncomeItem) => ({
         day: item.day.trim(),
         thisWeek: item.thisweek,

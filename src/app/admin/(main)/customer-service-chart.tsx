@@ -1,67 +1,88 @@
 "use client"
 
 import * as React from "react"
-import { TrendingUp } from 'lucide-react'
 import { Label, Pie, PieChart } from "recharts"
+import { supabase } from "@/lib/supabase"
 
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-const chartData = {
-  daily: [
-    { service: "Gesichtsbacke & Augenbrauen", visitors: 75, fill: "var(--color-GesichtsbackeAugenbrauen)" },
-    { service: "Bartrasur", visitors: 50, fill: "var(--color-Bartrasur)" },
-    { service: "Unique Hair Cut	", visitors: 87, fill: "var(--color-UniqueHairCut)" },
-  ],
-  weekly: [
-    { service: "Gesichtsbacke & Augenbrauen", visitors: 750, fill: "var(--color-GesichtsbackeAugenbrauen)" },
-    { service: "Bartrasur", visitors: 350, fill: "var(--color-Bartrasur)" },
-    { service: "Unique Hair Cut	", visitors: 609, fill: "var(--color-UniqueHairCut)" },
-  ],
-  monthly: [
-    { service: "Gesichtsbacke & Augenbrauen", visitors: 6000, fill: "var(--color-GesichtsbackeAugenbrauen)" },
-    { service: "Bartrasur", visitors: 1500, fill: "var(--color-Bartrasur)" },
-    { service: "Unique Hair Cut", visitors: 2637, fill: "var(--color-UniqueHairCut)" },
-  ],
-}
+import { AnalyticType } from "@/lib/types"
 
 const chartConfig = {
   visitors: {
     label: "Visitors",
   },
-  GesichtsbackeAugenbrauen: {
-    label: "Gesichtsbacke & Augenbrauen ",
-    color: "hsl(var(--chart-1))",
-  },
-  Bartrasur: {
-    label: "Bartrasur ",
-    color: "hsl(var(--chart-2))",
-  },
-  UniqueHairCut	: {
-    label: "Unique Hair Cut ",
-    color: "hsl(var(--chart-3))",
-  },
-} satisfies ChartConfig
+}
 
 export default function CustomerServiceChart() {
-  const [activeTab, setActiveTab] = React.useState("daily")
+  const [activeTab, setActiveTab] = React.useState<keyof ChartData>("daily")
+  type ChartData = {
+    daily: { visitors: number; service: string, fill: string }[];
+    weekly: { visitors: number; service: string, fill: string }[];
+    monthly: { visitors: number; service: string, fill: string }[];
+  };
+
+  const [chartData, setChartData] = React.useState<ChartData>({
+    daily: [],
+    weekly: [],
+    monthly: [],
+  })
+  const [servicesConfig, setServicesConfig] = React.useState<Record<string, { label: string; color: string }>>({})
+
+  const fetchChartData = async () => {
+    const { data: dailyData, error: dailyError } = await supabase.rpc('get_daily_visitors')
+    const { data: weeklyData, error: weeklyError } = await supabase.rpc('get_weekly_visitors')
+    const { data: monthlyData, error: monthlyError } = await supabase.rpc('get_monthly_visitors')
+
+    if (dailyError || weeklyError || monthlyError) {
+      console.error('Error fetching chart data:', dailyError || weeklyError || monthlyError)
+      return
+    }
+
+    setChartData({
+      daily: dailyData,
+      weekly: weeklyData,
+      monthly: monthlyData,
+    })
+  }
+
+  const fetchServicesConfig = async () => {
+    const { data: servicesData, error: servicesError } = await supabase.from('services').select('name')
+
+    if (servicesError) {
+      console.error('Error fetching services config:', servicesError)
+      return
+    }
+
+    const config = servicesData.reduce((acc: Record<string, { label: string; color: string }>, service) => {
+      acc[service.name.replace(/[^a-zA-Z0-9]/g, '')] = {
+      label: service.name,
+      color: `hsl(var(--chart-${Object.keys(acc).length + 1}))`,
+      }
+      return acc
+    }, {})
+
+    setServicesConfig(config)
+  }
+
+  React.useEffect(() => {
+    fetchChartData()
+    fetchServicesConfig()
+  }, [])
 
   const totalVisitors = React.useMemo(() => {
-    return chartData[activeTab as keyof typeof chartData].reduce((acc, curr) => acc + curr.visitors, 0)
-  }, [activeTab])
+    return chartData[activeTab].reduce((acc: number, curr: { visitors: number }) => acc + curr.visitors, 0)
+  }, [activeTab, chartData])
 
   return (
     <Card className="flex flex-col">
@@ -69,16 +90,16 @@ export default function CustomerServiceChart() {
         <CardTitle>Customer Service Distribution</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        <Tabs defaultValue="daily" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs defaultValue="daily" value={activeTab} onValueChange={(value) => setActiveTab(value as keyof ChartData)} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mt-3">
-            <TabsTrigger value="daily">Daily</TabsTrigger>
-            <TabsTrigger value="weekly">Weekly</TabsTrigger>
-            <TabsTrigger value="monthly">Monthly</TabsTrigger>
+            <TabsTrigger value={AnalyticType.DAILY}>Daily</TabsTrigger>
+            <TabsTrigger value={AnalyticType.WEEKLY}>Weekly</TabsTrigger>
+            <TabsTrigger value={AnalyticType.MONTHLY}>Monthly</TabsTrigger>
           </TabsList>
           {Object.entries(chartData).map(([period, data]) => (
             <TabsContent key={period} value={period}>
               <ChartContainer
-                config={chartConfig}
+                config={{ ...chartConfig, ...servicesConfig }}
                 className="mx-auto aspect-square max-h-[250px]"
               >
                 <PieChart>
@@ -129,14 +150,6 @@ export default function CustomerServiceChart() {
           ))}
         </Tabs>
       </CardContent>
-      {/* <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this {activeTab.slice(0, -2)} <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last {activeTab === 'daily' ? 'day' : activeTab === 'weekly' ? 'week' : 'month'}
-        </div>
-      </CardFooter> */}
     </Card>
   )
 }
