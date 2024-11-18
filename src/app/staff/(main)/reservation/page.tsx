@@ -25,6 +25,7 @@ import {
 import { supabase } from '@/lib/supabase'
 import { toast } from '@/hooks/use-toast'
 import { User } from '@supabase/supabase-js'
+import { deleteReservation } from '@/lib/services/reservation.service'
 
 type Service = {
   id: number;
@@ -148,10 +149,7 @@ export default function AppointmentCalendar() {
   }
 
   const handleCancelReservation = async (reservationId: number) => {
-    const { error } = await supabase
-      .from('reservations')
-      .delete()
-      .eq('id', reservationId)
+    const error = await deleteReservation(reservationId)
     
     if (error) {
       console.error('Error cancelling reservation:', error)
