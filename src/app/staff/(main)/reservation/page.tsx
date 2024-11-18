@@ -102,6 +102,7 @@ export default function AppointmentCalendar() {
       .from('reservations')
       .select('*')
       .eq('staffId', session?.user.user_metadata.staffId)
+      .eq('status', true)
       .gte('start', weekStart.toISOString())
       .lte('start', weekEnd.toISOString())
     if (error) {

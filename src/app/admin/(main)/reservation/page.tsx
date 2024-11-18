@@ -116,6 +116,7 @@ export default function AppointmentCalendar() {
     const { data, error } = await supabase
       .from('reservations')
       .select('*')
+      .eq('status', true)
       .gte('start', weekStart.toISOString())
       .lte('start', weekEnd.toISOString())
     if (error) {
