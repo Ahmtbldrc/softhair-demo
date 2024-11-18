@@ -33,3 +33,9 @@ export enum Roles {
   STAFF = 'staff',
   USER = 'user'
 }
+
+export enum AnalyticType {
+  DAILY = 'daily',
+  WEEKLY = 'weekly',
+  MONTHLY = 'monthly'
+}

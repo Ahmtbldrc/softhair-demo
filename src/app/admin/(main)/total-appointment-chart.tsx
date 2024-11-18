@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import React, { useState, useEffect } from "react"
 import { Label, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts"
 
 import {
@@ -16,30 +16,64 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { AnalyticType } from "@/lib/types"
+import { getReservationCount } from "@/lib/services/reservation.service"
 
-const chartData = {
-  daily: [{ period: "daily", aktiv: 18, passiv: 2 }],
-  weekly: [{ period: "weekly", aktiv: 205, passiv: 20 }],
-  monthly: [{ period: "monthly", aktiv: 1200, passiv: 240 }],
+// define ChartDataType from chartData object
+type ChartDataType = {
+  daily: { period: AnalyticType, active: number, passive: number }[],
+  weekly: { period: AnalyticType, active: number, passive: number }[],
+  monthly: { period: AnalyticType, active: number, passive: number }[]
+}
+
+const initialChartData: ChartDataType = {
+  daily: [{ period: AnalyticType.DAILY, active: 0, passive: 0 }],
+  weekly: [{ period: AnalyticType.WEEKLY, active: 0, passive: 0 }],
+  monthly: [{ period: AnalyticType.MONTHLY, active: 0, passive: 0 }],
 }
 
 const chartConfig = {
-    aktiv: {
-    label: "aktiv",
+    active: {
+    label: "active",
     color: "hsl(var(--chart-2))",
   },
-  passiv: {
-    label: "passiv",
+  passive: {
+    label: "passive",
     color: "hsl(var(--chart-5))",
   },
 } satisfies ChartConfig
 
 export function TotalAppointmentChart() {
-  const [activeTab, setActiveTab] = React.useState("daily")
+  const [activeTab, setActiveTab] = useState<AnalyticType>(AnalyticType.DAILY)
+  const [chartData, setChartData] = useState<ChartDataType>(initialChartData);
 
   const totalVisitors = React.useMemo(() => {
     const data = chartData[activeTab as keyof typeof chartData][0]
-    return data.aktiv + data.passiv
+    return data.active + data.passive
+  }, [activeTab, chartData])
+
+  useEffect(() => {
+    const fetchReservationCount = async () => {
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 1);
+      const dailyStartDate = new Date();
+      const weeklyStartDate = new Date();
+      const monthlyStartDate = new Date();
+
+      dailyStartDate.setDate(dailyStartDate.getDate() - 1);
+      weeklyStartDate.setDate(weeklyStartDate.getDate() - 7);
+      monthlyStartDate.setMonth(monthlyStartDate.getMonth() - 1);
+      const dailyData = await getReservationCount(dailyStartDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
+      const weeklyData = await getReservationCount(weeklyStartDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
+      const monthlyData = await getReservationCount(monthlyStartDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
+
+      setChartData({
+        daily: [{ period: AnalyticType.DAILY, active: dailyData.active, passive: dailyData.passive }],
+        weekly: [{ period: AnalyticType.WEEKLY, active: weeklyData.active, passive: weeklyData.passive }],
+        monthly: [{ period: AnalyticType.MONTHLY, active: monthlyData.active, passive: monthlyData.passive }]
+      });
+    }
+    fetchReservationCount();
   }, [activeTab])
 
   return (
@@ -48,11 +82,11 @@ export function TotalAppointmentChart() {
         <CardTitle>Anzahl der Termine</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        <Tabs defaultValue="daily" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs defaultValue={AnalyticType.DAILY} value={activeTab} onValueChange={value => setActiveTab(value as AnalyticType)} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mt-3">
-            <TabsTrigger value="daily">Daily</TabsTrigger>
-            <TabsTrigger value="weekly">Weekly</TabsTrigger>
-            <TabsTrigger value="monthly">Monthly</TabsTrigger>
+            <TabsTrigger value={AnalyticType.DAILY}>Daily</TabsTrigger>
+            <TabsTrigger value={AnalyticType.WEEKLY}>Weekly</TabsTrigger>
+            <TabsTrigger value={AnalyticType.MONTHLY}>Monthly</TabsTrigger>
           </TabsList>
           {Object.entries(chartData).map(([period, data]) => (
             <TabsContent key={period} value={period}>
@@ -97,15 +131,15 @@ export function TotalAppointmentChart() {
                     />
                   </PolarRadiusAxis>
                   <RadialBar
-                    dataKey="aktiv"
+                    dataKey="active"
                     stackId="a"
                     cornerRadius={5}
-                    fill="var(--color-aktiv)"
+                    fill="var(--color-active)"
                     className="stroke-transparent stroke-2"
                   />
                   <RadialBar
-                    dataKey="passiv"
-                    fill="var(--color-passiv)"
+                    dataKey="passive"
+                    fill="var(--color-passive)"
                     stackId="a"
                     cornerRadius={5}
                     className="stroke-transparent stroke-2"
@@ -116,14 +150,6 @@ export function TotalAppointmentChart() {
           ))}
         </Tabs>
       </CardContent>
-      {/* <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this {activeTab.slice(0, -2)} <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last {activeTab === 'daily' ? 'day' : activeTab === 'weekly' ? 'week' : 'month'}
-        </div>
-      </CardFooter> */}
     </Card>
   )
 }
