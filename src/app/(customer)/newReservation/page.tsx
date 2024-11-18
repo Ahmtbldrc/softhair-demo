@@ -99,6 +99,7 @@ export default function NewReservation() {
     const { data, error } = await supabase
       .from("reservations")
       .select("*")
+      .eq('status', true)
       .gte('start', weekStart.toISOString())
       .lte('start', weekEnd.toISOString())
     if (error) {
