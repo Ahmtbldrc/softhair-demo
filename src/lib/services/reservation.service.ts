@@ -25,3 +25,29 @@ export const deleteReservation = async (reservationId: number) => {
 
     return null;
 }
+
+interface DailyIncomeItem {
+    day: string;
+    thisweek: number;
+    lastweek: number;
+}
+
+export const getDailyIncomeForWeeks = async () => {
+    const { data, error } = await supabase
+        .rpc('get_daily_income_for_weeks');
+
+    if (error) {
+        console.error('Error getting reservation count:', error);
+        return null;
+    }
+
+    console.log(data);
+
+    const mappedData = data.map((item: DailyIncomeItem) => ({
+        day: item.day.trim(),
+        thisWeek: item.thisweek,
+        lastWeek: item.lastweek,
+    }));
+
+    return mappedData;
+}

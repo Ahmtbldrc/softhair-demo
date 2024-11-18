@@ -1,5 +1,6 @@
 "use client"
 
+import React, { useEffect, useState } from 'react'
 import { CartesianGrid, LabelList, Line, LineChart, XAxis } from "recharts"
 
 import {
@@ -14,15 +15,22 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { getDailyIncomeForWeeks } from '@/lib/services/reservation.service'
 
-const chartData = [
-  { day: "Monday", thisWeek: 186, lastWeek: 160 },
-  { day: "Tuesday", thisWeek: 305, lastWeek: 280 },
-  { day: "Wednesday", thisWeek: 237, lastWeek: 220 },
-  { day: "Thursday", thisWeek: 273, lastWeek: 250 },
-  { day: "Friday", thisWeek: 209, lastWeek: 190 },
-  { day: "Saturday", thisWeek: 214, lastWeek: 180 },
-  { day: "Sunday", thisWeek: 255, lastWeek: 240 },
+type ChartDataType = {
+  day: string;
+  thisWeek: number;
+  lastWeek: number;
+}
+
+const initialChartData: ChartDataType[] = [
+  { day: "Monday", thisWeek: 0, lastWeek: 0 },
+  { day: "Tuesday", thisWeek: 0, lastWeek: 0 },
+  { day: "Wednesday", thisWeek: 0, lastWeek: 0 },
+  { day: "Thursday", thisWeek: 0, lastWeek: 0 },
+  { day: "Friday", thisWeek: 0, lastWeek: 0 },
+  { day: "Saturday", thisWeek: 0, lastWeek: 0 },
+  { day: "Sunday", thisWeek: 0, lastWeek: 0 },
 ]
 
 const chartConfig = {
@@ -37,6 +45,20 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function WeeklyTrendChart() {
+  const [chartData, setChartData] = useState<ChartDataType[]>(initialChartData);
+
+  useEffect(() => {
+    const fetchDailyIncomeForWeeks = async () => {
+      const data = await getDailyIncomeForWeeks();
+      if (data) {
+        console.log(data);
+        setChartData(data);
+      }
+    }
+
+    fetchDailyIncomeForWeeks();
+  }, [])
+
   return (
     <Card>
       <CardHeader className="items-center">
