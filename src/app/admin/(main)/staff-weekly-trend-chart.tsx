@@ -1,48 +1,49 @@
 'use client'
 
-import React, { useState } from 'react'
-import { ArrowDownToLine, ChevronLeft, ChevronRight } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { supabase } from '@/lib/supabase'
 
-const staffData = [
-  { id: 1, name: "Olivia Martin", image: "/image/staff.png", initials: "OM", weeklyEarnings: 1999.00 },
-  { id: 2, name: "Jackson Lee", image: "/image/staff.png", initials: "JL", weeklyEarnings: 1239.00 },
-  { id: 3, name: "Isabella Nguyen", image: "/image/staff.png", initials: "IN", weeklyEarnings: 1299.00 },
-  { id: 4, name: "William Kim", image: "/image/staff.png", initials: "WK", weeklyEarnings: 999.00 },
-  { id: 5, name: "Sofia Davis", image: "/image/staff.png", initials: "SD", weeklyEarnings: 939.00 },
-  { id: 6, name: "Emma Johnson", image: "/image/staff.png", initials: "EJ", weeklyEarnings: 1599.00 },
-  { id: 7, name: "Liam Wilson", image: "/image/staff.png", initials: "LW", weeklyEarnings: 1399.00 },
-  { id: 8, name: "Ava Thompson", image: "/image/staff.png", initials: "AT", weeklyEarnings: 1199.00 },
-]
+type StaffData = {
+  id: number;
+  name: string;
+  image: string;
+  initials: string;
+  weeklyEarnings: number;
+}
 
 export default function StaffWeeklyTrendChart() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 4
+  const [staffData, setStaffData] = useState<StaffData[]>([])
   const totalPages = Math.ceil(staffData.length / itemsPerPage)
 
-  const exportToCSV = () => {
-    const headers = ["Name", "Weekly Earnings (CHF)"]
-    const csvContent = [
-      headers.join(','),
-      ...staffData.map(staff => 
-        [staff.name, staff.weeklyEarnings.toFixed(2)].join(',')
-      )
-    ].join('\n')
+  const fetchStaffSalesData = async () => {
+    const { data, error } = await supabase.rpc('get_recent_sales_by_staff')
+    if (error) {
+      console.error('Error fetching staff sales data:', error)
+    } else {
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement("a")
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob)
-      link.setAttribute("href", url)
-      link.setAttribute("download", "staff_earnings.csv")
-      link.style.visibility = 'hidden'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const parsedData = data.map((staff: { 
+        id: number;
+        name: string;
+        image: string;
+        initials: string;
+        weeklyearnings: number;
+      }) => ({
+        ...staff,
+        weeklyEarnings: staff.weeklyearnings
+      }))
+      setStaffData(parsedData)
     }
   }
+
+  useEffect(() => {
+    fetchStaffSalesData()
+  }, [])
 
   const paginatedStaff = staffData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -62,7 +63,7 @@ export default function StaffWeeklyTrendChart() {
         {paginatedStaff.map((staff) => (
           <div key={staff.id} className="flex items-center gap-4">
             <Avatar className="h-9 w-9">
-              <AvatarImage src={staff.image} alt={`${staff.name}'s avatar`} />
+              <AvatarImage src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`} alt={`${staff.name}'s avatar`} />
               <AvatarFallback>{staff.initials}</AvatarFallback>
             </Avatar>
             <div className="grid gap-1">
