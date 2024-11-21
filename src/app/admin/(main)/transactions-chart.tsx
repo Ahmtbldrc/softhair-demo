@@ -1,51 +1,39 @@
 'use client'
 
-import React, { useState } from 'react'
-import { ArrowDownToLine, ChevronLeft, ChevronRight } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+import { supabase } from '@/lib/supabase'
 
-const transactions = [
-  { customer: "Liam Johnson", email: "liam@example.com", staff: "Sarah Parker", service: "Haircut", date: "2023-06-23", amount: "250.00 CHF" },
-  { customer: "Olivia Smith", email: "olivia@example.com", staff: "John Doe", service: "Coloring",  date: "2023-06-24", amount: "150.00 CHF" },
-  { customer: "Noah Williams", email: "noah@example.com", staff: "Emma White", service: "Styling",  date: "2023-06-25", amount: "350.00 CHF" },
-  { customer: "Emma Brown", email: "emma@example.com", staff: "Michael Green", service: "Manicure",  date: "2023-06-26", amount: "450.00 CHF" },
-  { customer: "Liam Johnson", email: "liam@example.com", staff: "Sarah Parker", service: "Pedicure",  date: "2023-06-27", amount: "550.00 CHF" },
-  { customer: "Sophia Davis", email: "sophia@example.com", staff: "Robert Brown", service: "Facial",  date: "2023-06-28", amount: "650.00 CHF" },
-  { customer: "Mason Miller", email: "mason@example.com", staff: "Jennifer Lee", service: "Massage",  date: "2023-06-29", amount: "750.00 CHF" },
-  { customer: "Ava Wilson", email: "ava@example.com", staff: "David Taylor", service: "Haircut",  date: "2023-06-30", amount: "200.00 CHF" },
-  { customer: "Ethan Moore", email: "ethan@example.com", staff: "Sarah Parker", service: "Coloring",  date: "2023-07-01", amount: "300.00 CHF" },
-  { customer: "Isabella Taylor", email: "isabella@example.com", staff: "John Doe", service: "Styling",  date: "2023-07-02", amount: "400.00 CHF" },
-]
+type Transaction = {
+  customer: string;
+  email: string;
+  staff: string;
+  service: string;
+  date: string;
+  amount: number;
+}
 
 export default function TransactionsChart() {
+  const [transactions, setTransactions] = useState<Transaction[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 3
   const totalPages = Math.ceil(transactions.length / itemsPerPage)
 
-  const exportToCSV = () => {
-    const headers = ["Customer", "Email", "Staff", "Service", "Date", "Amount"]
-    const csvContent = [
-      headers.join(','),
-      ...transactions.map(t => 
-        [t.customer, t.email, t.staff, t.service, t.date, t.amount].join(',')
-      )
-    ].join('\n')
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement("a")
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob)
-      link.setAttribute("href", url)
-      link.setAttribute("download", "transactions.csv")
-      link.style.visibility = 'hidden'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      const { data, error } = await supabase.rpc('get_recent_transactions')
+      if (error) {
+        console.error("Error fetching transactions:", error)
+      } else {
+        setTransactions(data)
+      }
     }
-  }
+
+    fetchTransactions()
+  }, [])
 
   const paginatedTransactions = transactions.slice(
     (currentPage - 1) * itemsPerPage,
@@ -97,9 +85,13 @@ export default function TransactionsChart() {
                   </Badge>
                 </TableCell> */}
                 <TableCell className="hidden xl:table-cell">
-                  {transaction.date}
+                    {new Date(transaction.date).toLocaleDateString('de-CH', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                    })}
                 </TableCell>
-                <TableCell className="text-right">{transaction.amount}</TableCell>
+                <TableCell className="text-right">{transaction.amount.toFixed(2)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
