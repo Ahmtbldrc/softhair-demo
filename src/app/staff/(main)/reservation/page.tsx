@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -103,6 +102,21 @@ export default function AppointmentCalendar() {
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd })
 
   const mail = useMail()
+
+  const fetchAdminUsers = async () => {
+
+    const { data, error } = await supabase
+      .from('admin_emails')
+      .select('*')
+
+    if (error) {
+      console.error('Error fetching admin users:', error)
+      return []
+    }
+    console.log(data)
+    return data.map(user => user.email)
+  }
+
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } } ) => {
@@ -227,6 +241,27 @@ export default function AppointmentCalendar() {
       toast({ title: 'Success', description: 'Reservation cancelled successfully.' })
       setReservations(prev => prev.filter(res => res.id !== reservationId))
       setIsDetailsDialogOpen(false)
+
+      const adminEmails = await fetchAdminUsers()
+      if (adminEmails.length > 0) {
+        const cancelledReservation = reservations.find(res => res.id === reservationId)
+        if (cancelledReservation) {
+          const service = services.find(s => s.id === cancelledReservation.serviceId)
+          const staffMember = staffMembers.find(s => s.id === cancelledReservation.staffId)
+
+          mail.sendMail({
+            to: adminEmails.join(', '),
+            subject: 'Appointment Cancelled',
+            html: `
+              <p>An appointment has been cancelled:</p>
+              <p>Customer: ${cancelledReservation.customer.firstName} ${cancelledReservation.customer.lastName}</p>
+              <p>Service: ${service?.name}</p>
+              <p>Staff: ${staffMember?.firstName} ${staffMember?.lastName}</p>
+              <p>Date: ${format(cancelledReservation.start, 'MMMM d, yyyy HH:mm')}</p>
+            `
+          })
+        }
+      }
     }
   }
 
@@ -279,6 +314,7 @@ export default function AppointmentCalendar() {
     return availableTimes
   }
 
+  // Güncellenen handleNewReservation fonksiyonu
   const handleNewReservation = async () => {
     if (!newReservation.serviceId || !newReservation.staffId || !newReservation.start) {
       toast({
@@ -327,27 +363,46 @@ export default function AppointmentCalendar() {
     } else {
       setIsSuccessDialogOpen(true)
       fetchReservations()
+
+      const staffMember = staffMembers.find(s => s.id === newReservation.staffId)
+
+      // Müşteriye e-posta gönder
+      mail.sendMail({
+        to: newReservation.customer.email,
+        subject: 'Appointment Confirmation',
+        html: `
+          <p>Hi ${newReservation.customer.firstName},</p>
+          <p>Your appointment has been successfully booked for ${format(newReservation.start, 'MMMM d, yyyy HH:mm')}.</p>
+          <p>Service: ${service.name}</p>
+          <p>Staff: ${staffMember?.firstName} ${staffMember?.lastName}</p>
+          <p>Price: ${service.price} CHF</p>
+          <p>Duration: ${service.duration} minutes</p>
+          <p>Email:
+            <a href="mailto:${staffMember?.email}">
+              ${staffMember?.email}
+            </a>
+          </p>
+        `
+      })
+
+      // Admin kullanıcılara e-posta gönder
+      const adminEmails = await fetchAdminUsers()
+      if (adminEmails.length > 0) {
+        mail.
+sendMail({
+          to: adminEmails.join(', '),
+          subject: 'New Appointment Created',
+          html: `
+            <p>A new appointment has been created:</p>
+            <p>Customer: ${newReservation.customer.firstName} ${newReservation.customer.lastName}</p>
+            <p>Service: ${service.name}</p>
+            <p>Staff: ${staffMember?.firstName} ${staffMember?.lastName}</p>
+            <p>Date: ${format(newReservation.start, 'MMMM d, yyyy HH:mm')}</p>
+          `
+        })
+      }
     }
 
-    const staffMember = staffMembers.find(s => s.id === newReservation.staffId)
-
-    mail.sendMail({
-      to: newReservation.customer.email,
-      subject: 'Appointment Confirmation',
-      html: `
-        <p>Hi ${newReservation.customer.firstName},</p>
-        <p>Your appointment has been successfully booked for ${format(newReservation.start, 'MMMM d, yyyy HH:mm')}.</p>
-        <p>Service: ${service.name}</p>
-        <p>Staff: ${staffMember?.firstName} ${staffMember?.lastName}</p>
-        <p>Price: ${service.price} CHF</p>
-        <p>Duration: ${service.duration} minutes</p>
-        <p>Email:
-          <a href="mailto:${staffMember?.email}">
-            ${staffMember?.email}
-          </a>
-        </p>
-        `
-    })
     setIsSubmitting(false)
     setIsConfirmDialogOpen(false)
   }
