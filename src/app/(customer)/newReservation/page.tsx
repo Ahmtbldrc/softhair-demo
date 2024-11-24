@@ -165,17 +165,19 @@ export default function NewReservation() {
       const endTime = parse(slot.end, 'HH:mm', day)
 
       while (currentTime < endTime) {
-        const slotEndTime = addMinutes(currentTime, 60) // Always use 60-minute intervals
+        const slotEndTime = addMinutes(currentTime, service.duration)
         const isAvailable = !existingAppointments.some(apt => 
           apt.staffId === selectedStaff &&
           isSameDay(apt.start, day) &&
-          (isWithinInterval(currentTime, { start: apt.start, end: apt.end }) ||
-          isWithinInterval(slotEndTime, { start: apt.start, end: apt.end }) ||
-          (currentTime <= apt.start && slotEndTime >= apt.end))
+          (
+            (currentTime >= apt.start && currentTime < apt.end) ||
+            (slotEndTime > apt.start && slotEndTime <= apt.end) ||
+            (currentTime <= apt.start && slotEndTime >= apt.end)
+          )
         )
 
         availableTimes.push({ time: new Date(currentTime), available: isAvailable })
-        currentTime = slotEndTime
+        currentTime = addMinutes(currentTime, 60) // Move to next hour
       }
     })
 
