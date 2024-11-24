@@ -4,12 +4,11 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   ChevronLeft,
-  Upload,
-  Plus,
-  X,
   CloudUpload,
   Loader2,
   Clock,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -80,168 +79,38 @@ export default function StaffManagement() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [currentUsername, setCurrentUsername] = useState<string>("");
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const router = useRouter();
 
-  const handleServiceChange = (serviceId: number) => {
-    setSelectedServices((prevSelectedServices) =>
-      prevSelectedServices.includes(serviceId)
-        ? prevSelectedServices.filter((id) => id !== serviceId)
-        : [...prevSelectedServices, serviceId]
-    );
-  };
-
-  const handleWeeklyHoursChange = (
-    day: keyof WeeklyHours,
-    index: number,
-    field: keyof TimeSlot,
-    value: string
-  ) => {
-    setStaff((prev) => ({
-      ...prev,
-      weeklyHours: {
-        ...prev.weeklyHours,
-        [day]: prev.weeklyHours[day].map((slot, i) =>
-          i === index ? { ...slot, [field]: value } : slot
-        ),
-      },
-    }));
-  };
-
-  const addTimeSlot = (day: keyof WeeklyHours) => {
-    setStaff((prev) => ({
-      ...prev,
-      weeklyHours: {
-        ...prev.weeklyHours,
-        [day]: [...prev.weeklyHours[day], { start: "09:00", end: "17:00" }],
-      },
-    }));
-  };
-
-  const removeTimeSlot = (day: keyof WeeklyHours, index: number) => {
-    setStaff((prev) => ({
-      ...prev,
-      weeklyHours: {
-        ...prev.weeklyHours,
-        [day]: prev.weeklyHours[day].filter((_, i) => i !== index),
-      },
-    }));
-  };
-
-  const handleUploadStaffImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const objectUrl = URL.createObjectURL(file);
-
-      setStaffImageName(objectUrl);
-      setStaffImage(file);
-
-      const fileExtension = e.target.files[0]?.name.split(".").pop();
-      const fileName = `${staff.firstName.toLowerCase()}-${staff.lastName.toLowerCase()}.${fileExtension}`;
-
-      staff.image = fileName;
-      setStaff(staff);
-    }
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    if (currentUsername !== staff.username) {
-      const { data: existUser } = await supabase
-        .from("staff")
-        .select("*")
-        .eq("username", staff.username);
-
-      if (existUser?.length) {
-        toast({
-          title: "Error!",
-          description: `User already exists (${staff.username})`,
-        });
-        setIsSubmitting(false);
-        return;
-      }
-    }
-
     const { error } = await supabase
       .from("staff")
       .update({
-        firstName: staff.firstName,
-        lastName: staff.lastName,
-        email: staff.email,
-        username: staff.username,
         password: staff.password,
-        status: staff.status,
-        image: staff.image,
-        weeklyHours: staff.weeklyHours,
       })
       .eq("id", staff.id);
 
     if (error) {
       toast({
-        title: "error",
-        description: "Error adding staff member",
+        title: "Error",
+        description: "Error updating password",
       });
       setIsSubmitting(false);
       return;
     }
 
-    const { data: existingItems } = await supabase
-      .from("staff_services")
-      .select("service_id")
-      .eq("staff_id", staff.id);
-
-    const existingIds = existingItems?.map((item) => item.service_id);
-
-    const toAdd = selectedServices.filter((id) => !existingIds?.includes(id));
-    const toDelete = existingIds!.filter(
-      (id) => !selectedServices.includes(id)
-    );
-
-    if (toAdd.length > 0) {
-      const { error: toAddError } = await supabase
-        .from("staff_services")
-        .insert(
-          toAdd.map((service_id) => ({ staff_id: staff.id, service_id }))
-        );
-
-      if (toAddError) {
-        console.error(toAddError);
-      }
-    }
-
-    if (toDelete.length > 0) {
-      const { error: toDeleteError } = await supabase
-        .from("staff_services")
-        .delete()
-        .in("service_id", toDelete)
-        .eq("staff_id", staff.id);
-
-      if (toDeleteError) {
-        console.error(toDeleteError);
-      }
-    }
-
-    if (staffImage != null) {
-      await supabase.storage
-        .from("staff")
-        .upload(staff.image, staffImage as File, {
-          cacheControl: "3600",
-          upsert: true,
-        });
-    }
-
     const { error: authError } = await supabase.auth.admin.updateUserById(
       staff.userId,
       {
-        email: `${staff.username.toLowerCase()}@softsidedigital.com`,
         password: staff.password,
-        user_metadata: {
-          fullName: `${staff.firstName} ${staff.lastName}`,
-          username: staff.username,
-          email: staff.email,
-        },
       }
     );
 
@@ -253,7 +122,7 @@ export default function StaffManagement() {
 
     toast({
       title: "Success",
-      description: "Account updated successfully",
+      description: "Password updated successfully",
     });
 
     setIsSubmitting(false);
@@ -321,7 +190,7 @@ export default function StaffManagement() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Staff Details</CardTitle>
-                    <CardDescription>Enter the staff member&apos;s personal information</CardDescription>
+                    <CardDescription>View the staff member's personal information</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-6">
@@ -331,12 +200,9 @@ export default function StaffManagement() {
                           <Input
                             id="firstName"
                             type="text"
-                            className="w-full"
+                            className="w-full text-muted-foreground"
                             value={staff.firstName}
-                            onChange={(e) =>
-                              setStaff({ ...staff, firstName: e.target.value })
-                            }
-                            required
+                            readOnly
                           />
                         </div>
                         <div>
@@ -344,12 +210,9 @@ export default function StaffManagement() {
                           <Input
                             id="lastName"
                             type="text"
-                            className="w-full"
+                            className="w-full text-muted-foreground"
                             value={staff.lastName}
-                            onChange={(e) =>
-                              setStaff({ ...staff, lastName: e.target.value })
-                            }
-                            required
+                            readOnly
                           />
                         </div>
                       </div>
@@ -358,12 +221,9 @@ export default function StaffManagement() {
                         <Input
                           id="email"
                           type="email"
-                          className="w-full"
+                          className="w-full text-muted-foreground"
                           value={staff.email}
-                          onChange={(e) =>
-                            setStaff({ ...staff, email: e.target.value })
-                          }
-                          required
+                          readOnly
                         />
                       </div>
                       <div>
@@ -371,27 +231,42 @@ export default function StaffManagement() {
                         <Input
                           id="username"
                           type="text"
-                          className="w-full"
+                          className="w-full text-muted-foreground"
                           value={staff.username}
-                          onChange={(e) =>
-                            setStaff({ ...staff, username: e.target.value })
-                          }
-                          required
+                          readOnly
                         />
                       </div>
                       <div>
                         <Label htmlFor="password">Password</Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          className="w-full"
-                          value={staff.password}
-                          onChange={(e) =>
-                            setStaff({ ...staff, password: e.target.value })
-                          }
-                          minLength={6}
-                          required
-                        />
+                        <div className="relative">
+                          <Input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            className="w-full pr-10"
+                            value={staff.password}
+                            onChange={(e) =>
+                              setStaff({ ...staff, password: e.target.value })
+                            }
+                            minLength={6}
+                            required
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-0 top-0 h-full"
+                            onClick={togglePasswordVisibility}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                            <span className="sr-only">
+                              {showPassword ? "Hide password" : "Show password"}
+                            </span>
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -399,7 +274,7 @@ export default function StaffManagement() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Weekly Hours</CardTitle>
-                    <CardDescription>Set the staff member&apos;s weekly working hours</CardDescription>
+                    <CardDescription>View the staff member's weekly working hours</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="hidden sm:block">
@@ -408,9 +283,6 @@ export default function StaffManagement() {
                           <TableRow>
                             <TableHead className="w-[100px]">Day</TableHead>
                             <TableHead>Hours</TableHead>
-                            <TableHead className="text-right">
-                              Actions
-                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -435,60 +307,21 @@ export default function StaffManagement() {
                                           <Input
                                             type="time"
                                             value={slot.start}
-                                            onChange={(e) =>
-                                              handleWeeklyHoursChange(
-                                                day,
-                                                index,
-                                                "start",
-                                                e.target.value
-                                              )
-                                            }
                                             className="w-24"
+                                            readOnly
                                           />
                                           <span>-</span>
                                           <Input
                                             type="time"
                                             value={slot.end}
-                                            onChange={(e) =>
-                                              handleWeeklyHoursChange(
-                                                day,
-                                                index,
-                                                "end",
-
-                                                e.target.value
-                                              )
-                                            }
                                             className="w-24"
+                                            readOnly
                                           />
-                                          <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() =>
-                                              removeTimeSlot(day, index)
-                                            }
-                                          >
-                                            <X className="h-4 w-4" />
-                                            <span className="sr-only">
-                                              Remove time slot
-                                            </span>
-                                          </Button>
                                         </div>
                                       )
                                     )}
                                   </div>
                                 )}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => addTimeSlot(day)}
-                                >
-                                  <Plus className="h-4 w-4 mr-2" />
-                                  Add
-                                </Button>
                               </TableCell>
                             </TableRow>
                           ))}
@@ -522,53 +355,18 @@ export default function StaffManagement() {
                                   <Input
                                     type="time"
                                     value={slot.start}
-                                    onChange={(e) =>
-                                      handleWeeklyHoursChange(
-                                        day,
-                                        index,
-                                        "start",
-                                        e.target.value
-                                      )
-                                    }
                                     className="w-24"
+                                    readOnly
                                   />
                                   <span>-</span>
                                   <Input
                                     type="time"
                                     value={slot.end}
-                                    onChange={(e) =>
-                                      handleWeeklyHoursChange(
-                                        day,
-                                        index,
-                                        "end",
-                                        e.target.value
-                                      )
-                                    }
                                     className="w-24"
+                                    readOnly
                                   />
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => removeTimeSlot(day, index)}
-                                  >
-                                    <X className="h-4 w-4" />
-                                    <span className="sr-only">
-                                      Remove time slot
-                                    </span>
-                                  </Button>
                                 </div>
                               ))}
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => addTimeSlot(day)}
-                                className="w-full"
-                              >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Add Time Slot
-                              </Button>
                             </div>
                           </PopoverContent>
                         </Popover>
@@ -585,9 +383,7 @@ export default function StaffManagement() {
                   <CardContent>
                     <Select
                       value={staff.status ? "true" : "false"}
-                      onValueChange={(value: string) =>
-                        setStaff({ ...staff, status: value === "true" })
-                      }
+                      disabled
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select status" />
@@ -603,7 +399,7 @@ export default function StaffManagement() {
                   <CardHeader>
                     <CardTitle>Staff Image</CardTitle>
                     <CardDescription>
-                      Upload a profile image for the staff member
+                      View the profile image for the staff member
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -614,11 +410,7 @@ export default function StaffManagement() {
                             alt="Staff image"
                             className="aspect-square object-cover"
                             height={300}
-                            src={
-                              staffImageName.length === 0
-                                ? `https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`
-                                : staffImageName
-                            }
+                            src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`}
                             width={300}
                             unoptimized
                           />
@@ -628,21 +420,6 @@ export default function StaffManagement() {
                           </div>
                         )}
                       </div>
-                      <div className="flex justify-center">
-                        <Label htmlFor="picture" className="cursor-pointer">
-                          <div className="flex items-center gap-2 rounded-md bg-muted px-4 py-2 hover:bg-muted/80">
-                            <Upload className="h-4 w-4" />
-                            <span>Upload Image</span>
-                          </div>
-                          <Input
-                            id="picture"
-                            type="file"
-                            accept="image/*"
-                            className="sr-only"
-                            onChange={(e) => handleUploadStaffImage(e)}
-                          />
-                        </Label>
-                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -650,7 +427,7 @@ export default function StaffManagement() {
                   <CardHeader>
                     <CardTitle>Staff Services</CardTitle>
                     <CardDescription>
-                      Select the services this staff member can provide
+                      View the services this staff member can provide
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -663,9 +440,7 @@ export default function StaffManagement() {
                           <Checkbox
                             id={service.id.toString()}
                             checked={selectedServices.includes(service.id)}
-                            onCheckedChange={() =>
-                              handleServiceChange(service.id)
-                            }
+                            disabled
                           />
                           <label
                             htmlFor={service.id.toString()}
@@ -682,13 +457,13 @@ export default function StaffManagement() {
             </div>
             <div className="flex items-center justify-end gap-2 mt-4">
               <Button type="button" variant="outline">
-                Discard
+                Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                Save changes
+                Update Password
               </Button>
             </div>
           </form>
@@ -697,3 +472,4 @@ export default function StaffManagement() {
     </div>
   );
 }
+
