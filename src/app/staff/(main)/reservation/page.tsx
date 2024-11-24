@@ -1,15 +1,22 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, compareAsc, addMinutes } from 'date-fns'
+import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, compareAsc, addMinutes, isWithinInterval, parse } from 'date-fns'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog"
 import {
   AlertDialog,
@@ -26,11 +33,31 @@ import { supabase } from '@/lib/supabase'
 import { toast } from '@/hooks/use-toast'
 import { User } from '@supabase/supabase-js'
 import { deleteReservation } from '@/lib/services/reservation.service'
+import Image from 'next/image'
+import useMail from '@/hooks/use-mail'
+
+type Staff = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  image: string;
+  email: string;
+  weeklyHours: {
+    [key: string]: { start: string; end: string }[];
+  };
+  services: {
+    service: {
+      id: number;
+      name: string;
+    };
+  }[];
+}
 
 type Service = {
   id: number;
   name: string;
   price: number;
+  duration: number;
 }
 
 type Reservation = {
@@ -54,16 +81,39 @@ export default function AppointmentCalendar() {
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
   const [user, setUser] = useState<User | null>()
+  const [staffMembers, setStaffMembers] = useState<Staff[]>([])
+  const [isNewReservationDialogOpen, setIsNewReservationDialogOpen] = useState(false)
+  const [newReservation, setNewReservation] = useState({
+    serviceId: null as number | null,
+    staffId: null as number | null,
+    start: null as Date | null,
+    customer: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+    }
+  })
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   
   const weekStart = startOfWeek(currentDate)
   const weekEnd = endOfWeek(currentDate)
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd })
 
+  const mail = useMail()
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } } ) => {
       setUser(session?.user as User)
+      setNewReservation(prev => ({
+        ...prev,
+        staffId: session?.user.user_metadata.staffId as number | null
+      }))
     })
     fetchServices()
+    fetchStaff()
   }, [])
 
   useEffect(() => {
@@ -122,6 +172,24 @@ export default function AppointmentCalendar() {
     };
   }
 
+  const fetchStaff = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    const staffId = session?.user.user_metadata.staffId
+
+    const { data, error } = await supabase
+      .from("staff")
+      .select("*, services:staff_services(service:service_id(id, name))")
+      .eq('id', staffId)
+      .single()
+
+    if (error) {
+      console.error('Error fetching staff:', error)
+      toast({ title: 'Error', description: 'Failed to fetch staff member.', variant: 'destructive' })
+    } else {
+      setStaffMembers([data] as Staff[])
+    }
+  }
+
   const sortedReservations = reservations.sort((a, b) => compareAsc(a.start, b.start))
 
   const groupReservationsByTime = (reservations: Reservation[]) => {
@@ -160,6 +228,143 @@ export default function AppointmentCalendar() {
       setReservations(prev => prev.filter(res => res.id !== reservationId))
       setIsDetailsDialogOpen(false)
     }
+  }
+
+  const isStaffWorkingOnDay = (staffId: number, day: Date) => {
+    const staffMember = staffMembers.find(s => s.id === staffId)
+    if (!staffMember) return false
+    const dayName = format(day, 'EEE').toUpperCase()
+    return staffMember.weeklyHours && staffMember.weeklyHours[dayName] && staffMember.weeklyHours[dayName].length > 0
+  }
+
+  const getStaffWorkingHours = (staffId: number, day: Date) => {
+    const staffMember = staffMembers.find(s => s.id === staffId)
+    if (!staffMember || !staffMember.weeklyHours) return null
+    const dayName = format(day, 'EEE').toUpperCase()
+    return staffMember.weeklyHours[dayName] || null
+  }
+
+  const getAvailableTimesForDay = (day: Date) => {
+    if (!newReservation.serviceId || !newReservation.staffId) return []
+
+    const service = services.find(s => s.id === newReservation.serviceId)
+    if (!service) return []
+
+    const workingHours = getStaffWorkingHours(newReservation.staffId, day)
+    if (!workingHours || workingHours.length === 0) return []
+
+    const availableTimes: { time: Date; available: boolean }[] = []
+
+    workingHours.forEach(slot => {
+      let currentTime = parse(slot.start, 'HH:mm', day)
+      const endTime = parse(slot.end, 'HH:mm', day)
+
+      while (currentTime < endTime) {
+        const slotEndTime = addMinutes(currentTime, service.duration)
+        const isAvailable = !reservations.some(res => 
+          res.staffId === newReservation.staffId &&
+          isSameDay(res.start, day) &&
+          (
+            (currentTime >= res.start && currentTime < res.end) ||
+            (slotEndTime > res.start && slotEndTime <= res.end) ||
+            (currentTime <= res.start && slotEndTime >= res.end)
+          )
+        )
+
+        availableTimes.push({ time: new Date(currentTime), available: isAvailable })
+        currentTime = addMinutes(currentTime, service.duration) // Move to next slot based on service duration
+      }
+    })
+
+    return availableTimes
+  }
+
+  const handleNewReservation = async () => {
+    if (!newReservation.serviceId || !newReservation.staffId || !newReservation.start) {
+      toast({
+        title: "Error",
+        description: "Please select a service and time.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+
+    const service = services.find(s => s.id === newReservation.serviceId)
+    if (!service) {
+      toast({
+        title: "Error",
+        description: "Selected service not found.",
+        variant: "destructive",
+      })
+      setIsSubmitting(false)
+      return
+    }
+
+    const endTime = addMinutes(newReservation.start, service.duration - 1)
+
+    const newReservationData = {
+      serviceId: newReservation.serviceId,
+      staffId: newReservation.staffId,
+      start: newReservation.start.toISOString(),
+      end: endTime,
+      customer: JSON.stringify(newReservation.customer),
+      status: true
+    }
+
+    const { error } = await supabase
+      .from('reservations')
+      .insert([newReservationData])
+
+    if (error) {
+      console.error("Error creating reservation:", error)
+      toast({
+        title: "Error",
+        description: "Failed to create reservation. Please try again.",
+        variant: "destructive",
+      })
+    } else {
+      setIsSuccessDialogOpen(true)
+      fetchReservations()
+    }
+
+    const staffMember = staffMembers.find(s => s.id === newReservation.staffId)
+
+    mail.sendMail({
+      to: newReservation.customer.email,
+      subject: 'Appointment Confirmation',
+      html: `
+        <p>Hi ${newReservation.customer.firstName},</p>
+        <p>Your appointment has been successfully booked for ${format(newReservation.start, 'MMMM d, yyyy HH:mm')}.</p>
+        <p>Service: ${service.name}</p>
+        <p>Staff: ${staffMember?.firstName} ${staffMember?.lastName}</p>
+        <p>Price: ${service.price} CHF</p>
+        <p>Duration: ${service.duration} minutes</p>
+        <p>Email:
+          <a href="mailto:${staffMember?.email}">
+            ${staffMember?.email}
+          </a>
+        </p>
+        `
+    })
+    setIsSubmitting(false)
+    setIsConfirmDialogOpen(false)
+  }
+
+  const resetForm = () => {
+    setNewReservation({
+      serviceId: null,
+      staffId: user?.user_metadata?.staffId as number | null,
+      start: null,
+      customer: {
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+      }
+    })
+    setCurrentDate(new Date())
   }
 
   if (!user) {
@@ -272,7 +477,176 @@ export default function AppointmentCalendar() {
             )}
           </DialogContent>
         </Dialog>
+
+        <Dialog open={isNewReservationDialogOpen} onOpenChange={setIsNewReservationDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="mt-4">New Reservation</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[800px]">
+            <DialogHeader>
+              <DialogTitle>New Reservation</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Customer Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input
+                      id="firstName"
+                      value={newReservation.customer.firstName}
+                      onChange={(e) => setNewReservation({...newReservation, customer: {...newReservation.customer, firstName: e.target.value}})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input
+                      id="lastName"
+                      value={newReservation.customer.lastName}
+                      onChange={(e) => setNewReservation({...newReservation, customer: {...newReservation.customer, lastName: e.target.value}})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={newReservation.customer.email}
+                      onChange={(e) => setNewReservation({...newReservation, customer: {...newReservation.customer, email: e.target.value}})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={newReservation.customer.phone}
+                      onChange={(e) => setNewReservation({...newReservation, customer: {...newReservation.customer, phone: e.target.value}})}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="service">Select Service</Label>
+                <Select 
+                  onValueChange={(value) => {
+                    setNewReservation({...newReservation, serviceId: Number(value), start: null})
+                  }}
+                >
+                  <SelectTrigger id="service">
+                    <SelectValue placeholder="Choose a service" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {services.map((service) => (
+                      <SelectItem key={service.id} value={service.id.toString()}>
+                        {service.name} ({service.price} CHF)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {newReservation.serviceId && (
+              <div className="mt-6">
+                <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
+                  <Button onClick={handlePrevWeek} className="mb-2 sm:mb-0">&lt; Previous Week</Button>
+                  <h2 className="text-lg font-semibold text-center">
+                    {format(weekStart, 'MMM d, yyyy')} - {format(weekEnd, 'MMM d, yyyy')}
+                  </h2>
+                  <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">Next Week &gt;</Button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 select-none">
+                  {days.map((day) => (
+                    <Card key={day.toString()} className="p-2">
+                      <CardHeader className="p-2">
+                        <CardTitle className="text-sm">{format(day, 'EEE')}</CardTitle>
+                        <p className="text-xs text-muted-foreground">{format(day, 'MMM d')}</p>
+                      </CardHeader>
+                      <CardContent className="p-2">
+                        <ScrollArea className="h-32 sm:h-40">
+                          {newReservation.staffId && isStaffWorkingOnDay(newReservation.staffId, day) ? (
+                            getAvailableTimesForDay(day).map(({ time, available }) => (
+                              <Button
+                                key={time.toISOString()}
+                                variant="outline"
+                                className={`w-full mb-1 ${
+                                  available 
+                                    ? newReservation.start && isSameDay(newReservation.start, time) && newReservation.start.getTime() === time.getTime()
+                                      ? 'bg-green-500 text-white hover:bg-green-600'
+                                      : 'hover:bg-green-100'
+                                    : 'bg-red-100 cursor-not-allowed'
+                                }`}
+                                onClick={() => available && setNewReservation({...newReservation, start: time})}
+                                disabled={!available}
+                              >
+                                {format(time, 'HH:mm')}
+                              </Button>
+                            ))
+                          ) : (
+                            <p className="text-xs text-muted-foreground">Not available</p>
+                          )}
+                        </ScrollArea>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button onClick={() => setIsConfirmDialogOpen(true)} disabled={!newReservation.start || !newReservation.customer.firstName || !newReservation.customer.lastName || !newReservation.customer.email || !newReservation.customer.phone}>
+                Book Appointment
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Confirm Your Reservation</DialogTitle>
+              <DialogDescription>Please review your reservation details.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p><strong>Service:</strong> {services.find(s => s.id === newReservation.serviceId)?.name}</p>
+              <p><strong>Staff:</strong> {staffMembers.find(s => s.id === newReservation.staffId)?.firstName} {staffMembers.find(s => s.id === newReservation.staffId)?.lastName}</p>
+              <p><strong>Date & Time:</strong> {newReservation.start && format(newReservation.start, 'MMMM d, yyyy HH:mm')}</p>
+              <p><strong>Customer:</strong> {newReservation.customer.firstName} {newReservation.customer.lastName}</p>
+              <p><strong>Email:</strong> {newReservation.customer.email}</p>
+              <p><strong>Phone:</strong> {newReservation.customer.phone}</p>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setIsConfirmDialogOpen(false)} variant="outline">
+                Edit
+              </Button>
+              <Button onClick={handleNewReservation} disabled={isSubmitting}>
+                {isSubmitting ? 'Booking...' : 'Confirm Booking'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Reservation Confirmed</DialogTitle>
+              <DialogDescription>Your reservation has been successfully booked.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p>An email confirmation has been sent to {newReservation.customer.email}.</p>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => {
+                setIsSuccessDialogOpen(false)
+                setIsNewReservationDialogOpen(false)
+                resetForm()
+              }}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   )
 }
+
