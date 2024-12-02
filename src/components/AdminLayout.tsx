@@ -31,6 +31,7 @@ import { logout } from "@/lib/auth";
 import { Roles } from "@/lib/types";
 import LocaleToggle from "@/components/LocalToggle";
 import { useLocale } from "@/contexts/LocaleContext";
+import Footer from "@/components/Footer";
 
 const NavLink = React.memo(
   ({
@@ -264,6 +265,7 @@ export default function AdminLayout({
       <main className="flex min-h-screen w-full flex-col bg-background">
         {children}
       </main>
+      <Footer />
     </div>
   );
 }

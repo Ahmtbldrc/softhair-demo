@@ -31,6 +31,7 @@ import { supabase } from "@/lib/supabase";
 import { Roles } from "@/lib/types";
 import { useLocale } from "@/contexts/LocaleContext";
 import LocaleToggle from "@/components/LocalToggle";
+import Footer from "@/components/Footer";
 
 const NavLink = React.memo(
   ({
@@ -235,6 +236,7 @@ export default function StaffLayout({
       <main className="flex min-h-screen w-full flex-col bg-background">
         {children}
       </main>
+      <Footer />
     </div>
   );
 }

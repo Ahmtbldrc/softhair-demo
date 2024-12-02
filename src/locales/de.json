@@ -16,7 +16,9 @@
     "support": "Hilfe",
     "search": "Suchen...",
     "loading": "Wird geladen...",
-    "softhair": "SoftHair"
+    "softhair": "SoftHair",
+    "company": "Softside Digital",
+    "allRightsReserved": "Alle Rechte vorbehalten"
   },
   "auth": {
     "logout": "Abmelden"
