@@ -21,6 +21,7 @@
     "allRightsReserved": "Alle Rechte vorbehalten"
   },
   "auth": {
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "poweredBy": "Unterstützt von"
   }
 }

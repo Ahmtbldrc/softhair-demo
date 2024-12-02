@@ -21,6 +21,7 @@
     "allRightsReserved": "All rights reserved"
   },
   "auth": {
-    "logout": "Logout"
+    "logout": "Logout",
+    "poweredBy": "Powered by"
   }
 }

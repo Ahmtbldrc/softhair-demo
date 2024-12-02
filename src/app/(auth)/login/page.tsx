@@ -92,6 +92,17 @@ export default function LoginPage() {
               </CardFooter>
             </Card>
           </form>
+          <div className="flex justify-end mt-2 text-sm">
+            <span>{t("auth.poweredBy")}</span>
+            <a
+              href="https://softsidedigital.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-1 bg-gradient-to-r from-gray-400 via-white to-gray-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+            >
+              Softside Digital
+            </a>
+          </div>
         </div>
       </div>
       <div className="hidden flex-1 bg-muted lg:block">
