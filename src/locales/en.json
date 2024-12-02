@@ -1,0 +1,24 @@
+{
+  "admin": {
+    "dashboard": "Dashboard",
+    "staff": "Staff",
+    "services": "Services",
+    "reservations": "Reservations"
+  },
+  "theme": {
+    "light": "Light Theme",
+    "dark": "Dark Theme",
+    "system": "System Theme",
+    "toggle": "Toggle theme"
+  },
+  "common": {
+    "settings": "Settings",
+    "support": "Support",
+    "search": "Search...",
+    "loading": "Loading...",
+    "softhair": "SoftHair"
+  },
+  "auth": {
+    "logout": "Logout"
+  }
+}

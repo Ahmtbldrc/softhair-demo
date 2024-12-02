@@ -1,12 +1,20 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { CircleUser, Menu, Search, Moon, Sun, Scissors, Loader2 } from "lucide-react"
-import { useTheme } from "next-themes"
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  CircleUser,
+  Menu,
+  Search,
+  Moon,
+  Sun,
+  Scissors,
+  Loader2,
+} from "lucide-react";
+import { useTheme } from "next-themes";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,40 +22,58 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { logout } from "@/lib/auth"
-import { User } from "@supabase/supabase-js"
-import { supabase } from "@/lib/supabase"
-import { Roles } from "@/lib/types"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { logout } from "@/lib/auth";
+import { User } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
+import { Roles } from "@/lib/types";
+import { useLocale } from "@/contexts/LocaleContext";
+import LocaleToggle from "@/components/LocalToggle";
 
-const NavLink = React.memo(({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) => {
-  const pathname = usePathname()
-  const isActive = pathname === href
+const NavLink = React.memo(
+  ({
+    href,
+    children,
+    onClick,
+  }: {
+    href: string;
+    children: React.ReactNode;
+    onClick?: () => void;
+  }) => {
+    const pathname = usePathname();
+    const isActive = pathname === href;
 
-  return (
-    <Link
-      href={href}
-      className={`text-muted-foreground font-semibold transition-colors hover:text-foreground dark:hover:text-white ${
-        isActive ? "text-black dark:text-white  font-semibold" : ""
-      }`}
-      onClick={onClick}
-    >
-      {children}
-    </Link>
-  )
-})
-NavLink.displayName = "NavLink"
+    return (
+      <Link
+        href={href}
+        className={`text-muted-foreground font-semibold transition-colors hover:text-foreground dark:hover:text-white ${
+          isActive ? "text-black dark:text-white  font-semibold" : ""
+        }`}
+        onClick={onClick}
+      >
+        {children}
+      </Link>
+    );
+  }
+);
+NavLink.displayName = "NavLink";
 
 const NavLinks = React.memo(({ onClick }: { onClick?: () => void }) => (
   <>
-    <NavLink href="/staff" onClick={onClick}>Dashboard</NavLink>
-    <NavLink href="/staff/reservation" onClick={onClick}>Reservation</NavLink>
-    <NavLink href="/staff/my-account" onClick={onClick}>My Account</NavLink>
+    <NavLink href="/staff" onClick={onClick}>
+      Dashboard
+    </NavLink>
+    <NavLink href="/staff/reservation" onClick={onClick}>
+      Reservation
+    </NavLink>
+    <NavLink href="/staff/my-account" onClick={onClick}>
+      My Account
+    </NavLink>
   </>
-))
-NavLinks.displayName = "NavLinks"
+));
+NavLinks.displayName = "NavLinks";
 
 const Loading = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
@@ -56,17 +82,24 @@ const Loading = () => (
       <p className="text-lg font-semibold text-primary">Loading...</p>
     </div>
   </div>
-)
+);
 
-export default function StaffLayout({ children }: { children: React.ReactNode }) {
-  const { setTheme } = useTheme()
-  const [user, setUser] = useState<User | null>()
-  const [isOpen, setIsOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+export default function StaffLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { setTheme } = useTheme();
+  const [user, setUser] = useState<User | null>();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const { t } = useLocale();
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       const userRole = session?.user?.user_metadata.role;
 
       if (userRole === Roles.ADMIN) {
@@ -74,20 +107,20 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
       } else if (userRole !== Roles.STAFF) {
         window.location.href = "/not-found";
       } else {
-        setUser(session?.user as User)
+        setUser(session?.user as User);
       }
-      setIsLoading(false)
-    }
+      setIsLoading(false);
+    };
 
-    checkSession()
-  }, [])
+    checkSession();
+  }, []);
 
   const closeMenu = () => {
-    setIsOpen(false)
-  }
+    setIsOpen(false);
+  };
 
   if (isLoading) {
-    return <Loading />
+    return <Loading />;
   }
 
   return (
@@ -136,15 +169,19 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search..."
+                placeholder={t("common.search")}
                 className="w-full pl-8 md:w-[200px] lg:w-[300px]"
-                aria-label="Search"
+                aria-label={t("common.search")}
               />
             </div>
           </form>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="hidden md:inline-flex">
+              <Button
+                variant="outline"
+                size="icon"
+                className="hidden md:inline-flex"
+              >
                 <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                 <span className="sr-only">Toggle theme</span>
@@ -164,18 +201,33 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="rounded-full" aria-label="User menu">
+              <Button
+                variant="secondary"
+                size="icon"
+                className="rounded-full"
+                aria-label="User menu"
+              >
                 <CircleUser className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{user?.user_metadata?.fullName as string}</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                {user?.user_metadata?.fullName as string}
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setTheme("light")}>Light Theme</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>Dark Theme</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>System Theme</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Light Theme
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Dark Theme
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                System Theme
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem> 
+              <DropdownMenuItem onClick={() => logout()}>
+                Logout
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -184,5 +236,5 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
         {children}
       </main>
     </div>
-  )
+  );
 }

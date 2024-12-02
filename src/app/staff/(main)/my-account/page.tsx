@@ -43,9 +43,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ServiceType, StaffType, TimeSlot, WeeklyHours } from "@/lib/types";
+import { ServiceType, StaffType } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { useLocale } from "@/contexts/LocaleContext";
 
 const staffData: StaffType = {
   id: 0,
@@ -71,13 +72,11 @@ const staffData: StaffType = {
 
 const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const;
 
-export default function StaffManagement() {
+export default function MyAccount() {
+  const { t } = useLocale();
   const [staff, setStaff] = useState<StaffType>(staffData);
-  const [staffImageName, setStaffImageName] = useState<string>("");
-  const [staffImage, setStaffImage] = useState<File | null>(null);
   const [services, setServices] = useState<{ id: number; name: string }[]>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [currentUsername, setCurrentUsername] = useState<string>("");
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -161,7 +160,6 @@ export default function StaffManagement() {
           console.error(error);
         } else {
           setStaff(data);
-          setCurrentUsername(data?.username);
           setSelectedServices(
             data?.services.map((s: ServiceType) => s.service.id)
           );
@@ -171,7 +169,10 @@ export default function StaffManagement() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 max-[640px]:p-2">
+      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <div className="flex items-center gap-4">
+          <h1 className="text-xl font-semibold">{t("navigation.myAccount")}</h1>
+        </div>
         <div className="mx-auto grid max-w-[59rem] min-[640px]:flex-1 auto-rows-max gap-4 max-[640px]:p-2">
           <div className="flex items-center gap-4">
             <Link href="/staff">
@@ -190,7 +191,9 @@ export default function StaffManagement() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Staff Details</CardTitle>
-                    <CardDescription>View the staff member's personal information</CardDescription>
+                    <CardDescription>
+                      View the staff member&apos;s personal information
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-6">
@@ -274,7 +277,9 @@ export default function StaffManagement() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Weekly Hours</CardTitle>
-                    <CardDescription>View the staff member's weekly working hours</CardDescription>
+                    <CardDescription>
+                      View the staff member&apos;s weekly working hours
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="hidden sm:block">
@@ -381,10 +386,7 @@ export default function StaffManagement() {
                     <CardTitle>Staff Status</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <Select
-                      value={staff.status ? "true" : "false"}
-                      disabled
-                    >
+                    <Select value={staff.status ? "true" : "false"} disabled>
                       <SelectTrigger>
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
@@ -472,4 +474,3 @@ export default function StaffManagement() {
     </div>
   );
 }
-

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PlusCircle } from "lucide-react";
+import { useLocale } from "@/contexts/LocaleContext";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +30,7 @@ import Pagination from "./pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function StaffPage() {
+  const { t } = useLocale();
   const [filter, setFilter] = useState<number>(0);
   const [staff, setStaff] = useState<StaffType[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,7 +44,7 @@ export default function StaffPage() {
   const handleDelete = async (id: number) => {
     await supabase.from("staff").delete().eq("id", id);
     setStaff(staff.filter((member) => member.id !== id));
-   };
+  };
 
   const paginatedStaff = filteredStaff.slice(
     (currentPage - 1) * itemsPerPage,
@@ -50,7 +52,6 @@ export default function StaffPage() {
   );
 
   useEffect(() => {
-    
     supabase
       .from("staff")
       .select("*, services:staff_services(service:service_id(id, name))")
@@ -85,7 +86,7 @@ export default function StaffPage() {
                 <Link href="/admin/staff/add">
                   <Button size="sm" className="h-8">
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Staff
+                    {t("staff.addStaff")}
                   </Button>
                 </Link>
               </div>
@@ -93,7 +94,7 @@ export default function StaffPage() {
             <TabsContent value="0" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Staff List</CardTitle>
+                  <CardTitle>{t("staff.staffList")}</CardTitle>
                   <CardDescription>
                     Manage your Staff and view their services.
                   </CardDescription>

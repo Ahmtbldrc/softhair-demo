@@ -1,0 +1,24 @@
+{
+  "admin": {
+    "dashboard": "Dashboard",
+    "staff": "Personal",
+    "services": "Dienstleistungen",
+    "reservations": "Termine"
+  },
+  "theme": {
+    "light": "Helles Design",
+    "dark": "Dunkles Design",
+    "system": "System Design",
+    "toggle": "Design umschalten"
+  },
+  "common": {
+    "settings": "Einstellungen",
+    "support": "Hilfe",
+    "search": "Suchen...",
+    "loading": "Wird geladen...",
+    "softhair": "SoftHair"
+  },
+  "auth": {
+    "logout": "Abmelden"
+  }
+}
