@@ -98,7 +98,7 @@ export default function LoginPage() {
               href="https://softsidedigital.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="ml-1 bg-gradient-to-r from-gray-400 via-white to-gray-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+              className="ml-1 dark:bg-gradient-to-r dark:from-gray-500 dark:via-white dark:to-gray-500 bg-gradient-to-r from-black via-gray-300 to-black animate-gradient bg-[length:200%_100%] bg-clip-text text-transparent hover:opacity-80 transition-opacity"
             >
               Softside Digital
             </a>
