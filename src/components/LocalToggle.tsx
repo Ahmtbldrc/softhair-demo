@@ -2,28 +2,36 @@
 
 import { useLocale } from "@/contexts/LocaleContext";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Languages } from "lucide-react";
 
 export default function LocaleToggle() {
   const { currentLocale, changeLocale, availableLocales } = useLocale();
 
   return (
-    <Select value={currentLocale} onValueChange={changeLocale}>
-      <SelectTrigger className="w-[100px]">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Languages className="h-4 w-4" />
+          <span className="sr-only">Toggle language</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
         {availableLocales.map((locale) => (
-          <SelectItem key={locale} value={locale}>
+          <DropdownMenuItem
+            key={locale}
+            onClick={() => changeLocale(locale)}
+            className="cursor-pointer"
+          >
             {locale === "de" ? "Deutsch" : "English"}
-          </SelectItem>
+          </DropdownMenuItem>
         ))}
-      </SelectContent>
-    </Select>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

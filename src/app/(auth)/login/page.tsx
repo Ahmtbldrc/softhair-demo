@@ -48,7 +48,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen w-full">
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 z-50">
         <LocaleToggle />
       </div>
       <div className="flex flex-1 items-center justify-center">

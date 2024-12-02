@@ -22,6 +22,11 @@
   },
   "auth": {
     "logout": "Abmelden",
-    "poweredBy": "Unterstützt von"
+    "poweredBy": "Unterstützt von",
+    "loginTitle": "Willkommen zurück",
+    "loginDescription": "Geben Sie Ihre Anmeldedaten ein, um auf Ihr Konto zuzugreifen",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "login": "Anmelden"
   }
 }

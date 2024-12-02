@@ -22,6 +22,11 @@
   },
   "auth": {
     "logout": "Logout",
-    "poweredBy": "Powered by"
+    "poweredBy": "Powered by",
+    "loginTitle": "Welcome Back",
+    "loginDescription": "Enter your credentials to access your account",
+    "username": "Username",
+    "password": "Password",
+    "login": "Sign In"
   }
 }
