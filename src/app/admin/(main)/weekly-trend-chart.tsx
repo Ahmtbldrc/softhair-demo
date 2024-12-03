@@ -16,6 +16,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { getDailyIncomeForWeeks } from '@/lib/services/reservation.service'
+import { useLocale } from "@/contexts/LocaleContext";
 
 type ChartDataType = {
   day: string;
@@ -45,6 +46,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function WeeklyTrendChart() {
+  const { t } = useLocale();
   const [chartData, setChartData] = useState<ChartDataType[]>(initialChartData);
 
   useEffect(() => {
@@ -61,7 +63,7 @@ export function WeeklyTrendChart() {
   return (
     <Card>
       <CardHeader className="items-center">
-        <CardTitle>Wöchentlicher Trend</CardTitle>
+        <CardTitle>{t("weekly-trend.weeklyTrend")}</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>

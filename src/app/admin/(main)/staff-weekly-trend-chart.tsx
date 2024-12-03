@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { supabase } from '@/lib/supabase'
+import { useLocale } from "@/contexts/LocaleContext";
 
 type StaffData = {
   id: number;
@@ -16,6 +17,8 @@ type StaffData = {
 }
 
 export default function StaffWeeklyTrendChart() {
+  const { t } = useLocale();
+
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 4
   const [staffData, setStaffData] = useState<StaffData[]>([])
@@ -53,7 +56,7 @@ export default function StaffWeeklyTrendChart() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Recent Sales</CardTitle>
+        <CardTitle>{t("staff-weekly-trend.recentSales")}</CardTitle>
         {/* <Button onClick={exportToCSV} size="sm" className="gap-1">
           Export CSV
           <ArrowDownToLine className="h-4 w-4" />
@@ -78,7 +81,7 @@ export default function StaffWeeklyTrendChart() {
         ))}
         <div className="flex items-center justify-between space-x-2 py-4">
           <div className="text-sm text-muted-foreground">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, staffData.length)} of {staffData.length} staff members
+              {t("staff-weekly-trend.showing")} {(currentPage - 1) * itemsPerPage + 1} {t("staff-weekly-trend.to")} {Math.min(currentPage * itemsPerPage, staffData.length)} {t("staff-weekly-trend.of")} {staffData.length} {t("staff-weekly-trend.staffMembers")}
           </div>
           <div className="space-x-2">
             <Button
@@ -88,7 +91,7 @@ export default function StaffWeeklyTrendChart() {
               disabled={currentPage === 1}
             >
               <ChevronLeft className="h-4 w-4" />
-              <span className="sr-only">Previous page</span>
+              <span className="sr-only">{t("staff-weekly-trend.previousPage")}</span>
             </Button>
             <Button
               variant="outline"
@@ -97,7 +100,7 @@ export default function StaffWeeklyTrendChart() {
               disabled={currentPage === totalPages}
             >
               <ChevronRight className="h-4 w-4" />
-              <span className="sr-only">Next page</span>
+              <span className="sr-only">{t("staff-weekly-trend.nextPage")}</span>
             </Button>
           </div>
         </div>

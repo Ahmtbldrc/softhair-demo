@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartConfig, ChartContainer } from "@/components/ui/chart"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { supabase } from "@/lib/supabase"
+import { useLocale } from "@/contexts/LocaleContext";
+
 
 const chartData = {
   monthly: [{ visitors: 15000, fill: "var(--color-monthly)" }],
@@ -33,6 +35,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function OccupancyRate() {
+  const { t } = useLocale();
   const [activeTab, setActiveTab] = useState("monthly")
   // const [chartData, setChartData] = useState();
 
@@ -99,14 +102,14 @@ export default function OccupancyRate() {
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Occupancy Rate</CardTitle>
+        <CardTitle>{t("occupancy-rate.occupancyRate")}</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <Tabs defaultValue="daily" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mt-3">
-            <TabsTrigger value="daily">Daily</TabsTrigger>
-            <TabsTrigger value="weekly">Weekly</TabsTrigger>
-            <TabsTrigger value="monthly">Monthly</TabsTrigger>
+            <TabsTrigger value="daily">{t("occupancy-rate.daily")}</TabsTrigger>
+            <TabsTrigger value="weekly">{t("occupancy-rate.weekly")}</TabsTrigger>
+            <TabsTrigger value="monthly">{t("occupancy-rate.monthly")}</TabsTrigger>
           </TabsList>
           {Object.entries(chartData).map(([period, data]) => (
             <TabsContent key={period} value={period}>
@@ -151,7 +154,7 @@ export default function OccupancyRate() {
                                 y={(viewBox.cy || 0) + 24}
                                 className="fill-muted-foreground"
                               >
-                                Visitors
+                                {t("occupancy-rate.visitors")}
                               </tspan>
                             </text>
                           )

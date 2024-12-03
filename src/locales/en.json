@@ -28,5 +28,56 @@
     "username": "Username",
     "password": "Password",
     "login": "Sign In"
+  },
+  "occupancy-rate":{
+    "occupancyRate": "Occupancy Rate",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "visitors": "Visitors"
+  },
+  "customer-service":{
+    "customerServiceDistribution": "Customer Service Distribution",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "visitors": "Visitors"
+  },
+  "staff-weekly-trend":{
+    "recentSales": "Recent Sales",
+    "showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "staffMembers": "staff members",
+    "previousPage": "Previous page",
+    "nextPage": "Next page"
+  },
+  "total-appointment":{
+    "totalAppointments": "Total Appointments",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "visitors": "Visitors"
+  },
+  "transactions":{
+    "transactions": "Transactions",
+    "recentTransactions": "Recent transactions from your store.",
+    "customer": "Customer",
+    "staff": "Staff",
+    "service": "Service",
+    "date": "Date",
+    "amount": "Amount",
+    "showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "entries": "entries",
+    "previousPage": "Previous page",
+    "nextPage": "Next page"
+  },
+  "weekly-trend":{
+    "weeklyTrend": "Weekly Trend",
+    "day": "Day",
+    "thisWeek": "This Week",
+    "lastWeek": "Last Week"
   }
 }

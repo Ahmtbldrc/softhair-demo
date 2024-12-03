@@ -18,6 +18,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AnalyticType } from "@/lib/types"
 import { getReservationCount } from "@/lib/services/reservation.service"
+import { useLocale } from "@/contexts/LocaleContext";
 
 // define ChartDataType from chartData object
 type ChartDataType = {
@@ -44,6 +45,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function TotalAppointmentChart() {
+  const { t } = useLocale();
   const [activeTab, setActiveTab] = useState<AnalyticType>(AnalyticType.DAILY)
   const [chartData, setChartData] = useState<ChartDataType>(initialChartData);
 
@@ -79,14 +81,14 @@ export function TotalAppointmentChart() {
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Anzahl der Termine</CardTitle>
+        <CardTitle>{t("total-appointment.totalAppointments")}</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <Tabs defaultValue={AnalyticType.DAILY} value={activeTab} onValueChange={value => setActiveTab(value as AnalyticType)} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mt-3">
-            <TabsTrigger value={AnalyticType.DAILY}>Daily</TabsTrigger>
-            <TabsTrigger value={AnalyticType.WEEKLY}>Weekly</TabsTrigger>
-            <TabsTrigger value={AnalyticType.MONTHLY}>Monthly</TabsTrigger>
+            <TabsTrigger value={AnalyticType.DAILY}>{t("total-appointment.daily")}</TabsTrigger>
+            <TabsTrigger value={AnalyticType.WEEKLY}>{t("total-appointment.weekly")}</TabsTrigger>
+            <TabsTrigger value={AnalyticType.MONTHLY}>{t("total-appointment.monthly")}</TabsTrigger>
           </TabsList>
           {Object.entries(chartData).map(([period, data]) => (
             <TabsContent key={period} value={period}>
@@ -122,7 +124,7 @@ export function TotalAppointmentChart() {
                                 y={(viewBox.cy || 0) + 4}
                                 className="fill-muted-foreground"
                               >
-                                Visitors
+                                {t("total-appointment.visitors")}
                               </tspan>
                             </text>
                           )

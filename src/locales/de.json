@@ -28,5 +28,56 @@
     "username": "Benutzername",
     "password": "Passwort",
     "login": "Anmelden"
+  },
+  "occupancy-rate":{
+    "occupancyRate": "Belegungsrate",
+    "daily": "Täglich",
+    "weekly": "Wochenweise",
+    "monthly": "Monatlich",
+    "visitors": "Besucher"
+  },
+  "customer-service":{
+    "customerServiceDistribution": "Kundenbetreuung",
+    "daily": "Täglich",
+    "weekly": "Wochenweise",
+    "monthly": "Monatlich",
+    "visitors": "Besucher"
+  },
+  "staff-weekly-trend":{
+    "recentSales": "Recent Sales",
+    "showing": "Anzeigen",
+    "to": "bis",
+    "of": "von",
+    "staffMembers": "Mitarbeiter",
+    "previousPage": "Vorherige Seite",
+    "nextPage": "Nächste Seite"
+  },
+  "total-appointment":{
+    "totalAppointments": "Anzahl der Termine",
+    "daily": "Täglich",
+    "weekly": "Wochenweise",
+    "monthly": "Monatlich",
+    "visitors": "Besucher"
+  },
+  "transactions":{
+    "transactions": "Transaktionen",
+    "recentTransactions": "Jüngste Transaktionen in Ihrem Geschäft.",
+    "customer": "Kunde",
+    "staff": "Mitarbeiter",
+    "service": "Dienstleistung",
+    "date": "Datum",
+    "amount": "Betrag",
+    "showing": "Anzeigen",
+    "to": "bis",
+    "of": "von",
+    "entries": "Einträge",
+    "previousPage": "Vorherige Seite",
+    "nextPage": "Nächste Seite"
+  },
+  "weekly-trend":{
+    "weeklyTrend": "Wochenweise",
+    "day": "Tag",
+    "thisWeek": "Diese Woche",
+    "lastWeek": "Letzte Woche"
   }
 }

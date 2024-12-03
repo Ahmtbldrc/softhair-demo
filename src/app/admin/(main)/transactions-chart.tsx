@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { supabase } from '@/lib/supabase'
+import { useLocale } from "@/contexts/LocaleContext";
 
 type Transaction = {
   customer: string;
@@ -17,6 +18,7 @@ type Transaction = {
 }
 
 export default function TransactionsChart() {
+  const { t } = useLocale();
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 3
@@ -44,9 +46,9 @@ export default function TransactionsChart() {
     <Card className="xl:col-span-2">
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
-          <CardTitle>Transactions</CardTitle>
+          <CardTitle>{t("transactions.transactions")}</CardTitle>
           <CardDescription>
-            Recent transactions from your store.
+            {t("transactions.recentTransactions")}
           </CardDescription>
         </div>
         {/* <Button onClick={exportToCSV} size="sm" className="ml-auto gap-1">
@@ -58,11 +60,11 @@ export default function TransactionsChart() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Customer</TableHead>
-              <TableHead>Staff</TableHead>
-              <TableHead>Service</TableHead>
-              <TableHead className="hidden xl:table-cell">Date</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
+              <TableHead>{t("transactions.customer")}</TableHead>
+              <TableHead>{t("transactions.staff")}</TableHead>
+              <TableHead>{t("transactions.service")}</TableHead>
+              <TableHead className="hidden xl:table-cell">{t("transactions.date")}</TableHead>
+              <TableHead className="text-right">{t("transactions.amount")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -98,7 +100,7 @@ export default function TransactionsChart() {
         </Table>
         <div className="flex items-center justify-between space-x-2 py-4">
           <div className="text-sm text-muted-foreground">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, transactions.length)} of {transactions.length} entries
+            {t("transactions.showing")} {(currentPage - 1) * itemsPerPage + 1} {t("transactions.to")} {Math.min(currentPage * itemsPerPage, transactions.length)} {t("transactions.of")} {transactions.length} {t("transactions.entries")}
           </div>
           <div className="space-x-2">
             <Button
@@ -108,7 +110,7 @@ export default function TransactionsChart() {
               disabled={currentPage === 1}
             >
               <ChevronLeft className="h-4 w-4" />
-              <span className="sr-only">Previous page</span>
+              <span className="sr-only">{t("transactions.previousPage")}</span>
             </Button>
             <Button
               variant="outline"
@@ -117,7 +119,7 @@ export default function TransactionsChart() {
               disabled={currentPage === totalPages}
             >
               <ChevronRight className="h-4 w-4" />
-              <span className="sr-only">Next page</span>
+              <span className="sr-only">{t("transactions.nextPage")}</span>
             </Button>
           </div>
         </div>

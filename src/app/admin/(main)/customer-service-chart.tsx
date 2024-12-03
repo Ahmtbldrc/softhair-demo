@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/chart"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AnalyticType } from "@/lib/types"
+import { useLocale } from "@/contexts/LocaleContext";
 
 const chartConfig = {
   visitors: {
@@ -25,6 +26,7 @@ const chartConfig = {
 }
 
 export default function CustomerServiceChart() {
+  const { t } = useLocale();
   const [activeTab, setActiveTab] = React.useState<keyof ChartData>("daily")
   type ChartData = {
     daily: { visitors: number; service: string, fill: string }[];
@@ -87,14 +89,14 @@ export default function CustomerServiceChart() {
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Customer Service Distribution</CardTitle>
+        <CardTitle>{t("customer-service.customerServiceDistribution")}</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <Tabs defaultValue="daily" value={activeTab} onValueChange={(value) => setActiveTab(value as keyof ChartData)} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mt-3">
-            <TabsTrigger value={AnalyticType.DAILY}>Daily</TabsTrigger>
-            <TabsTrigger value={AnalyticType.WEEKLY}>Weekly</TabsTrigger>
-            <TabsTrigger value={AnalyticType.MONTHLY}>Monthly</TabsTrigger>
+            <TabsTrigger value={AnalyticType.DAILY}>{t("customer-service.daily")}</TabsTrigger>
+            <TabsTrigger value={AnalyticType.WEEKLY}>{t("customer-service.weekly")}</TabsTrigger>
+            <TabsTrigger value={AnalyticType.MONTHLY}>{t("customer-service.monthly")}</TabsTrigger>
           </TabsList>
           {Object.entries(chartData).map(([period, data]) => (
             <TabsContent key={period} value={period}>
@@ -136,7 +138,7 @@ export default function CustomerServiceChart() {
                                 y={(viewBox.cy || 0) + 24}
                                 className="fill-muted-foreground"
                               >
-                                Visitors
+                                {t("customer-service.visitors")}
                               </tspan>
                             </text>
                           )
