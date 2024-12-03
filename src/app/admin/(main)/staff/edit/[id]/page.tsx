@@ -29,6 +29,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ServiceType, StaffType, TimeSlot, WeeklyHours } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useParams, useRouter } from 'next/navigation';
+import { useLocale } from '@/contexts/LocaleContext';
 
 const staffData: StaffType = {
   id: 0,
@@ -55,6 +56,7 @@ const staffData: StaffType = {
 const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const
 
 export default function StaffManagement() {
+  const { t } = useLocale();
   const [staff, setStaff] = useState<StaffType>(staffData);
   const [staffImageName, setStaffImageName] = useState<string>("");
   const [staffImage, setStaffImage] = useState<File | null>(null);
@@ -269,7 +271,7 @@ export default function StaffManagement() {
             <Link href="/admin/staff">
               <Button variant="outline" size="icon" className="h-7 w-7">
                 <ChevronLeft className="h-4 w-4" />
-                <span className="sr-only">Back</span>
+                <span className="sr-only">{t("admin-staff-edit.back")}</span>
               </Button>
             </Link>
             <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
@@ -281,16 +283,16 @@ export default function StaffManagement() {
               <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Staff Details</CardTitle>
+                    <CardTitle>{t("admin-staff-edit.staffDetails")}</CardTitle>
                     <CardDescription>
-                      Enter the staff member&apos;s personal information
+                      {t("admin-staff-edit.enterStaffPersonalInformation")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-6">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
-                          <Label htmlFor="firstName">First Name</Label>
+                          <Label htmlFor="firstName">{t("admin-staff-edit.firstName")}</Label>
                           <Input
                             id="firstName"
                             type="text"
@@ -303,7 +305,7 @@ export default function StaffManagement() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="lastName">Last Name</Label>
+                          <Label htmlFor="lastName">{t("admin-staff-edit.lastName")}</Label>
                           <Input
                             id="lastName"
                             type="text"
@@ -317,7 +319,7 @@ export default function StaffManagement() {
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email">{t("admin-staff-edit.email")}</Label>
                         <Input
                           id="email"
                           type="email"
@@ -330,7 +332,7 @@ export default function StaffManagement() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="username">Username</Label>
+                        <Label htmlFor="username">{t("admin-staff-edit.username")}</Label>
                         <Input
                           id="username"
                           type="text"
@@ -343,7 +345,7 @@ export default function StaffManagement() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password">{t("admin-staff-edit.password")}</Label>
                         <Input
                           id="password"
                           type="password"
@@ -361,9 +363,9 @@ export default function StaffManagement() {
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Weekly Hours</CardTitle>
+                    <CardTitle>{t("admin-staff-edit.weeklyHours")}</CardTitle>
                     <CardDescription>
-                      Set the staff member&apos;s weekly working hours
+                      {t("admin-staff-edit.weeklyHoursDescription")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -371,9 +373,9 @@ export default function StaffManagement() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="w-[100px]">Day</TableHead>
-                            <TableHead>Hours</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead className="w-[100px]">{t("admin-staff-edit.day")}</TableHead>
+                            <TableHead>{t("admin-staff-edit.hours")}</TableHead>
+                            <TableHead className="text-right">{t("admin-staff-edit.actions")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -383,7 +385,7 @@ export default function StaffManagement() {
                               <TableCell>
                                 {staff.weeklyHours[day].length === 0 ? (
                                   <span className="text-muted-foreground">
-                                    Unavailable
+                                    {t("admin-staff-edit.unavailable")}
                                   </span>
                                 ) : (
                                   <div className="flex flex-col space-y-2">
@@ -429,7 +431,7 @@ export default function StaffManagement() {
                                           }
                                         >
                                           <X className="h-4 w-4" />
-                                          <span className="sr-only">Remove time slot</span>
+                                          <span className="sr-only">{t("admin-staff-edit.removeTimeSlot")}</span>
                                         </Button>
                                       </div>
                                     ))}
@@ -444,7 +446,7 @@ export default function StaffManagement() {
                                   onClick={() => addTimeSlot(day)}
                                 >
                                   <Plus className="h-4 w-4 mr-2" />
-                                  Add
+                                  {t("admin-staff-edit.add")}
                                 </Button>
                               </TableCell>
                             </TableRow>
@@ -461,7 +463,7 @@ export default function StaffManagement() {
                               {day}
                               <span className="ml-auto">
                                 {staff.weeklyHours[day].length === 0
-                                  ? "Unavailable"
+                                  ? t("admin-staff-edit.unavailable")
                                   : `${staff.weeklyHours[day].length} slot(s)`}
                               </span>
                             </Button>
@@ -504,7 +506,7 @@ export default function StaffManagement() {
                                     onClick={() => removeTimeSlot(day, index)}
                                   >
                                     <X className="h-4 w-4" />
-                                    <span className="sr-only">Remove time slot</span>
+                                    <span className="sr-only">{t("admin-staff-edit.removeTimeSlot")}</span>
                                   </Button>
                                 </div>
                               ))}
@@ -516,7 +518,7 @@ export default function StaffManagement() {
                                 className="w-full"
                               >
                                 <Plus className="h-4 w-4 mr-2" />
-                                Add Time Slot
+                                {t("admin-staff-edit.addTimeSlot")}
                               </Button>
                             </div>
                           </PopoverContent>
@@ -529,7 +531,7 @@ export default function StaffManagement() {
               <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Staff Status</CardTitle>
+                    <CardTitle>{t("admin-staff-edit.staffStatus")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Select
@@ -542,17 +544,17 @@ export default function StaffManagement() {
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="true">Active</SelectItem>
-                        <SelectItem value="false">Passive</SelectItem>
+                        <SelectItem value="true">{t("admin-staff-edit.active")}</SelectItem>
+                        <SelectItem value="false">{t("admin-staff-edit.passive")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </CardContent>
                 </Card>
                 <Card className="overflow-hidden">
                   <CardHeader>
-                    <CardTitle>Staff Image</CardTitle>
+                    <CardTitle>{t("admin-staff-edit.staffImage")}</CardTitle>
                     <CardDescription>
-                      Upload a profile image for the staff member
+                      {t("admin-staff-edit.uploadImageDescription")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -579,7 +581,7 @@ export default function StaffManagement() {
                         <Label htmlFor="picture" className="cursor-pointer">
                           <div className="flex items-center gap-2 rounded-md bg-muted px-4 py-2 hover:bg-muted/80">
                             <Upload className="h-4 w-4" />
-                            <span>Upload Image</span>
+                            <span>{t("admin-staff-edit.uploadImage")}</span>
                           </div>
                           <Input
                             id="picture"
@@ -595,9 +597,9 @@ export default function StaffManagement() {
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Staff Services</CardTitle>
+                    <CardTitle>{t("admin-staff-edit.staffServices")}</CardTitle>
                     <CardDescription>
-                      Select the services this staff member can provide
+                      {t("admin-staff-edit.staffServicesDescription")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -627,13 +629,13 @@ export default function StaffManagement() {
             </div>
             <div className="flex items-center justify-end gap-2 mt-4">
               <Button type="button" variant="outline">
-                Discard
+                  {t("admin-staff-edit.discard")}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                Save changes
+                {t("admin-staff-edit.saveChanges")}
               </Button>
             </div>
           </form>

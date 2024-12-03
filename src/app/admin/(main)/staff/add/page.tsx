@@ -264,7 +264,7 @@ export default function AddStaff() {
               </Button>
             </Link>
             <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-              Add New Staff Member
+              {t("admin-staff-add.addNewStaffMember")}
             </h1>
           </div>
           <form onSubmit={handleSubmit}>
@@ -272,9 +272,9 @@ export default function AddStaff() {
               <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Staff Details</CardTitle>
+                    <CardTitle>{t("admin-staff-add.staffDetails")}</CardTitle>
                     <CardDescription>
-                      Enter the new staff member&apos;s personal information
+                      {t("admin-staff-add.enterStaffPersonalInformation")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -282,7 +282,7 @@ export default function AddStaff() {
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
                           <Label htmlFor="firstName">
-                            {t("staff.firstName")}
+                            {t("admin-staff-add.firstName")}
                           </Label>
                           <Input
                             id="firstName"
@@ -296,7 +296,9 @@ export default function AddStaff() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="lastName">Last Name</Label>
+                          <Label htmlFor="lastName">
+                            {t("admin-staff-add.lastName")}
+                          </Label>
                           <Input
                             id="lastName"
                             type="text"
@@ -310,7 +312,9 @@ export default function AddStaff() {
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email">
+                          {t("admin-staff-add.email")}
+                        </Label>
                         <Input
                           id="email"
                           type="email"
@@ -323,7 +327,9 @@ export default function AddStaff() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="username">Username</Label>
+                        <Label htmlFor="username">
+                          {t("admin-staff-add.username")}
+                        </Label>
                         <Input
                           id="username"
                           type="text"
@@ -336,7 +342,9 @@ export default function AddStaff() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password">
+                          {t("admin-staff-add.password")}
+                        </Label>
                         <Input
                           id="password"
                           type="password"
@@ -354,9 +362,9 @@ export default function AddStaff() {
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Weekly Hours</CardTitle>
+                    <CardTitle>{t("admin-staff-add.weeklyHours")}</CardTitle>
                     <CardDescription>
-                      Set the staff member&apos;s weekly working hours
+                      {t("admin-staff-add.weeklyHoursDescription")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -364,10 +372,12 @@ export default function AddStaff() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="w-[100px]">Day</TableHead>
-                            <TableHead>Hours</TableHead>
+                            <TableHead className="w-[100px]">
+                              {t("admin-staff-add.day")}
+                            </TableHead>
+                            <TableHead>{t("admin-staff-add.hours")}</TableHead>
                             <TableHead className="text-right">
-                              Actions
+                              {t("admin-staff-add.actions")}
                             </TableHead>
                           </TableRow>
                         </TableHeader>
@@ -380,7 +390,7 @@ export default function AddStaff() {
                               <TableCell>
                                 {staff.weeklyHours[day].length === 0 ? (
                                   <span className="text-muted-foreground">
-                                    Unavailable
+                                    {t("admin-staff-add.unavailable")}
                                   </span>
                                 ) : (
                                   <div className="flex flex-col space-y-2">
@@ -427,7 +437,7 @@ export default function AddStaff() {
                                           >
                                             <X className="h-4 w-4" />
                                             <span className="sr-only">
-                                              Remove time slot
+                                              {t("admin-staff-add.removeTimeSlot")}
                                             </span>
                                           </Button>
                                         </div>
@@ -444,7 +454,7 @@ export default function AddStaff() {
                                   onClick={() => addTimeSlot(day)}
                                 >
                                   <Plus className="h-4 w-4 mr-2" />
-                                  Add
+                                  {t("admin-staff-add.add")}
                                 </Button>
                               </TableCell>
                             </TableRow>
@@ -464,7 +474,7 @@ export default function AddStaff() {
                               {day}
                               <span className="ml-auto">
                                 {staff.weeklyHours[day].length === 0
-                                  ? "Unavailable"
+                                  ? t("admin-staff-add.unavailable")
                                   : `${staff.weeklyHours[day].length} slot(s)`}
                               </span>
                             </Button>
@@ -511,7 +521,7 @@ export default function AddStaff() {
                                   >
                                     <X className="h-4 w-4" />
                                     <span className="sr-only">
-                                      Remove time slot
+                                      {t("admin-staff-add.removeTimeSlot")}
                                     </span>
                                   </Button>
                                 </div>
@@ -524,7 +534,7 @@ export default function AddStaff() {
                                 className="w-full"
                               >
                                 <Plus className="h-4 w-4 mr-2" />
-                                Add Time Slot
+                                {t("admin-staff-add.addTimeSlot")}
                               </Button>
                             </div>
                           </PopoverContent>
@@ -537,7 +547,7 @@ export default function AddStaff() {
               <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Staff Status</CardTitle>
+                    <CardTitle>{t("admin-staff-add.staffStatus")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Select
@@ -547,20 +557,24 @@ export default function AddStaff() {
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
+                        <SelectValue placeholder={t("admin-staff-add.selectStatus")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="true">Active</SelectItem>
-                        <SelectItem value="false">Passive</SelectItem>
+                        <SelectItem value="true">
+                          {t("admin-staff-add.active")}
+                        </SelectItem>
+                        <SelectItem value="false">
+                          {t("admin-staff-add.passive")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </CardContent>
                 </Card>
                 <Card className="overflow-hidden">
                   <CardHeader>
-                    <CardTitle>Staff Image</CardTitle>
+                    <CardTitle>{t("admin-staff-add.staffImage")}</CardTitle>
                     <CardDescription>
-                      Upload a profile image for the staff member
+                      {t("admin-staff-add.uploadImageDescription")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -584,7 +598,7 @@ export default function AddStaff() {
                         <Label htmlFor="picture" className="cursor-pointer">
                           <div className="flex items-center gap-2 rounded-md bg-muted px-4 py-2 hover:bg-muted/80">
                             <Upload className="h-4 w-4" />
-                            <span>Upload Image</span>
+                            <span>{t("admin-staff-add.uploadImage")}</span>
                           </div>
                           <Input
                             id="picture"
@@ -601,9 +615,9 @@ export default function AddStaff() {
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Staff Services</CardTitle>
+                    <CardTitle>{t("admin-staff-add.staffServices")}</CardTitle>
                     <CardDescription>
-                      Select the services this staff member can provide
+                      {t("admin-staff-add.staffServicesDescription")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -635,13 +649,13 @@ export default function AddStaff() {
             </div>
             <div className="flex items-center justify-end gap-2 mt-4">
               <Button type="button" variant="outline">
-                Discard
+                {t("admin-staff-add.discard")}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                Add Staff
+                {t("admin-staff-add.addStaff")}
               </Button>
             </div>
           </form>

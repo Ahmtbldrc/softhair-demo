@@ -21,6 +21,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { StaffType } from "@/lib/types";
+import { useLocale } from "@/contexts/LocaleContext";
 
 type Props = {
   staff: StaffType,
@@ -28,6 +29,7 @@ type Props = {
 };
 
 function ActionToggleMenu({ staff,  handleDelete }: Props) {
+  const { t } = useLocale();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
@@ -58,25 +60,24 @@ function ActionToggleMenu({ staff,  handleDelete }: Props) {
       <DropdownMenuTrigger asChild>
         <Button aria-haspopup="true" size="icon" variant="ghost">
           <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">Toggle menu</span>
+          <span className="sr-only">{t("admin-staff.toggleMenu")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("admin-staff.actions")}</DropdownMenuLabel>
         <DropdownMenuItem asChild>
-          <Link href={`/admin/staff/edit/${staff.id}`}>Edit</Link>
+          <Link href={`/admin/staff/edit/${staff.id}`}>{t("admin-staff.edit")}</Link>
         </DropdownMenuItem>
 
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
           <DialogTrigger asChild>
-            <DropdownMenuItem>Delete</DropdownMenuItem>
+            <DropdownMenuItem>{t("admin-staff.delete")}</DropdownMenuItem>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogTitle>{t("admin-staff.areYouSure")}</DialogTitle>
               <DialogDescription>
-                This action cannot be undone. This will permanently delete the
-                staff member and remove their data from our servers.
+                {t("admin-staff.thisActionCannotBeUndone")}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -84,7 +85,7 @@ function ActionToggleMenu({ staff,  handleDelete }: Props) {
                 variant="outline"
                 onClick={() => setIsDeleteDialogOpen(false)}
               >
-                Cancel
+                {t("admin-staff.cancel")}
               </Button>
               <Button
                 variant="destructive"
@@ -94,7 +95,7 @@ function ActionToggleMenu({ staff,  handleDelete }: Props) {
                 {isDeleting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                Delete
+                {t("admin-staff.deleteStaff")}
               </Button>
             </DialogFooter>
           </DialogContent>

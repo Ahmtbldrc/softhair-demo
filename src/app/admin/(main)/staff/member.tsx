@@ -4,6 +4,8 @@ import React from "react";
 import ActionToggleMenu from "./action-toggle-menu";
 import { StaffType } from "@/lib/types";
 import Image from "next/image";
+import { useLocale } from "@/contexts/LocaleContext";
+
 
 type Props = {
   member: StaffType;
@@ -11,6 +13,7 @@ type Props = {
 };
 
 function Member({ member, handleDelete }: Props) {
+  const { t } = useLocale();
   return (
     <TableRow key={member.id}>
       <TableCell className="hidden sm:table-cell">
@@ -35,7 +38,7 @@ function Member({ member, handleDelete }: Props) {
               : "bg-red-500"
           }
         >
-          {member.status ? "Active" : "Passive"}
+          {member.status ? t("admin-staff.active") : t("admin-staff.passive")}
         </Badge>
       </TableCell>
       <TableCell className="hidden md:table-cell">

@@ -78,15 +78,15 @@ export default function StaffPage() {
           >
             <div className="flex items-center justify-between">
               <TabsList>
-                <TabsTrigger value="0">All</TabsTrigger>
-                <TabsTrigger value="1">Active</TabsTrigger>
-                <TabsTrigger value="2">Passive</TabsTrigger>
+                <TabsTrigger value="0">{t("admin-staff.all")}</TabsTrigger>
+                <TabsTrigger value="1">{t("admin-staff.active")}</TabsTrigger>
+                <TabsTrigger value="2">{t("admin-staff.passive")}</TabsTrigger>
               </TabsList>
               <div className="flex items-center gap-2">
                 <Link href="/admin/staff/add">
                   <Button size="sm" className="h-8">
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    {t("staff.addStaff")}
+                    {t("admin-staff.addStaff")}
                   </Button>
                 </Link>
               </div>
@@ -94,9 +94,9 @@ export default function StaffPage() {
             <TabsContent value="0" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("staff.staffList")}</CardTitle>
+                  <CardTitle>{t("admin-staff.staffList")}</CardTitle>
                   <CardDescription>
-                    Manage your Staff and view their services.
+                    {t("admin-staff.manageStaffAndViewServices")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -104,14 +104,14 @@ export default function StaffPage() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="hidden w-[100px] sm:table-cell">
-                          <span className="sr-only">Image</span>
+                          <span className="sr-only">{t("admin-staff.image")}</span>
                         </TableHead>
-                        <TableHead>Full Name</TableHead>
-                        <TableHead>Status</TableHead>
+                        <TableHead>{t("admin-staff.fullName")}</TableHead>
+                        <TableHead>{t("admin-staff.status")}</TableHead>
                         <TableHead className="hidden md:table-cell">
-                          Services
+                          {t("admin-staff.services")}
                         </TableHead>
-                        <TableHead>Actions</TableHead>
+                        <TableHead>{t("admin-staff.actions")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -150,7 +150,7 @@ export default function StaffPage() {
                 </CardContent>
                 <CardFooter className="flex items-center justify-between">
                   <div className="text-sm text-muted-foreground">
-                    Showing{" "}
+                    {t("admin-staff.showing")}{" "}
                     <strong>
                       {(currentPage - 1) * itemsPerPage + 1}-
                       {Math.min(
@@ -158,7 +158,8 @@ export default function StaffPage() {
                         filteredStaff.length
                       )}
                     </strong>{" "}
-                    of <strong>{filteredStaff.length}</strong> staff members
+                    {t("admin-staff.of")}{" "}
+                    <strong>{filteredStaff.length}</strong> {t("admin-staff.staffMembers")}
                   </div>
                 </CardFooter>
                 <Pagination
