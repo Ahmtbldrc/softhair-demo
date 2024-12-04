@@ -996,7 +996,7 @@ export default function ReservationPage() {
       // Müşteriye e-posta gönder
       mail.sendMail({
         to: newReservation.customer.email,
-        subject: 'Appointment Confirmation',
+        subject: `${newReservation.customer.firstName} Appointment Confirmation`,
         html: `
           <!DOCTYPE html>
 
