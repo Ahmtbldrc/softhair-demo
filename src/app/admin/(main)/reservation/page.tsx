@@ -600,7 +600,12 @@ export default function AppointmentCalendar() {
       staffId: newReservation.staffId,
       start: newReservation.start,
       end: endTime,
-      customer: JSON.stringify(newReservation.customer),
+      customer: {
+        firstName: newReservation.customer.firstName,
+        lastName: newReservation.customer.lastName,
+        email: newReservation.customer.email,
+        phone: newReservation.customer.phone,
+      },
       status: true
     }
 
