@@ -272,11 +272,17 @@ export default function ReservationPage() {
   };
 
   const handlePrevWeek = () => {
-    setCurrentDate(addDays(currentDate, -7));
+    const prevWeekStart = addDays(currentDate, -7);
+    if (prevWeekStart >= startOfWeek(new Date())) {
+      setCurrentDate(prevWeekStart);
+    }
   };
 
   const handleNextWeek = () => {
-    setCurrentDate(addDays(currentDate, 7));
+    const nextWeekStart = addDays(currentDate, 7);
+    if (nextWeekStart <= addDays(new Date(), 14)) {
+      setCurrentDate(nextWeekStart);
+    }
   };
 
   const handleReservationClick = (reservation: Reservation) => {
@@ -374,6 +380,8 @@ export default function ReservationPage() {
     if (!workingHours || workingHours.length === 0) return [];
 
     const availableTimes: { time: Date; available: boolean }[] = [];
+    const now = new Date();
+    const twoWeeksFromNow = addDays(now, 14);
 
     workingHours.forEach((slot) => {
       let currentTime = parse(slot.start, "HH:mm", day);
@@ -390,9 +398,13 @@ export default function ReservationPage() {
           format(currentTime, "HH:mm") === format(new Date(res.start), "HH:mm")
         );
 
+        // Geçmiş tarih/saat ve gelecek tarih kontrolü
+        const isPastDateTime = currentTime < now;
+        const isFutureDateTime = currentTime > twoWeeksFromNow;
+
         availableTimes.push({
           time: new Date(currentTime),
-          available: !hasConflict
+          available: !hasConflict && !isPastDateTime && !isFutureDateTime
         });
 
         // Bir sonraki saate geç
@@ -535,6 +547,7 @@ export default function ReservationPage() {
             <div className="flex justify-between items-center mb-4">
               <Button
                 onClick={handlePrevWeek}
+                disabled={startOfWeek(currentDate) <= startOfWeek(new Date())}
                 className="sm:w-auto sm:px-4 w-8 h-8 p-0 text-xs sm:text-sm"
               >
                 <span className="hidden sm:inline">&lt; {t("staff-reservation.previousWeek")}</span>
@@ -546,6 +559,7 @@ export default function ReservationPage() {
               </h2>
               <Button
                 onClick={handleNextWeek}
+                disabled={startOfWeek(currentDate) >= startOfWeek(addDays(new Date(), 14))}
                 className="sm:w-auto sm:px-4 w-8 h-8 p-0 text-xs sm:text-sm"
               >
                 <span className="hidden sm:inline">{t("staff-reservation.nextWeek")} &gt;</span>
@@ -863,40 +877,41 @@ export default function ReservationPage() {
                                 day
                               ) ? (
                                 getAvailableTimesForDay(day).map(
-                                  ({ time, available }) => (
-                                    <Button
-                                      key={time.toISOString()}
-                                      variant="outline"
-                                      className={`w-full mb-1 ${
-                                        available
-                                          ? newReservation.start &&
-                                            isSameDay(
-                                              newReservation.start,
-                                              time
-                                            ) &&
-                                            newReservation.start.getTime() ===
-                                              time.getTime()
-                                            ? "bg-green-500 text-white hover:bg-green-600"
-                                            : "hover:bg-green-100"
-                                          : "bg-red-100 cursor-not-allowed"
-                                      }`}
-                                      onClick={() =>
-                                        available &&
-                                        setNewReservation({
+                                  ({ time, available }) => {
+                                    const isPastDateTime = time < new Date();
+                                    const isFutureDateTime = time > addDays(new Date(), 14);
+                                    return (
+                                      <Button
+                                        key={time.toISOString()}
+                                        variant="outline"
+                                        className={`w-full mb-1 ${
+                                          isPastDateTime || isFutureDateTime
+                                            ? 'line-through text-muted-foreground hover:no-underline cursor-not-allowed'
+                                            : available 
+                                              ? newReservation.start &&
+                                                isSameDay(
+                                                  newReservation.start,
+                                                  time
+                                                ) &&
+                                                newReservation.start.getTime() ===
+                                                  time.getTime()
+                                                ? 'bg-green-500 text-white hover:bg-green-600'
+                                                : 'hover:bg-green-100'
+                                              : 'bg-red-100 cursor-not-allowed'
+                                        }`}
+                                        onClick={() => !isPastDateTime && !isFutureDateTime && available && setNewReservation({
                                           ...newReservation,
                                           start: time,
-                                        })
-                                      }
-                                      disabled={!available}
-                                    >
-                                      {format(time, "HH:mm")}
-                                    </Button>
-                                  )
+                                        })}
+                                        disabled={isPastDateTime || isFutureDateTime || !available}
+                                      >
+                                        {format(time, 'HH:mm')}
+                                      </Button>
+                                    );
+                                  }
                                 )
                               ) : (
-                                <p className="text-xs text-muted-foreground">
-                                  {t("staff-reservation.notAvailable")}
-                                </p>
+                                <p className="text-xs text-muted-foreground">{t("staff-reservation.notAvailable")}</p>
                               )}
                             </ScrollArea>
                           </CardContent>
