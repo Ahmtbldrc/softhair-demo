@@ -34,8 +34,9 @@ import { toast } from '@/hooks/use-toast'
 import { ChevronLeft, ChevronRight, Users } from 'lucide-react'
 import Image from 'next/image'
 import { deleteReservation } from '@/lib/services/reservation.service'
-import { useRouter } from 'next/navigation'
 import useMail from '@/hooks/use-mail'
+import { useLocale } from '@/contexts/LocaleContext'
+
 
 type Staff = {
   id: number;
@@ -76,6 +77,7 @@ type Reservation = {
 }
 
 export default function AppointmentCalendar() {
+  const {t} = useLocale();
   const [currentDate, setCurrentDate] = useState(new Date())
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [staffMembers, setStaffMembers] = useState<Staff[]>([])
@@ -246,19 +248,17 @@ export default function AppointmentCalendar() {
       const endTime = parse(slot.end, 'HH:mm', day)
 
       while (currentTime < endTime) {
-        const slotEndTime = addMinutes(currentTime, service.duration)
+        const slotEndTime = addMinutes(currentTime, 60) // Always use 60-minute intervals
         const isAvailable = !reservations.some(res => 
           res.staffId === newReservation.staffId &&
           isSameDay(res.start, day) &&
-          (
-            (currentTime >= res.start && currentTime < res.end) ||
-            (slotEndTime > res.start && slotEndTime <= res.end) ||
-            (currentTime <= res.start && slotEndTime >= res.end)
-          )
+          (isWithinInterval(currentTime, { start: res.start, end: res.end }) ||
+          isWithinInterval(slotEndTime, { start: res.start, end: res.end }) ||
+          (currentTime <= res.start && slotEndTime >= res.end))
         )
 
         availableTimes.push({ time: new Date(currentTime), available: isAvailable })
-        currentTime = addMinutes(currentTime, service.duration) // Move to next slot based on service duration
+        currentTime = slotEndTime
       }
     })
 
@@ -356,22 +356,22 @@ export default function AppointmentCalendar() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Reservation Calendar</CardTitle>
-        <CardDescription>Manage your appointments</CardDescription>
+        <CardTitle>{t('admin-reservation.reservationCalendar')}</CardTitle>
+        <CardDescription>{t('admin-reservation.reservationCalendarDescription')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex justify-between items-center mb-4">
           <Button onClick={handlePrevWeek} size="icon" className="md:hidden"><ChevronLeft /></Button>
-          <Button onClick={handlePrevWeek} className="hidden md:inline-flex">&lt; Previous Week</Button>
+          <Button onClick={handlePrevWeek} className="hidden md:inline-flex">&lt; {t('admin-reservation.previousWeek')}</Button>
           <h2 className="text-lg font-semibold text-center">
             <span className="hidden md:inline">{format(weekStart, 'MMM d, yyyy')} - {format(weekEnd, 'MMM d, yyyy')}</span>
             <span className="md:hidden">{format(weekStart, 'MMM d')} - {format(weekEnd, 'MMM d')}</span>
           </h2>
           <Button onClick={handleNextWeek} size="icon" className="md:hidden"><ChevronRight /></Button>
-          <Button onClick={handleNextWeek} className="hidden md:inline-flex">Next Week &gt;</Button>
+          <Button onClick={handleNextWeek} className="hidden md:inline-flex">{t('admin-reservation.nextWeek')} &gt;</Button>
         </div>
         <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">Select Staff</h3>
+          <h3 className="text-lg font-semibold mb-2">{t('admin-reservation.selectStaff')}</h3>
           <ScrollArea className="w-full">
             <div className="flex space-x-4 pb-4 md:grid md:grid-cols-3 md:gap-4 lg:grid-cols-6">
               <Card 
@@ -380,7 +380,7 @@ export default function AppointmentCalendar() {
               >
                 <CardContent className="flex flex-col items-center p-4">
                   <Users width={60} height={60} className="rounded-md mb-2" />
-                  <p className="font-semibold text-center text-sm">All Staff</p>
+                  <p className="font-semibold text-center text-sm">{t('admin-reservation.allStaff')}</p>
                 </CardContent>
               </Card>
               {staffMembers.map((staff) => (
@@ -439,7 +439,7 @@ export default function AppointmentCalendar() {
         <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Reservation Details</DialogTitle>
+              <DialogTitle>{t('admin-reservation.reservationDetails')}</DialogTitle>
             </DialogHeader>
             {selectedReservation && (
               <div className="mt-4">
@@ -447,7 +447,7 @@ export default function AppointmentCalendar() {
                   <CardHeader>
                     <CardTitle>{services.find(s => s.id === selectedReservation.serviceId)?.name}</CardTitle>
                     <CardDescription>
-                      {format(selectedReservation.start, 'MMMM d, yyyy')} at {format(selectedReservation.start, 'HH:mm')} - {format(addMinutes(selectedReservation.end, 1), 'HH:mm')}
+                      {format(selectedReservation.start, 'MMMM d, yyyy')} {t('admin-reservation.at')} {format(selectedReservation.start, 'HH:mm')} - {format(addMinutes(selectedReservation.end, 1), 'HH:mm')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -457,41 +457,41 @@ export default function AppointmentCalendar() {
                         <AvatarFallback>{staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName[0]}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <h3 className="font-semibold">Staff</h3>
+                        <h3 className="font-semibold">{t('admin-reservation.staff')}</h3>
                         <p>{staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName} {staffMembers.find(s => s.id === selectedReservation.staffId)?.lastName}</p>
                       </div>
                     </div>
                     <div className="mb-4">
-                      <h3 className="font-semibold">Service</h3>
+                      <h3 className="font-semibold">{t('admin-reservation.service')}</h3>
                       <p>{services.find(s => s.id === selectedReservation.serviceId)?.name}</p>
                     </div>
                     <div className="mb-4">
-                      <h3 className="font-semibold">Price</h3>
+                      <h3 className="font-semibold">{t('admin-reservation.price')}</h3>
                       <p>{services.find(s => s.id === selectedReservation.serviceId)?.price} CHF</p>
                     </div>
                     <div>
-                      <h3 className="font-semibold mb-2">Customer Information</h3>
-                      <p>Name: {selectedReservation.customer.firstName} {selectedReservation.customer.lastName}</p>
-                      <p>Email: {selectedReservation.customer.email}</p>
-                      <p>Phone: {selectedReservation.customer.phone}</p>
+                      <h3 className="font-semibold mb-2">{t('admin-reservation.customerInformation')}</h3>
+                      <p>{t('admin-reservation.name')}: {selectedReservation.customer.firstName} {selectedReservation.customer.lastName}</p>
+                      <p>{t('admin-reservation.email')}: {selectedReservation.customer.email}</p>
+                      <p>{t('admin-reservation.phone')}: {selectedReservation.customer.phone}</p>
                     </div>
                   </CardContent>
                   <CardFooter>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="destructive" className="w-full">Cancel Reservation</Button>
+                        <Button variant="destructive" className="w-full">{t('admin-reservation.cancelReservation')}</Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogTitle>{t('admin-reservation.confirmCancellationDescription')}</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This action cannot be undone. This will permanently cancel the reservation.
+                            {t('admin-reservation.confirmCancellationDescription-2')}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>No, keep reservation</AlertDialogCancel>
+                          <AlertDialogCancel>{t('admin-reservation.noKeepReservation')}</AlertDialogCancel>
                           <AlertDialogAction onClick={() => handleCancelReservation(selectedReservation.id)}>
-                            Yes, cancel reservation
+                            {t('admin-reservation.yesCancelReservation')}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -505,18 +505,18 @@ export default function AppointmentCalendar() {
 
         <Dialog open={isNewReservationDialogOpen} onOpenChange={setIsNewReservationDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="mt-4">New Reservation</Button>
+            <Button className="mt-4">{t('admin-reservation.newReservation')}</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[800px]">
             <DialogHeader>
-              <DialogTitle>New Reservation</DialogTitle>
+              <DialogTitle>{t('admin-reservation.newReservation')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-6">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Customer Information</h3>
+                <h3 className="text-lg font-semibold">{t('admin-reservation.customerInformation')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="firstName">First Name</Label>
+                    <Label htmlFor="firstName">{t('admin-reservation.firstName')}</Label>
                     <Input
                       id="firstName"
                       value={newReservation.customer.firstName}
@@ -524,7 +524,7 @@ export default function AppointmentCalendar() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="lastName">Last Name</Label>
+                    <Label htmlFor="lastName">{t('admin-reservation.lastName')}</Label>
                     <Input
                       id="lastName"
                       value={newReservation.customer.lastName}
@@ -532,7 +532,7 @@ export default function AppointmentCalendar() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('admin-reservation.email')}</Label>
                     <Input
                       id="email"
                       type="email"
@@ -541,7 +541,7 @@ export default function AppointmentCalendar() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="phone">Phone</Label>
+                    <Label htmlFor="phone">{t('admin-reservation.phone')}</Label>
                     <Input
                       id="phone"
                       type="tel"
@@ -552,14 +552,14 @@ export default function AppointmentCalendar() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="service">Select Service</Label>
+                <Label htmlFor="service">{t('admin-reservation.selectService')}</Label>
                 <Select 
                   onValueChange={(value) => {
                     setNewReservation({...newReservation, serviceId: Number(value), staffId: null, start: null})
                   }}
                 >
                   <SelectTrigger id="service">
-                    <SelectValue placeholder="Choose a service" />
+                    <SelectValue placeholder={t('admin-reservation.selectService')} />
                   </SelectTrigger>
                   <SelectContent>
                     {services.map((service) => (
@@ -572,7 +572,7 @@ export default function AppointmentCalendar() {
               </div>
               {newReservation.serviceId && (
                 <div>
-                  <Label>Select Staff</Label>
+                  <Label>{t('admin-reservation.selectStaff')}</Label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-2">
                     {staffMembers
                       .filter(staffMember => 
@@ -606,11 +606,11 @@ export default function AppointmentCalendar() {
             {newReservation.serviceId && newReservation.staffId && (
               <div className="mt-6">
                 <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
-                  <Button onClick={handlePrevWeek} className="mb-2 sm:mb-0">&lt; Previous Week</Button>
+                  <Button onClick={handlePrevWeek} className="mb-2 sm:mb-0">&lt; {t('admin-reservation.previousWeek')}</Button>
                   <h2 className="text-lg font-semibold text-center">
                     {format(weekStart, 'MMM d, yyyy')} - {format(weekEnd, 'MMM d, yyyy')}
                   </h2>
-                  <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">Next Week &gt;</Button>
+                  <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">{t('admin-reservation.nextWeek')} &gt;</Button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 select-none">
                   {days.map((day) => (
@@ -640,7 +640,7 @@ export default function AppointmentCalendar() {
                               </Button>
                             ))
                           ) : (
-                            <p className="text-xs text-muted-foreground">Not available</p>
+                            <p className="text-xs text-muted-foreground">{t('admin-reservation.notAvailable')}</p>
                           )}
                         </ScrollArea>
                       </CardContent>
@@ -651,7 +651,7 @@ export default function AppointmentCalendar() {
             )}
             <DialogFooter>
               <Button onClick={() => setIsConfirmDialogOpen(true)} disabled={!newReservation.start || !newReservation.customer.firstName || !newReservation.customer.lastName || !newReservation.customer.email || !newReservation.customer.phone}>
-                Book Appointment
+                {t('admin-reservation.bookAppointment')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -660,23 +660,23 @@ export default function AppointmentCalendar() {
         <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Confirm Your Reservation</DialogTitle>
-              <DialogDescription>Please review your reservation details.</DialogDescription>
+              <DialogTitle>{t('admin-reservation.confirmDialogTitle')}</DialogTitle>
+              <DialogDescription>{t('admin-reservation.confirmDialogDescription')}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <p><strong>Service:</strong> {services.find(s => s.id === newReservation.serviceId)?.name}</p>
-              <p><strong>Staff:</strong> {staffMembers.find(s => s.id === newReservation.staffId)?.firstName} {staffMembers.find(s => s.id === newReservation.staffId)?.lastName}</p>
-              <p><strong>Date & Time:</strong> {newReservation.start && format(newReservation.start, 'MMMM d, yyyy HH:mm')}</p>
-              <p><strong>Customer:</strong> {newReservation.customer.firstName} {newReservation.customer.lastName}</p>
-              <p><strong>Email:</strong> {newReservation.customer.email}</p>
-              <p><strong>Phone:</strong> {newReservation.customer.phone}</p>
+              <p><strong>{t('admin-reservation.service')}:</strong> {services.find(s => s.id === newReservation.serviceId)?.name}</p>
+              <p><strong>{t('admin-reservation.staff')}:</strong> {staffMembers.find(s => s.id === newReservation.staffId)?.firstName} {staffMembers.find(s => s.id === newReservation.staffId)?.lastName}</p>
+              <p><strong>{t('admin-reservation.dateAndTime')}:</strong> {newReservation.start && format(newReservation.start, 'MMMM d, yyyy HH:mm')}</p>
+              <p><strong>{t('admin-reservation.customer')}:</strong> {newReservation.customer.firstName} {newReservation.customer.lastName}</p>
+              <p><strong>{t('admin-reservation.email')}:</strong> {newReservation.customer.email}</p>
+              <p><strong>{t('admin-reservation.phone')}:</strong> {newReservation.customer.phone}</p>
             </div>
             <DialogFooter>
               <Button onClick={() => setIsConfirmDialogOpen(false)} variant="outline">
-                Edit
+                {t('admin-reservation.edit')}
               </Button>
               <Button onClick={handleNewReservation} disabled={isSubmitting}>
-                {isSubmitting ? 'Booking...' : 'Confirm Booking'}
+                {isSubmitting ? t('admin-reservation.booking') : t('admin-reservation.confirmBooking')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -685,11 +685,11 @@ export default function AppointmentCalendar() {
         <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Reservation Confirmed</DialogTitle>
-              <DialogDescription>Your reservation has been successfully booked.</DialogDescription>
+              <DialogTitle>{t('admin-reservation.reservationConfirmed')}</DialogTitle>
+              <DialogDescription>{t('admin-reservation.reservationConfirmedDescription')}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <p>An email confirmation has been sent to {newReservation.customer.email}.</p>
+              <p>{t('admin-reservation.reservationConfirmedMail')}: {newReservation.customer.email}</p>
             </div>
             <DialogFooter>
               <Button onClick={() => {
@@ -697,7 +697,7 @@ export default function AppointmentCalendar() {
                 setIsNewReservationDialogOpen(false)
                 resetForm()
               }}>
-                Close
+                {t('admin-reservation.close')}
               </Button>
             </DialogFooter>
           </DialogContent>
