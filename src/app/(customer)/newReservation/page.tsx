@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addMinutes, isWithinInterval, parse } from 'date-fns'
+import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addMinutes, isWithinInterval, parse, subMinutes } from 'date-fns'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -128,11 +128,17 @@ export default function NewReservation() {
   }, [selectedService])  
 
   const handlePrevWeek = () => {
-    setCurrentDate(addDays(currentDate, -7))
+    const prevWeekStart = addDays(currentDate, -7)
+    if (prevWeekStart >= startOfWeek(new Date())) {
+      setCurrentDate(prevWeekStart)
+    }
   }
 
   const handleNextWeek = () => {
-    setCurrentDate(addDays(currentDate, 7))
+    const nextWeekStart = addDays(currentDate, 7)
+    if (nextWeekStart <= addDays(new Date(), 14)) {
+      setCurrentDate(nextWeekStart)
+    }
   }
 
   const isStaffWorkingOnDay = (staffId: number, day: Date) => {
@@ -159,25 +165,31 @@ export default function NewReservation() {
     if (!workingHours || workingHours.length === 0) return []
 
     const availableTimes: { time: Date; available: boolean }[] = []
+    const now = new Date()
+    const twoWeeksFromNow = addDays(now, 14)
 
     workingHours.forEach(slot => {
       let currentTime = parse(slot.start, 'HH:mm', day)
       const endTime = parse(slot.end, 'HH:mm', day)
 
-      while (currentTime < endTime) {
-        const slotEndTime = addMinutes(currentTime, service.duration)
-        const isAvailable = !existingAppointments.some(apt => 
+      while (currentTime <= subMinutes(endTime, 60)) {
+        const slotEndTime = addMinutes(currentTime, 60)
+        
+        const hasConflict = existingAppointments.some((apt) =>
           apt.staffId === selectedStaff &&
           isSameDay(apt.start, day) &&
-          (
-            (currentTime >= apt.start && currentTime < apt.end) ||
-            (slotEndTime > apt.start && slotEndTime <= apt.end) ||
-            (currentTime <= apt.start && slotEndTime >= apt.end)
-          )
+          format(currentTime, "HH:mm") === format(new Date(apt.start), "HH:mm")
         )
 
-        availableTimes.push({ time: new Date(currentTime), available: isAvailable })
-        currentTime = addMinutes(currentTime, 60) // Move to next hour
+        const isPastDateTime = currentTime < now
+        const isFutureDateTime = currentTime > twoWeeksFromNow
+
+        availableTimes.push({
+          time: new Date(currentTime),
+          available: !hasConflict && !isPastDateTime && !isFutureDateTime
+        })
+
+        currentTime = addMinutes(currentTime, 60)
       }
     })
 
@@ -518,6 +530,14 @@ export default function NewReservation() {
 </td>
 </tr>
 </tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
 </table><!-- End -->
 </body>
 </html>
@@ -662,23 +682,29 @@ export default function NewReservation() {
                     <CardContent className="p-2">
                       <ScrollArea className="h-32 sm:h-40">
                         {isStaffWorkingOnDay(selectedStaff, day) ? (
-                          getAvailableTimesForDay(day).map(({ time, available }) => (
-                            <Button
-                              key={time.toISOString()}
-                              variant="outline"
-                              className={`w-full mb-1 ${
-                                available 
-                                  ? selectedTime && isSameDay(selectedTime, time) && selectedTime.getTime() === time.getTime()
-                                    ? 'bg-green-500 text-white hover:bg-green-600'
-                                    : 'hover:bg-green-100'
-                                  : 'bg-red-100 cursor-not-allowed'
-                              }`}
-                              onClick={() => available && setSelectedTime(time)}
-                              disabled={!available}
-                            >
-                              {format(time, 'HH:mm')}
-                            </Button>
-                          ))
+                          getAvailableTimesForDay(day).map(({ time, available }) => {
+                            const isPastDateTime = time < new Date()
+                            const isFutureDateTime = time > addDays(new Date(), 14)
+                            return (
+                              <Button
+                                key={time.toISOString()}
+                                variant="outline"
+                                className={`w-full mb-1 ${
+                                  isPastDateTime || isFutureDateTime
+                                    ? 'line-through text-muted-foreground hover:no-underline cursor-not-allowed'
+                                    : available 
+                                      ? selectedTime && isSameDay(selectedTime, time) && selectedTime.getTime() === time.getTime()
+                                        ? 'bg-green-500 text-white hover:bg-green-600'
+                                        : 'hover:bg-green-100'
+                                      : 'bg-red-100 cursor-not-allowed'
+                                }`}
+                                onClick={() => !isPastDateTime && !isFutureDateTime && available && setSelectedTime(time)}
+                                disabled={isPastDateTime || isFutureDateTime || !available}
+                              >
+                                {format(time, 'HH:mm')}
+                              </Button>
+                            )
+                          })
                         ) : (
                           <p className="text-xs text-muted-foreground">Not available</p>
                         )}
