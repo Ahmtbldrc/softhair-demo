@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
@@ -13,7 +12,7 @@ const Navbar = () => {
 
   const menuItems = [
     { name: 'Startseite', href: '/' },
-    { name: 'Galerie', href: '/galerie' },
+    { name: 'Galerie', href: '/gallery' },
     { name: 'Team', href: '/team' },
   ]
 

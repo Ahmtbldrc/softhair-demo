@@ -27,19 +27,50 @@ export default function Gallery() {
 
   useEffect(() => {
     const images = gsap.utils.toArray<HTMLElement>('.gallery-image')
-    images.forEach((image, index) => {
-      gsap.from(image, {
-        scrollTrigger: {
-          trigger: image,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true,
-        },
-        opacity: 0,
-        y: 100,
-        delay: index * 0.1,
-      })
+    
+    gsap.set(images, {
+      opacity: 0,
+      y: 50
     })
+
+    images.forEach((image, index) => {
+      gsap.fromTo(image, 
+        {
+          opacity: 0,
+          y: 50,
+        },
+        {
+          scrollTrigger: {
+            trigger: image,
+            start: "top bottom",
+            end: "bottom center",
+            toggleActions: "play none none reverse",
+            once: false,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power2.out",
+          delay: index * 0.1,
+          immediateRender: false
+        }
+      )
+    })
+
+    const initiallyVisibleImages = images.filter((image) => {
+      const rect = image.getBoundingClientRect()
+      return rect.top < window.innerHeight
+    })
+
+    if (initiallyVisibleImages.length > 0) {
+      gsap.to(initiallyVisibleImages, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out",
+        stagger: 0.1
+      })
+    }
   }, [])
 
   return (
