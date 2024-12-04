@@ -5,6 +5,10 @@
     "services": "Services",
     "reservations": "Reservations"
   },
+  "staff": {
+    "myAccount": "My Account",
+    "reservations": "Reservations"
+  },
   "theme": {
     "light": "Light Theme",
     "dark": "Dark Theme",

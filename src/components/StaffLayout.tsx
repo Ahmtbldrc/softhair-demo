@@ -49,7 +49,7 @@ const NavLink = React.memo(
     return (
       <Link
         href={href}
-        className={`text-muted-foreground font-semibold transition-colors hover:text-foreground dark:hover:text-white ${
+        className={`text-muted-foreground font-semibold transition-colors hover:text-foreground dark:hover:text-white whitespace-nowrap ${
           isActive ? "text-black dark:text-white  font-semibold" : ""
         }`}
         onClick={onClick}
@@ -61,19 +61,20 @@ const NavLink = React.memo(
 );
 NavLink.displayName = "NavLink";
 
-const NavLinks = React.memo(({ onClick }: { onClick?: () => void }) => (
-  <>
-    <NavLink href="/staff" onClick={onClick}>
-      Dashboard
-    </NavLink>
-    <NavLink href="/staff/reservation" onClick={onClick}>
-      Reservation
+const NavLinks = React.memo(({ onClick }: { onClick?: () => void }) => {
+  const { t } = useLocale();
+
+  return (
+    <>
+      <NavLink href="/staff/reservation" onClick={onClick}>
+      {t("staff.reservations")}
     </NavLink>
     <NavLink href="/staff/my-account" onClick={onClick}>
-      My Account
-    </NavLink>
-  </>
-));
+      {t("staff.myAccount")}
+  </NavLink>
+    </>
+  );
+});
 NavLinks.displayName = "NavLinks";
 
 const Loading = () => (
@@ -129,7 +130,7 @@ export default function StaffLayout({
       <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
         <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
           <Link
-            href="/staff"
+            href="/staff/reservation"
             className="flex items-center gap-2 text-lg font-semibold md:text-base"
             aria-label="SoftHair staff Home"
           >
@@ -165,17 +166,9 @@ export default function StaffLayout({
           </SheetContent>
         </Sheet>
         <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-          <form className="ml-auto flex-1 sm:flex-initial">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder={t("common.search")}
-                className="w-full pl-8 md:w-[200px] lg:w-[300px]"
-                aria-label={t("common.search")}
-              />
-            </div>
-          </form>
+          <div className="ml-auto flex-1 sm:flex-initial">
+            <LocaleToggle />
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -190,13 +183,13 @@ export default function StaffLayout({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setTheme("light")}>
-                Light
+                {t("theme.light")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme("dark")}>
-                Dark
+                {t("theme.dark")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme("system")}>
-                System
+                {t("theme.system")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -217,17 +210,17 @@ export default function StaffLayout({
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setTheme("light")}>
-                Light Theme
+                {t("theme.light")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme("dark")}>
-                Dark Theme
+                {t("theme.dark")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme("system")}>
-                System Theme
+                {t("theme.system")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => logout()}>
-                Logout
+                {t("auth.logout")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -37,7 +37,7 @@ export default function LoginPage() {
 
       const userRole = data.session?.user?.user_metadata.role;
 
-      window.location.href = userRole == Roles.ADMIN ? "/admin" : "/staff";
+      window.location.href = userRole == Roles.ADMIN ? "/admin" : "/staff/reservation";
     } catch {
       toast({
         title: "Warning",

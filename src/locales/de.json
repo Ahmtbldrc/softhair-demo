@@ -5,6 +5,10 @@
     "services": "Dienstleistungen",
     "reservations": "Termine"
   },
+  "staff": {
+    "myAccount": "Mein Konto",
+    "reservations": "Termine"
+  },
   "theme": {
     "light": "Helles Design",
     "dark": "Dunkles Design",
