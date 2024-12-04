@@ -220,6 +220,7 @@
     "dateAndTime": "Date & Time"
   },
   "staff-my-account":{
+    "myAccount": "My Account",
     "back": "Back",
     "staffDetails": "Staff Details",
     "viewStaffPersonalInformation": "View the staff member's personal information",
@@ -243,6 +244,43 @@
     "cancel": "Cancel",
     "updatePassword": "Update Password",
     "notAvailable": "Not available"
-
+  },
+  "staff-reservation":{
+    "myReservations": "My Reservations",
+    "welcome": "Welcome, ",
+    "previousWeek": "Previous",
+    "nextWeek": "Next",
+    "reservationDetails": "Reservation Details",
+    "at": "at",
+    "service": "Service",
+    "price": "Price",
+    "customerInformation": "Customer Information",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "cancelReservation": "Cancel Reservation",
+    "confirmCancellationDescription": "Are you sure you want to cancel the reservation?",
+    "confirmCancellationDescription-2": "This action cannot be undone.This will permanently cancel the reservation.",
+    "noKeepReservation": "No, keep the reservation",
+    "yesCancelReservation": "Yes, cancel the reservation",
+    "newReservation": "New Reservation",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "selectService": "Select Service",
+    "notAvailable": "Not available",
+    "bookAppointment": "Book Appointment",
+    "noAvailableTime": "No available time",
+    "confirmDialogTitle": "Confirm Your Reservation",
+    "confirmDialogDescription": "Please review your reservation details.",
+    "staff": "Staff",
+    "dateAndTime": "Date & Time",
+    "customer": "Customer",
+    "edit": "Edit",
+    "confirmBooking": "Confirm Booking",
+    "booking": "Booking...",
+    "reservationConfirmed": "Reservation Confirmed",
+    "reservationConfirmedDescription": "Your reservation has been successfully booked.",
+    "reservationConfirmedMail": "An email confirmation has been sent to",
+    "close": "Close"
   }
 }

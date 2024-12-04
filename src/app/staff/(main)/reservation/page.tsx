@@ -301,19 +301,35 @@ export default function ReservationPage() {
       setReservations((prev) => prev.filter((res) => res.id !== reservationId));
       setIsDetailsDialogOpen(false);
 
-      const adminEmails = await fetchAdminUsers();
-      if (adminEmails.length > 0) {
-        const cancelledReservation = reservations.find(
-          (res) => res.id === reservationId
+      const cancelledReservation = reservations.find(
+        (res) => res.id === reservationId
+      );
+      
+      if (cancelledReservation) {
+        const service = services.find(
+          (s) => s.id === cancelledReservation.serviceId
         );
-        if (cancelledReservation) {
-          const service = services.find(
-            (s) => s.id === cancelledReservation.serviceId
-          );
-          const staffMember = staffMembers.find(
-            (s) => s.id === cancelledReservation.staffId
-          );
+        const staffMember = staffMembers.find(
+          (s) => s.id === cancelledReservation.staffId
+        );
 
+        // Send email to customer
+        mail.sendMail({
+          to: cancelledReservation.customer.email,
+          subject: "Appointment Cancellation",
+          html: `
+            <p>Dear ${cancelledReservation.customer.firstName},</p>
+            <p>Your appointment has been cancelled:</p>
+            <p>Service: ${service?.name}</p>
+            <p>Staff: ${staffMember?.firstName} ${staffMember?.lastName}</p>
+            <p>Date: ${format(cancelledReservation.start, "MMMM d, yyyy HH:mm")}</p>
+            <p>If you have any questions, please contact us.</p>
+          `,
+        });
+
+        // Send email to admins
+        const adminEmails = await fetchAdminUsers();
+        if (adminEmails.length > 0) {
           mail.sendMail({
             to: adminEmails.join(", "),
             subject: "Appointment Cancelled",
@@ -324,10 +340,7 @@ export default function ReservationPage() {
             }</p>
               <p>Service: ${service?.name}</p>
               <p>Staff: ${staffMember?.firstName} ${staffMember?.lastName}</p>
-              <p>Date: ${format(
-                cancelledReservation.start,
-                "MMMM d, yyyy HH:mm"
-              )}</p>
+              <p>Date: ${format(cancelledReservation.start, "MMMM d, yyyy HH:mm")}</p>
             `,
           });
         }
@@ -516,13 +529,12 @@ export default function ReservationPage() {
     <div className="flex min-h-screen w-full flex-col bg-background">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center">
-          <h1 className="text-3xl font-bold">{t("navigation.reservation")}</h1>
         </div>
         <Card className="w-full">
           <CardHeader>
-            <CardTitle>My Reservations</CardTitle>
+            <CardTitle>{t("staff-reservation.myReservations")}</CardTitle>
             <CardDescription>
-              Welcome, {user?.user_metadata?.fullName as string}
+              {t("staff-reservation.welcome")} {user?.user_metadata?.fullName as string}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -531,7 +543,7 @@ export default function ReservationPage() {
                 onClick={handlePrevWeek}
                 className="sm:w-auto sm:px-4 w-8 h-8 p-0 text-xs sm:text-sm"
               >
-                <span className="hidden sm:inline">&lt; Previous</span>
+                <span className="hidden sm:inline">&lt; {t("staff-reservation.previousWeek")}</span>
                 <span className="sm:hidden">&lt;</span>
               </Button>
               <h2 className="text-sm sm:text-lg font-semibold text-center">
@@ -542,7 +554,7 @@ export default function ReservationPage() {
                 onClick={handleNextWeek}
                 className="sm:w-auto sm:px-4 w-8 h-8 p-0 text-xs sm:text-sm"
               >
-                <span className="hidden sm:inline">Next &gt;</span>
+                <span className="hidden sm:inline">{t("staff-reservation.nextWeek")} &gt;</span>
                 <span className="sm:hidden">&gt;</span>
               </Button>
             </div>
@@ -595,7 +607,7 @@ export default function ReservationPage() {
               <DialogContent className="sm:max-w-[425px] max-w-[90vw] rounded">
                 <DialogHeader>
                   <DialogTitle className="text-lg sm:text-xl">
-                    Reservation Details
+                    {t("staff-reservation.reservationDetails")}
                   </DialogTitle>
                 </DialogHeader>
                 {selectedReservation && (
@@ -610,7 +622,7 @@ export default function ReservationPage() {
                           }
                         </CardTitle>
                         <CardDescription className="text-sm">
-                          {format(selectedReservation.start, "MMMM d, yyyy")} at{" "}
+                          {format(selectedReservation.start, "MMMM d, yyyy")} {t("staff-reservation.at")}{" "}
                           {format(selectedReservation.start, "HH:mm")} -{" "}
                           {format(
                             addMinutes(selectedReservation.end, 1),
@@ -620,7 +632,7 @@ export default function ReservationPage() {
                       </CardHeader>
                       <CardContent className="px-0 py-2 text-sm">
                         <div className="mb-3">
-                          <h3 className="font-semibold">Service</h3>
+                          <h3 className="font-semibold">{t("staff-reservation.service")}</h3>
                           <p>
                             {
                               services.find(
@@ -630,7 +642,7 @@ export default function ReservationPage() {
                           </p>
                         </div>
                         <div className="mb-3">
-                          <h3 className="font-semibold">Price</h3>
+                          <h3 className="font-semibold">{t("staff-reservation.price")}</h3>
                           <p>
                             {
                               services.find(
@@ -642,14 +654,18 @@ export default function ReservationPage() {
                         </div>
                         <div>
                           <h3 className="font-semibold mb-1">
-                            Customer Information
+                            {t("staff-reservation.customerInformation")}
                           </h3>
                           <p>
-                            Name: {selectedReservation.customer.firstName}{" "}
+                            {t("staff-reservation.name")}: {selectedReservation.customer.firstName}{" "}
                             {selectedReservation.customer.lastName}
                           </p>
-                          <p>Email: {selectedReservation.customer.email}</p>
-                          <p>Phone: {selectedReservation.customer.phone}</p>
+                          <p>
+                            {t("staff-reservation.email")}: {selectedReservation.customer.email}
+                          </p>
+                          <p>
+                            {t("staff-reservation.phone")}: {selectedReservation.customer.phone}
+                          </p>
                         </div>
                       </CardContent>
                       <CardFooter className="px-0 pt-2 pb-0">
@@ -659,20 +675,21 @@ export default function ReservationPage() {
                               variant="destructive"
                               className="w-full sm:w-auto"
                             >
-                              Cancel Reservation
+                              {t("staff-reservation.cancelReservation")}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent className="max-w-[90vw] sm:max-w-[425px] rounded">
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                {t("staff-reservation.confirmCancellationDescription")}
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently cancel the reservation.
+                                {t("staff-reservation.confirmCancellationDescription-2")}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>
-                                No, keep reservation
+                                {t("staff-reservation.noKeepReservation")}
                               </AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() =>
@@ -681,7 +698,7 @@ export default function ReservationPage() {
                                   )
                                 }
                               >
-                                Yes, cancel reservation
+                                {t("staff-reservation.yesCancelReservation")}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -698,20 +715,26 @@ export default function ReservationPage() {
               onOpenChange={setIsNewReservationDialogOpen}
             >
               <DialogTrigger asChild>
-                <Button className="mt-4">New Reservation</Button>
+                <Button className="mt-4">
+                  {t("staff-reservation.newReservation")}
+                </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[800px]">
                 <DialogHeader>
-                  <DialogTitle>New Reservation</DialogTitle>
+                  <DialogTitle>
+                    {t("staff-reservation.newReservation")}
+                  </DialogTitle>
                 </DialogHeader>
                 <div className="space-y-6">
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">
-                      Customer Information
+                      {t("staff-reservation.customerInformation")}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="firstName">First Name</Label>
+                        <Label htmlFor="firstName">
+                          {t("staff-reservation.firstName")}
+                        </Label>
                         <Input
                           id="firstName"
                           value={newReservation.customer.firstName}
@@ -727,7 +750,9 @@ export default function ReservationPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="lastName">Last Name</Label>
+                        <Label htmlFor="lastName">
+                          {t("staff-reservation.lastName")}
+                        </Label>
                         <Input
                           id="lastName"
                           value={newReservation.customer.lastName}
@@ -743,7 +768,9 @@ export default function ReservationPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email">
+                          {t("staff-reservation.email")}
+                        </Label>
                         <Input
                           id="email"
                           type="email"
@@ -760,7 +787,9 @@ export default function ReservationPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="phone">Phone</Label>
+                        <Label htmlFor="phone">
+                          {t("staff-reservation.phone")}
+                        </Label>
                         <Input
                           id="phone"
                           type="tel"
@@ -779,7 +808,9 @@ export default function ReservationPage() {
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="service">Select Service</Label>
+                    <Label htmlFor="service">
+                      {t("staff-reservation.selectService")}
+                    </Label>
                     <Select
                       onValueChange={(value) => {
                         setNewReservation({
@@ -790,7 +821,7 @@ export default function ReservationPage() {
                       }}
                     >
                       <SelectTrigger id="service">
-                        <SelectValue placeholder="Choose a service" />
+                        <SelectValue placeholder={t("staff-reservation.selectService")} />
                       </SelectTrigger>
                       <SelectContent>
                         {services.map((service) => (
@@ -809,14 +840,14 @@ export default function ReservationPage() {
                   <div className="mt-6">
                     <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
                       <Button onClick={handlePrevWeek} className="mb-2 sm:mb-0">
-                        &lt; Previous Week
+                        &lt; {t("staff-reservation.previousWeek")}
                       </Button>
                       <h2 className="text-lg font-semibold text-center">
                         {format(weekStart, "MMM d, yyyy")} -{" "}
                         {format(weekEnd, "MMM d, yyyy")}
                       </h2>
                       <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">
-                        Next Week &gt;
+                        {t("staff-reservation.nextWeek")} &gt;
                       </Button>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 select-none">
@@ -870,7 +901,7 @@ export default function ReservationPage() {
                                 )
                               ) : (
                                 <p className="text-xs text-muted-foreground">
-                                  Not available
+                                  {t("staff-reservation.notAvailable")}
                                 </p>
                               )}
                             </ScrollArea>
@@ -891,7 +922,7 @@ export default function ReservationPage() {
                       !newReservation.customer.phone
                     }
                   >
-                    Book Appointment
+                    {t("staff-reservation.bookAppointment")}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -903,21 +934,23 @@ export default function ReservationPage() {
             >
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                  <DialogTitle>Confirm Your Reservation</DialogTitle>
+                  <DialogTitle>
+                    {t("staff-reservation.confirmDialogTitle")}
+                  </DialogTitle>
                   <DialogDescription>
-                    Please review your reservation details.
+                    {t("staff-reservation.confirmDialogDescription")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <p>
-                    <strong>Service:</strong>{" "}
+                    <strong>{t("staff-reservation.service")}:</strong>{" "}
                     {
                       services.find((s) => s.id === newReservation.serviceId)
                         ?.name
                     }
                   </p>
                   <p>
-                    <strong>Staff:</strong>{" "}
+                    <strong>{t("staff-reservation.staff")}:</strong>{" "}
                     {
                       staffMembers.find((s) => s.id === newReservation.staffId)
                         ?.firstName
@@ -928,20 +961,22 @@ export default function ReservationPage() {
                     }
                   </p>
                   <p>
-                    <strong>Date & Time:</strong>{" "}
+                    <strong>{t("staff-reservation.dateAndTime")}:</strong>{" "}
                     {newReservation.start &&
                       format(newReservation.start, "MMMM d, yyyy HH:mm")}
                   </p>
                   <p>
-                    <strong>Customer:</strong>{" "}
+                    <strong>{t("staff-reservation.customer")}:</strong>{" "}
                     {newReservation.customer.firstName}{" "}
                     {newReservation.customer.lastName}
                   </p>
                   <p>
-                    <strong>Email:</strong> {newReservation.customer.email}
+                    <strong>{t("staff-reservation.email")}:</strong>{" "}
+                    {newReservation.customer.email}
                   </p>
                   <p>
-                    <strong>Phone:</strong> {newReservation.customer.phone}
+                    <strong>{t("staff-reservation.phone")}:</strong>{" "}
+                    {newReservation.customer.phone}
                   </p>
                 </div>
                 <DialogFooter>
@@ -949,13 +984,15 @@ export default function ReservationPage() {
                     onClick={() => setIsConfirmDialogOpen(false)}
                     variant="outline"
                   >
-                    Edit
+                    {t("staff-reservation.edit")}
                   </Button>
                   <Button
                     onClick={handleNewReservation}
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Booking..." : "Confirm Booking"}
+                    {isSubmitting
+                      ? t("staff-reservation.booking")
+                      : t("staff-reservation.confirmBooking")}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -967,14 +1004,16 @@ export default function ReservationPage() {
             >
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                  <DialogTitle>Reservation Confirmed</DialogTitle>
+                  <DialogTitle>
+                    {t("staff-reservation.reservationConfirmed")}
+                  </DialogTitle>
                   <DialogDescription>
-                    Your reservation has been successfully booked.
+                    {t("staff-reservation.reservationConfirmedDescription")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <p>
-                    An email confirmation has been sent to{" "}
+                    {t("staff-reservation.reservationConfirmedMail")}{" "}
                     {newReservation.customer.email}.
                   </p>
                 </div>
@@ -986,7 +1025,7 @@ export default function ReservationPage() {
                       resetForm();
                     }}
                   >
-                    Close
+                    {t("staff-reservation.close")}
                   </Button>
                 </DialogFooter>
               </DialogContent>

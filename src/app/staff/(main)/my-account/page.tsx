@@ -171,7 +171,6 @@ export default function MyAccount() {
     <div className="flex min-h-screen w-full flex-col bg-background">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-semibold">{t("navigation.myAccount")}</h1>
         </div>
         <div className="mx-auto grid max-w-[59rem] min-[640px]:flex-1 auto-rows-max gap-4 max-[640px]:p-2">
           <div className="flex items-center gap-4">
