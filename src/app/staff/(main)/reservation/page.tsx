@@ -11,6 +11,7 @@ import {
   compareAsc,
   addMinutes,
   parse,
+  subMinutes,
 } from "date-fns";
 import {
   Card,
@@ -369,9 +370,6 @@ export default function ReservationPage() {
   const getAvailableTimesForDay = (day: Date) => {
     if (!newReservation.serviceId || !newReservation.staffId) return [];
 
-    const service = services.find((s) => s.id === newReservation.serviceId);
-    if (!service) return [];
-
     const workingHours = getStaffWorkingHours(newReservation.staffId, day);
     if (!workingHours || workingHours.length === 0) return [];
 
@@ -381,22 +379,24 @@ export default function ReservationPage() {
       let currentTime = parse(slot.start, "HH:mm", day);
       const endTime = parse(slot.end, "HH:mm", day);
 
-      while (currentTime < endTime) {
-        const slotEndTime = addMinutes(currentTime, service.duration);
-        const isAvailable = !reservations.some(
-          (res) =>
-            res.staffId === newReservation.staffId &&
-            isSameDay(res.start, day) &&
-            ((currentTime >= res.start && currentTime < res.end) ||
-              (slotEndTime > res.start && slotEndTime <= res.end) ||
-              (currentTime <= res.start && slotEndTime >= res.end))
+      // Saatlik slotlar oluştur
+      while (currentTime <= subMinutes(endTime, 60)) {
+        const slotEndTime = addMinutes(currentTime, 60);
+        
+        // Sadece tam olarak bu slot saatinde rezervasyon var mı kontrol et
+        const hasConflict = reservations.some((res) =>
+          res.staffId === newReservation.staffId &&
+          isSameDay(res.start, day) &&
+          format(currentTime, "HH:mm") === format(new Date(res.start), "HH:mm")
         );
 
         availableTimes.push({
           time: new Date(currentTime),
-          available: isAvailable,
+          available: !hasConflict
         });
-        currentTime = addMinutes(currentTime, service.duration); // Move to next slot based on service duration
+
+        // Bir sonraki saate geç
+        currentTime = addMinutes(currentTime, 60);
       }
     });
 
@@ -405,11 +405,7 @@ export default function ReservationPage() {
 
   // Güncellenen handleNewReservation fonksiyonu
   const handleNewReservation = async () => {
-    if (
-      !newReservation.serviceId ||
-      !newReservation.staffId ||
-      !newReservation.start
-    ) {
+    if (!newReservation.serviceId || !newReservation.staffId || !newReservation.start) {
       toast({
         title: "Error",
         description: "Please select a service and time.",
@@ -420,7 +416,7 @@ export default function ReservationPage() {
 
     setIsSubmitting(true);
 
-    const service = services.find((s) => s.id === newReservation.serviceId);
+    const service = services.find(s => s.id === newReservation.serviceId);
     if (!service) {
       toast({
         title: "Error",
@@ -431,19 +427,24 @@ export default function ReservationPage() {
       return;
     }
 
-    const endTime = addMinutes(newReservation.start, service.duration - 1);
+    // Bitiş zamanını 59 dakika sonrası olarak ayarla
+    const endTime = addMinutes(newReservation.start, 59);
 
     const newReservationData = {
       serviceId: newReservation.serviceId,
       staffId: newReservation.staffId,
-      start: newReservation.start.toISOString(),
+      start: newReservation.start,
       end: endTime,
-      customer: JSON.stringify(newReservation.customer),
-      status: true,
+      customer: {
+        firstName: newReservation.customer.firstName,
+        lastName: newReservation.customer.lastName,
+        email: newReservation.customer.email,
+        phone: newReservation.customer.phone,
+      }
     };
 
     const { error } = await supabase
-      .from("reservations")
+      .from('reservations')
       .insert([newReservationData]);
 
     if (error) {
@@ -457,20 +458,15 @@ export default function ReservationPage() {
       setIsSuccessDialogOpen(true);
       fetchReservations();
 
-      const staffMember = staffMembers.find(
-        (s) => s.id === newReservation.staffId
-      );
+      const staffMember = staffMembers.find(s => s.id === newReservation.staffId);
 
       // Müşteriye e-posta gönder
       mail.sendMail({
         to: newReservation.customer.email,
-        subject: "Appointment Confirmation",
+        subject: 'Appointment Confirmation',
         html: `
           <p>Hi ${newReservation.customer.firstName},</p>
-          <p>Your appointment has been successfully booked for ${format(
-            newReservation.start,
-            "MMMM d, yyyy HH:mm"
-          )}.</p>
+          <p>Your appointment has been successfully booked for ${format(newReservation.start, 'MMMM d, yyyy HH:mm')}.</p>
           <p>Service: ${service.name}</p>
           <p>Staff: ${staffMember?.firstName} ${staffMember?.lastName}</p>
           <p>Price: ${service.price} CHF</p>
@@ -480,7 +476,7 @@ export default function ReservationPage() {
               ${staffMember?.email}
             </a>
           </p>
-        `,
+        `
       });
 
       // Admin kullanıcılara e-posta gönder
@@ -491,13 +487,11 @@ export default function ReservationPage() {
           subject: "New Appointment Created",
           html: `
             <p>A new appointment has been created:</p>
-            <p>Customer: ${newReservation.customer.firstName} ${
-            newReservation.customer.lastName
-          }</p>
+            <p>Customer: ${newReservation.customer.firstName} ${newReservation.customer.lastName}</p>
             <p>Service: ${service.name}</p>
             <p>Staff: ${staffMember?.firstName} ${staffMember?.lastName}</p>
             <p>Date: ${format(newReservation.start, "MMMM d, yyyy HH:mm")}</p>
-          `,
+          `
         });
       }
     }
