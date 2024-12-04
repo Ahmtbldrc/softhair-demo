@@ -178,7 +178,7 @@ export default function MyAccount() {
             <Link href="/staff">
               <Button variant="outline" size="icon" className="h-7 w-7">
                 <ChevronLeft className="h-4 w-4" />
-                <span className="sr-only">Back</span>
+                <span className="sr-only">{t('staff-my-account.back')}</span>
               </Button>
             </Link>
             <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
@@ -190,16 +190,16 @@ export default function MyAccount() {
               <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Staff Details</CardTitle>
+                    <CardTitle>{t('staff-my-account.staffDetails')}</CardTitle>
                     <CardDescription>
-                      View the staff member&apos;s personal information
+                      {t('staff-my-account.viewStaffPersonalInformation')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-6">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
-                          <Label htmlFor="firstName">First Name</Label>
+                          <Label htmlFor="firstName">{t('staff-my-account.firstName')}</Label>
                           <Input
                             id="firstName"
                             type="text"
@@ -209,7 +209,7 @@ export default function MyAccount() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="lastName">Last Name</Label>
+                          <Label htmlFor="lastName">{t('staff-my-account.lastName')}</Label>
                           <Input
                             id="lastName"
                             type="text"
@@ -220,7 +220,7 @@ export default function MyAccount() {
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email">{t('staff-my-account.email')}</Label>
                         <Input
                           id="email"
                           type="email"
@@ -230,7 +230,7 @@ export default function MyAccount() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="username">Username</Label>
+                        <Label htmlFor="username">{t('staff-my-account.username')}</Label>
                         <Input
                           id="username"
                           type="text"
@@ -240,7 +240,7 @@ export default function MyAccount() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password">{t('staff-my-account.password')}</Label>
                         <div className="relative">
                           <Input
                             id="password"
@@ -276,9 +276,9 @@ export default function MyAccount() {
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Weekly Hours</CardTitle>
+                    <CardTitle>{t('staff-my-account.weeklyHours')}</CardTitle>
                     <CardDescription>
-                      View the staff member&apos;s weekly working hours
+                      {t('staff-my-account.weeklyHoursDescription')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -286,8 +286,8 @@ export default function MyAccount() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="w-[100px]">Day</TableHead>
-                            <TableHead>Hours</TableHead>
+                            <TableHead className="w-[100px]">{t('staff-my-account.day')}</TableHead>
+                            <TableHead>{t('staff-my-account.hours')}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -299,7 +299,7 @@ export default function MyAccount() {
                               <TableCell>
                                 {staff.weeklyHours[day].length === 0 ? (
                                   <span className="text-muted-foreground">
-                                    Unavailable
+                                    {t('staff-my-account.notAvailable')}
                                   </span>
                                 ) : (
                                   <div className="flex flex-col space-y-2">
@@ -345,7 +345,7 @@ export default function MyAccount() {
                               {day}
                               <span className="ml-auto">
                                 {staff.weeklyHours[day].length === 0
-                                  ? "Unavailable"
+                                  ? t('staff-my-account.notAvailable')
                                   : `${staff.weeklyHours[day].length} slot(s)`}
                               </span>
                             </Button>
@@ -383,7 +383,7 @@ export default function MyAccount() {
               <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Staff Status</CardTitle>
+                    <CardTitle>{t('staff-my-account.staffStatus')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Select value={staff.status ? "true" : "false"} disabled>
@@ -391,17 +391,17 @@ export default function MyAccount() {
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="true">Active</SelectItem>
-                        <SelectItem value="false">Passive</SelectItem>
+                        <SelectItem value="true">{t('staff-my-account.active')}</SelectItem>
+                        <SelectItem value="false">{t('staff-my-account.passive')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </CardContent>
                 </Card>
                 <Card className="overflow-hidden">
                   <CardHeader>
-                    <CardTitle>Staff Image</CardTitle>
+                    <CardTitle>{t('staff-my-account.staffImage')}</CardTitle>
                     <CardDescription>
-                      View the profile image for the staff member
+                      {t('staff-my-account.uploadImageDescription')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -427,9 +427,9 @@ export default function MyAccount() {
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Staff Services</CardTitle>
+                    <CardTitle>{t('staff-my-account.staffServices')}</CardTitle>
                     <CardDescription>
-                      View the services this staff member can provide
+                      {t('staff-my-account.staffServicesDescription')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -459,13 +459,13 @@ export default function MyAccount() {
             </div>
             <div className="flex items-center justify-end gap-2 mt-4">
               <Button type="button" variant="outline">
-                Cancel
+                {t('staff-my-account.cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                Update Password
+                {t('staff-my-account.updatePassword')}
               </Button>
             </div>
           </form>

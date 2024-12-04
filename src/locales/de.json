@@ -218,5 +218,30 @@
     "customer": "Kunden ",
     "notAvailable": "Nicht verfügbar",
     "dateAndTime": "Datum & Zeit"
+  },
+  "staff-my-account":{
+    "back": "Zurück",
+    "staffDetails": "Mitarbeiterdetails",
+    "viewStaffPersonalInformation": "Sehen Sie sich die persönlichen Informationen des Mitarbeiters an",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "email": "E-Mail",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "weeklyHours": "Wochenstunden",
+    "weeklyHoursDescription": "Sehen Sie sich die wöchentlichen Arbeitsstunden des Mitarbeiters an",
+    "day": "Tag",
+    "hours": "Stunden",
+    "unavailable": "Nicht verfügbar",
+    "staffStatus": "Mitarbeiterstatus",
+    "active": "Aktiv",
+    "passive": "Passiv",
+    "staffImage": "Mitarbeiterbild",
+    "uploadImageDescription": "Laden Sie ein Bild für den Mitarbeiter hoch",
+    "staffServices": "Mitarbeiterdienstleistungen",
+    "staffServicesDescription": "Sehen Sie sich die Dienstleistungen an, die dieser Mitarbeiter anbieten kann",
+    "cancel": "Abbrechen",
+    "updatePassword": "Passwort aktualisieren",
+    "notAvailable": "Nicht verfügbar"
   }
 }

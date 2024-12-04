@@ -218,5 +218,31 @@
     "customer": "Customer",
     "notAvailable": "Not available",
     "dateAndTime": "Date & Time"
+  },
+  "staff-my-account":{
+    "back": "Back",
+    "staffDetails": "Staff Details",
+    "viewStaffPersonalInformation": "View the staff member's personal information",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "username": "Username",
+    "password": "Password",
+    "weeklyHours": "Weekly Hours",
+    "weeklyHoursDescription": "Set the staff member's weekly working hours",
+    "day": "Day",
+    "hours": "Hours",
+    "unavailable": "Unavailable",
+    "staffStatus": "Staff Status",
+    "active": "Active",
+    "passive": "Passive",
+    "staffImage": "Staff Image",
+    "uploadImageDescription": "Upload a profile image for the staff member",
+    "staffServices": "Staff Services",
+    "staffServicesDescription": "Select the services this staff member can provide",
+    "cancel": "Cancel",
+    "updatePassword": "Update Password",
+    "notAvailable": "Not available"
+
   }
 }
