@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, compareAsc, addMinutes, isWithinInterval, parse } from 'date-fns'
+import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, compareAsc, addMinutes, isWithinInterval, parse, subMinutes } from 'date-fns'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -498,6 +498,10 @@ export default function AppointmentCalendar() {
 </td>
 </tr>
 </tbody>
+</table>
+</td>
+</tr>
+</tbody>
 </table><!-- End -->
 </body>
 </html>
@@ -526,30 +530,39 @@ export default function AppointmentCalendar() {
   const getAvailableTimesForDay = (day: Date) => {
     if (!newReservation.serviceId || !newReservation.staffId) return []
 
-    const service = services.find(s => s.id === newReservation.serviceId)
-    if (!service) return []
-
     const workingHours = getStaffWorkingHours(newReservation.staffId, day)
     if (!workingHours || workingHours.length === 0) return []
 
     const availableTimes: { time: Date; available: boolean }[] = []
+    const now = new Date()
+    const twoWeeksFromNow = addDays(now, 14)
 
     workingHours.forEach(slot => {
       let currentTime = parse(slot.start, 'HH:mm', day)
       const endTime = parse(slot.end, 'HH:mm', day)
 
-      while (currentTime < endTime) {
-        const slotEndTime = addMinutes(currentTime, 60) // Always use 60-minute intervals
-        const isAvailable = !reservations.some(res => 
+      // Saatlik slotlar oluştur
+      while (currentTime <= subMinutes(endTime, 60)) {
+        const slotEndTime = addMinutes(currentTime, 60)
+        
+        // Sadece tam olarak bu slot saatinde rezervasyon var mı kontrol et
+        const hasConflict = reservations.some((res) =>
           res.staffId === newReservation.staffId &&
           isSameDay(res.start, day) &&
-          (isWithinInterval(currentTime, { start: res.start, end: res.end }) ||
-          isWithinInterval(slotEndTime, { start: res.start, end: res.end }) ||
-          (currentTime <= res.start && slotEndTime >= res.end))
+          format(currentTime, "HH:mm") === format(new Date(res.start), "HH:mm")
         )
 
-        availableTimes.push({ time: new Date(currentTime), available: isAvailable })
-        currentTime = slotEndTime
+        // Geçmiş tarih/saat ve gelecek tarih kontrolü
+        const isPastDateTime = currentTime < now
+        const isFutureDateTime = currentTime > twoWeeksFromNow
+
+        availableTimes.push({
+          time: new Date(currentTime),
+          available: !hasConflict && !isPastDateTime && !isFutureDateTime
+        })
+
+        // Bir sonraki saate geç
+        currentTime = addMinutes(currentTime, 60)
       }
     })
 
@@ -579,12 +592,13 @@ export default function AppointmentCalendar() {
       return
     }
 
-    const endTime = addMinutes(newReservation.start, service.duration - 1)
+    // Bitiş zamanını 59 dakika sonrası olarak ayarla
+    const endTime = addMinutes(newReservation.start, 59)
 
     const newReservationData = {
       serviceId: newReservation.serviceId,
       staffId: newReservation.staffId,
-      start: newReservation.start.toISOString(),
+      start: newReservation.start,
       end: endTime,
       customer: JSON.stringify(newReservation.customer),
       status: true
@@ -865,6 +879,14 @@ export default function AppointmentCalendar() {
 </div>
 </td>
 </tr>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
 </table>
 </td>
 </tr>
@@ -1170,23 +1192,34 @@ export default function AppointmentCalendar() {
                       <CardContent className="p-2">
                         <ScrollArea className="h-32 sm:h-40">
                           {newReservation.staffId && isStaffWorkingOnDay(newReservation.staffId, day) ? (
-                            getAvailableTimesForDay(day).map(({ time, available }) => (
-                              <Button
-                                key={time.toISOString()}
-                                variant="outline"
-                                className={`w-full mb-1 ${
-                                  available 
-                                    ? newReservation.start && isSameDay(newReservation.start, time) && newReservation.start.getTime() === time.getTime()
-                                      ? 'bg-green-500 text-white hover:bg-green-600'
-                                      : 'hover:bg-green-100'
-                                    : 'bg-red-100 cursor-not-allowed'
-                                }`}
-                                onClick={() => available && setNewReservation({...newReservation, start: time})}
-                                disabled={!available}
-                              >
-                                {format(time, 'HH:mm')}
-                              </Button>
-                            ))
+                            getAvailableTimesForDay(day).map(({ time, available }) => {
+                              const isPastDateTime = time < new Date()
+                              const isFutureDateTime = time > addDays(new Date(), 14)
+                              return (
+                                <Button
+                                  key={time.toISOString()}
+                                  variant="outline"
+                                  className={`w-full mb-1 ${
+                                    isPastDateTime || isFutureDateTime
+                                      ? 'line-through text-muted-foreground hover:no-underline cursor-not-allowed'
+                                      : available 
+                                        ? newReservation.start &&
+                                          isSameDay(newReservation.start, time) &&
+                                          newReservation.start.getTime() === time.getTime()
+                                          ? 'bg-green-500 text-white hover:bg-green-600'
+                                          : 'hover:bg-green-100'
+                                        : 'bg-red-100 cursor-not-allowed'
+                                  }`}
+                                  onClick={() => !isPastDateTime && !isFutureDateTime && available && setNewReservation({
+                                    ...newReservation,
+                                    start: time,
+                                  })}
+                                  disabled={isPastDateTime || isFutureDateTime || !available}
+                                >
+                                  {format(time, 'HH:mm')}
+                                </Button>
+                              )
+                            })
                           ) : (
                             <p className="text-xs text-muted-foreground">{t('admin-reservation.notAvailable')}</p>
                           )}
