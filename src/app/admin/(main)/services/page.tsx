@@ -24,7 +24,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-
+import { useLocale } from "@/contexts/LocaleContext";
 interface Service {
   id: number;
   name: string;
@@ -32,6 +32,7 @@ interface Service {
 }
 
 export default function Services() {
+  const { t } = useLocale();
   const [services, setServices] = useState<Service[]>([]);
 
   const getServices = async () => {
@@ -177,25 +178,25 @@ export default function Services() {
         <div className="container mx-auto p-4 space-y-8">
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold text-primary">
-              Services Management
+              {t("admin-services.servicesDescription")}
             </h1>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
-                  <Plus className="mr-2 h-4 w-4" /> Add Service
+                  <Plus className="mr-2 h-4 w-4" /> {t("admin-services.addService")}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Add New Service</DialogTitle>
+                  <DialogTitle>{t("admin-services.addNewService")}</DialogTitle>
                   <DialogDescription>
-                    Enter the details of the new service below.
+                    {t("admin-services.addNewServiceDescription")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="name" className="text-right">
-                      Name
+                      {t("admin-services.name")}
                     </Label>
                     <Input
                       id="name"
@@ -209,14 +210,14 @@ export default function Services() {
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="price" className="text-right">
-                      Price
+                      {t("admin-services.price")}
                     </Label>
                     <Input
                       id="price"
                       type="number"
                       step="0.01"
                       min="0"
-                      placeholder="Enter price"
+                      placeholder={t("admin-services.price")}
                       onChange={(e) =>
                         setNewService({
                           ...newService,
@@ -233,7 +234,7 @@ export default function Services() {
                     {isLoading ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
-                    Add Service
+                    {t("admin-services.addService")}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -243,9 +244,9 @@ export default function Services() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[40%]">Name</TableHead>
-                  <TableHead className="w-[30%]">Price</TableHead>
-                  <TableHead className="w-[30%]">Actions</TableHead>
+                  <TableHead className="w-[40%]">{t("admin-services.name")}</TableHead>
+                  <TableHead className="w-[30%]">{t("admin-services.price")}</TableHead>
+                  <TableHead className="w-[30%]">{t("admin-services.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -272,15 +273,15 @@ export default function Services() {
                             >
                               <Pencil className="h-4 w-4" />
                               <span className="sr-only">
-                                Edit {service.name}
+                                {t("admin-services.editService")} {service.name}
                               </span>
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>Edit Service</DialogTitle>
+                              <DialogTitle>{t("admin-services.editService")}</DialogTitle>
                               <DialogDescription>
-                                Make changes to the service price below.
+                                {t("admin-services.editServiceDescription")}
                               </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
@@ -289,7 +290,7 @@ export default function Services() {
                                   htmlFor="edit-name"
                                   className="text-right"
                                 >
-                                  Name
+                                  {t("admin-services.name")}
                                 </Label>
                                 <Input
                                   id="edit-name"
@@ -304,14 +305,14 @@ export default function Services() {
                                   htmlFor="edit-price"
                                   className="text-right"
                                 >
-                                  Price
+                                  {t("admin-services.price")}
                                 </Label>
                                 <Input
                                   id="edit-price"
                                   type="number"
                                   step="0.01"
                                   min="0"
-                                  placeholder="Enter new price"
+                                  placeholder={t("admin-services.price")}
                                   value={editingService?.price}
                                   onChange={(e) =>
                                     setEditingService(
@@ -336,7 +337,7 @@ export default function Services() {
                                 {isLoading ? (
                                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 ) : null}
-                                Save Changes
+                                {t("admin-services.saveChanges")}
                               </Button>
                             </DialogFooter>
                           </DialogContent>
@@ -353,17 +354,16 @@ export default function Services() {
                             >
                               <Trash2 className="h-4 w-4" />
                               <span className="sr-only">
-                                Delete {service.name}
+                                {t("admin-services.delete")} {service.name}
                               </span>
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>Confirm Deletion</DialogTitle>
+                              <DialogTitle>{t("admin-services.confirmDeletion")}</DialogTitle>
                               <DialogDescription>
-                                Are you sure you want to delete the service &quot;
-                                {serviceToDelete?.name}&quot;? This action cannot be
-                                undone.
+                                {t("admin-services.confirmDeletionDescription")} &quot;
+                                {serviceToDelete?.name}&quot;? {t("admin-services.confirmDeletionDescription-2")}
                               </DialogDescription>
                             </DialogHeader>
                             <DialogFooter>
@@ -371,7 +371,7 @@ export default function Services() {
                                 variant="outline"
                                 onClick={() => setIsDeleteDialogOpen(false)}
                               >
-                                Cancel
+                                {t("admin-services.cancel")}
                               </Button>
                               <Button
                                 variant="destructive"
@@ -381,7 +381,7 @@ export default function Services() {
                                 {isLoading ? (
                                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 ) : null}
-                                Delete
+                                {t("admin-services.delete")}
                               </Button>
                             </DialogFooter>
                           </DialogContent>

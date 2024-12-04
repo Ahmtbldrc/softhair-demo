@@ -161,6 +161,22 @@
     "discard": "Verwerfen",
     "addStaff": "Mitarbeiter hinzufügen",
     "selectStatus": "Status auswählen"
+  },
+  "admin-services":{
+    "servicesDescription": "Dienstleistungsverwaltung",
+    "addService": "Dienstleistung hinzufügen",
+    "addNewService": "Neue Dienstleistung hinzufügen",
+    "addNewServiceDescription": "Geben Sie die Details der neuen Dienstleistung ein",
+    "name": "Name",
+    "price": "Preis",
+    "actions": "Aktionen",
+    "editService": "Dienstleistung bearbeiten",
+    "editServiceDescription": "Ändern Sie die Preisdetails der Dienstleistung unten",
+    "saveChanges": "Änderungen speichern",
+    "delete": "Löschen",
+    "confirmDeletion": "Bestätigen Sie die Löschung",
+    "confirmDeletionDescription": "Sind Sie sicher, dass Sie die Dienstleistung",
+    "confirmDeletionDescription-2": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "cancel": "Abbrechen"
   }
-
 }

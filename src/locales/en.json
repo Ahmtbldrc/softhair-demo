@@ -161,5 +161,22 @@
     "discard": "Discard",
     "addStaff": "Add Staff",
     "selectStatus": "Select status"
-  }
+  },
+  "admin-services":{
+    "servicesDescription": "Services Management",
+    "addService": "Add Service",
+    "addNewService": "Add New Service",
+    "addNewServiceDescription": "Enter the details of the new service below.",
+    "name": "Name",
+    "price": "Price",
+    "actions": "Actions",
+    "editService": "Edit Service",
+    "editServiceDescription": "Change the price details of the service below",
+    "saveChanges": "Save changes",
+    "delete": "Delete",
+    "confirmDeletion": "Confirm deletion",
+    "confirmDeletionDescription": "Are you sure you want to delete the service",
+    "confirmDeletionDescription-2": "This action cannot be undone.",
+    "cancel": "Cancel"
+  } 
 }
