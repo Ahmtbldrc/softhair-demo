@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { Facebook, Instagram, Twitter } from 'lucide-react'
+import { Facebook, Instagram, Twitter, ExternalLink, Phone, Mail, MapPin } from 'lucide-react'
 import { Canvas } from '@react-three/fiber'
 import { useGLTF, OrbitControls, Preload } from '@react-three/drei'
 import * as THREE from 'three'
@@ -43,9 +43,9 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="bg-black text-white py-12">
+    <footer className="bg-black text-white pt-12">
       <div className="container mx-auto px-4 max-w-6xl">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Logo ve Sosyal Medya */}
           <div className="flex flex-col space-y-4">
             <Link href="/" className="text-3xl font-bold metal-text">
@@ -66,19 +66,46 @@ const Footer = () => {
           </div>
 
           {/* Linkler */}
-          <div className="flex flex-col items-center space-y-4">
+          <div className="flex flex-col space-y-4 mx-auto">
             <h3 className="text-xl font-semibold">Links</h3>
-            <ul className="space-y-3 text-center">
+            <ul className="space-y-3">
               {menuItems.map((item) => (
-                <li key={item.name}>
+                <li key={item.name} className="relative w-fit group">
                   <Link 
                     href={item.href} 
-                    className="text-gray-400 hover:text-white transition-colors"
+                    className="flex items-center text-gray-400 hover:text-white transition-colors"
                   >
-                    {item.name}
+                    <span>{item.name}</span>
+                    <ExternalLink className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
                   </Link>
                 </li>
               ))}
+            </ul>
+          </div>
+
+          {/* İletişim Bilgileri */}
+          <div className="flex flex-col space-y-4">
+            <h3 className="text-xl font-semibold">Kontakt</h3>
+            <ul className="space-y-3">
+              <li>
+                <div className="flex items-center space-x-2 text-gray-400">
+                  <Phone className="w-4 h-4 flex-shrink-0" />
+                  <span>+49 123 456 789</span>
+                </div>
+              </li>
+              <li>
+                <div className="flex items-center space-x-2 text-gray-400">
+                  <Mail className="w-4 h-4 flex-shrink-0" />
+                  <span>info@royalteam.de</span>
+                </div>
+              </li>
+              <li>
+                <div className="flex items-start space-x-2 text-gray-400">
+                  <MapPin className="w-4 h-4 flex-shrink-0 mt-1" />
+                  <span>Musterstraße 123<br />12345 Berlin<br />Deutschland</span>
+                </div>
+              </li>
             </ul>
           </div>
 
@@ -114,13 +141,14 @@ const Footer = () => {
       <div className="border-t border-gray-800 mt-8">
         <div className="container mx-auto px-4 py-4 max-w-6xl">
           <div className="text-center text-sm text-gray-400">
+            <span>© {new Date().getFullYear()} Royal Team | Entwickelt von </span>
             <Link 
               href="https://softsidedigital.com" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="hover:text-gray-300 transition-colors"
+              className="bg-gradient-to-r from-gray-400 via-white to-gray-400 bg-clip-text text-transparent"
             >
-              © {new Date().getFullYear()} Royal Team | Entwickelt von Softside Digital
+              Softside Digital
             </Link>
           </div>
         </div>
