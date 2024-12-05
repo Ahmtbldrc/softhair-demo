@@ -24,30 +24,30 @@ const prices = [
   { service: 'Damenhaarschnitt', price: '45€' },
   { service: 'Herrenhaarschnitt', price: '35€' },
   { service: 'Färben', price: '60€' },
-  { service: 'Strähnen', price: '80€' },
+  { service: 'Strähnen', price: '80��' },
   { service: 'Hochsteckfrisur', price: '70€' },
 ]
 
 function BarberChair() {
-  const { scene } = useGLTF('/models/scene.gltf')
+  const { scene } = useGLTF('/models/barber-chair.glb')
 
   useEffect(() => {
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = new THREE.MeshStandardMaterial({
-          color: 0xE8E8E8,    // Daha açık gümüş rengi
-          metalness: 0.8,      // Biraz daha az metalik
-          roughness: 0.2,      // Biraz daha parlak
-          envMapIntensity: 1.5 // Yansıma yoğunluğu
+          color: 0xF5F5F5,
+          metalness: 0.8,
+          roughness: 0.2,
+          envMapIntensity: 1.5
         })
       }
     })
   }, [scene])
 
-  return <primitive object={scene} />
+  return <primitive object={scene} scale={0.005} position={[0, 0, 0]} rotation={[0, Math.PI / 4, 0]} />
 }
 
-useGLTF.preload('/models/scene.gltf')
+useGLTF.preload('/models/barber-chair.glb')
 
 export default function Home() {
   const heroRef = useRef(null)
@@ -161,10 +161,18 @@ export default function Home() {
           </motion.div>
         </div>
         <div className="w-1/2 h-full">
-          <Canvas>
+          <Canvas
+            camera={{ position: [0, 2, 8], fov: 45 }}
+            style={{ background: 'transparent' }}
+          >
             <ambientLight intensity={0.5} />
             <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-            <OrbitControls enableZoom={false} autoRotate />
+            <OrbitControls 
+              enableZoom={false} 
+              autoRotate 
+              minPolarAngle={Math.PI / 3}  // Minimum açıyı sınırla
+              maxPolarAngle={Math.PI / 2}  // Maximum açıyı sınırla
+            />
             <BarberChair />
           </Canvas>
         </div>
