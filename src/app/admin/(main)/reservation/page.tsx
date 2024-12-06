@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, compareAsc, addMinutes, isWithinInterval, parse, subMinutes } from 'date-fns'
+import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, compareAsc, addMinutes, parse, subMinutes } from 'date-fns'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -543,7 +543,6 @@ export default function AppointmentCalendar() {
 
       // Saatlik slotlar oluştur
       while (currentTime <= subMinutes(endTime, 60)) {
-        const slotEndTime = addMinutes(currentTime, 60)
         
         // Sadece tam olarak bu slot saatinde rezervasyon var mı kontrol et
         const hasConflict = reservations.some((res) =>

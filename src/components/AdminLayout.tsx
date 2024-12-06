@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import {
   CircleUser,
   Menu,
-  Search,
   Moon,
   Sun,
   Scissors,
@@ -23,7 +22,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";

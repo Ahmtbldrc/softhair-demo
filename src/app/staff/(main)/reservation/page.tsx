@@ -910,7 +910,6 @@ export default function ReservationPage() {
 
       // Saatlik slotlar oluştur
       while (currentTime <= subMinutes(endTime, 60)) {
-        const slotEndTime = addMinutes(currentTime, 60);
         
         // Sadece tam olarak bu slot saatinde rezervasyon var mı kontrol et
         const hasConflict = reservations.some((res) =>

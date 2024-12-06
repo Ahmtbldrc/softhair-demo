@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Canvas } from '@react-three/fiber'
@@ -55,9 +55,6 @@ export default function Home() {
   const aboutRef = useRef(null)
   const priceRef = useRef(null)
   const contactRef = useRef(null)
-
-  const { scrollYProgress } = useScroll()
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
 
   useEffect(() => {
     const heroTl = gsap.timeline({

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addMinutes, isWithinInterval, parse, subMinutes } from 'date-fns'
+import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addMinutes, parse, subMinutes } from 'date-fns'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -173,7 +173,7 @@ export default function NewReservation() {
       const endTime = parse(slot.end, 'HH:mm', day)
 
       while (currentTime <= subMinutes(endTime, 60)) {
-        const slotEndTime = addMinutes(currentTime, 60)
+        //const slotEndTime = addMinutes(currentTime, 60)
         
         const hasConflict = existingAppointments.some((apt) =>
           apt.staffId === selectedStaff &&
