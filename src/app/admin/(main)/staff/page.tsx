@@ -38,7 +38,16 @@ export default function StaffPage() {
   const itemsPerPage = 5;
 
   const filteredStaff = staff.filter((member) => {
-    return filter === 0 || member.status ? 1 : 2 === filter;
+    switch (filter) {
+      case 0:
+        return true;
+      case 1:
+        return member.status === true;
+      case 2:
+        return member.status === false;
+      default:
+        return true;
+    }
   });
 
   const handleDelete = async (id: number) => {
@@ -91,85 +100,87 @@ export default function StaffPage() {
                 </Link>
               </div>
             </div>
-            <TabsContent value="0" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("admin-staff.staffList")}</CardTitle>
-                  <CardDescription>
-                    {t("admin-staff.manageStaffAndViewServices")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="hidden w-[100px] sm:table-cell">
-                          <span className="sr-only">{t("admin-staff.image")}</span>
-                        </TableHead>
-                        <TableHead>{t("admin-staff.fullName")}</TableHead>
-                        <TableHead>{t("admin-staff.status")}</TableHead>
-                        <TableHead className="hidden md:table-cell">
-                          {t("admin-staff.services")}
-                        </TableHead>
-                        <TableHead>{t("admin-staff.actions")}</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {isLoading
-                        ? [...Array(3)].map((_, index) => (
-                            <TableRow key={index}>
-                              <TableCell>
-                                <Skeleton className="w-16 h-16 rounded" />
-                              </TableCell>
-                              <TableCell>
-                                <Skeleton className="w-16 h-4 rounded" />
-                              </TableCell>
-                              <TableCell>
-                                <Skeleton className="w-[60px] h-6 rounded" />
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex gap-2">
-                                  <Skeleton className="w-20 h-[22px] rounded-md" />
-                                  <Skeleton className="w-20 h-[22px] rounded-md" />
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <Skeleton className="w-[36px] h-[36px] rounded" />
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        : paginatedStaff.map((member) => (
-                            <Member
-                              key={member.id}
-                              member={member}
-                              handleDelete={() => handleDelete(member.id)}
-                            />
-                          ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-                <CardFooter className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    {t("admin-staff.showing")}{" "}
-                    <strong>
-                      {(currentPage - 1) * itemsPerPage + 1}-
-                      {Math.min(
-                        currentPage * itemsPerPage,
-                        filteredStaff.length
-                      )}
-                    </strong>{" "}
-                    {t("admin-staff.of")}{" "}
-                    <strong>{filteredStaff.length}</strong> {t("admin-staff.staffMembers")}
-                  </div>
-                </CardFooter>
-                <Pagination
-                  filteredStaff={filteredStaff}
-                  itemsPerPage={itemsPerPage}
-                  currentPage={currentPage}
-                  setCurrentPage={setCurrentPage}
-                />
-              </Card>
-            </TabsContent>
+            {["0", "1", "2"].map((value) => (
+              <TabsContent key={value} value={value} className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t("admin-staff.staffList")}</CardTitle>
+                    <CardDescription>
+                      {t("admin-staff.manageStaffAndViewServices")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="hidden w-[100px] sm:table-cell">
+                            <span className="sr-only">{t("admin-staff.image")}</span>
+                          </TableHead>
+                          <TableHead>{t("admin-staff.fullName")}</TableHead>
+                          <TableHead>{t("admin-staff.status")}</TableHead>
+                          <TableHead className="hidden md:table-cell">
+                            {t("admin-staff.services")}
+                          </TableHead>
+                          <TableHead>{t("admin-staff.actions")}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {isLoading
+                          ? [...Array(3)].map((_, index) => (
+                              <TableRow key={index}>
+                                <TableCell>
+                                  <Skeleton className="w-16 h-16 rounded" />
+                                </TableCell>
+                                <TableCell>
+                                  <Skeleton className="w-16 h-4 rounded" />
+                                </TableCell>
+                                <TableCell>
+                                  <Skeleton className="w-[60px] h-6 rounded" />
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex gap-2">
+                                    <Skeleton className="w-20 h-[22px] rounded-md" />
+                                    <Skeleton className="w-20 h-[22px] rounded-md" />
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Skeleton className="w-[36px] h-[36px] rounded" />
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          : paginatedStaff.map((member) => (
+                              <Member
+                                key={member.id}
+                                member={member}
+                                handleDelete={() => handleDelete(member.id)}
+                              />
+                            ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                  <CardFooter className="flex items-center justify-between">
+                    <div className="text-sm text-muted-foreground">
+                      {t("admin-staff.showing")}{" "}
+                      <strong>
+                        {(currentPage - 1) * itemsPerPage + 1}-
+                        {Math.min(
+                          currentPage * itemsPerPage,
+                          filteredStaff.length
+                        )}
+                      </strong>{" "}
+                      {t("admin-staff.of")}{" "}
+                      <strong>{filteredStaff.length}</strong> {t("admin-staff.staffMembers")}
+                    </div>
+                  </CardFooter>
+                  <Pagination
+                    filteredStaff={filteredStaff}
+                    itemsPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                  />
+                </Card>
+              </TabsContent>
+            ))}
           </Tabs>
         </div>
       </main>
