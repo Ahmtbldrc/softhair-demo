@@ -134,7 +134,11 @@
     "staffServices": "Staff Services",
     "staffServicesDescription": "Select the services this staff member can provide",
     "saveChanges": "Save changes",
-    "discard": "Discard"
+    "discard": "Discard",
+    "discardConfirmTitle": "Discard Changes",
+    "discardConfirmDescription": "Are you sure you want to discard all changes? This action cannot be undone.",
+    "confirmDiscard": "Yes, discard",
+    "cancelDiscard": "No, keep editing"
   },
   "admin-staff-add":{
     "addNewStaffMember": "Add New Staff Member",
@@ -164,7 +168,11 @@
     "staffServicesDescription": "Select the services this staff member can provide",
     "discard": "Discard",
     "addStaff": "Add Staff",
-    "selectStatus": "Select status"
+    "selectStatus": "Select status",
+    "discardConfirmTitle": "Discard Changes",
+    "discardConfirmDescription": "Are you sure you want to discard all changes? This action cannot be undone.",
+    "confirmDiscard": "Yes, discard",
+    "cancelDiscard": "No, keep editing"
   },
   "admin-services":{
     "servicesDescription": "Services Management",

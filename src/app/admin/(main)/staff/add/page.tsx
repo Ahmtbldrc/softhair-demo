@@ -48,6 +48,16 @@ import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { Roles, StaffType, TimeSlot, WeeklyHours } from "@/lib/types";
 import { useLocale } from "@/contexts/LocaleContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const;
 
@@ -80,6 +90,7 @@ export default function AddStaff() {
   const [staffImageName, setStaffImageName] = useState<string>("");
   const [staffImage, setStaffImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
   const router = useRouter();
 
@@ -250,6 +261,17 @@ export default function AddStaff() {
         description: "Staff member added successfully",
       });
     }
+  };
+
+  const handleDiscard = () => {
+    setShowDiscardDialog(true);
+  };
+
+  const handleConfirmDiscard = () => {
+    setStaff(emptyStaffData);
+    setStaffImageName("");
+    setStaffImage(null);
+    setShowDiscardDialog(false);
   };
 
   return (
@@ -648,7 +670,7 @@ export default function AddStaff() {
               </div>
             </div>
             <div className="flex items-center justify-end gap-2 mt-4">
-              <Button type="button" variant="outline">
+              <Button type="button" variant="outline" onClick={handleDiscard}>
                 {t("admin-staff-add.discard")}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
@@ -661,6 +683,27 @@ export default function AddStaff() {
           </form>
         </div>
       </main>
+
+      <AlertDialog open={showDiscardDialog} onOpenChange={setShowDiscardDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("admin-staff-add.discardConfirmTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("admin-staff-add.discardConfirmDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {t("admin-staff-add.cancelDiscard")}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDiscard}>
+              {t("admin-staff-add.confirmDiscard")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -128,6 +128,10 @@
     "staffStatus": "Mitarbeiterstatus",
     "saveChanges": "Änderungen speichern",
     "discard": "Verwerfen",
+    "discardConfirmTitle": "Änderungen verwerfen",
+    "discardConfirmDescription": "Sind Sie sicher, dass Sie alle Änderungen verwerfen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirmDiscard": "Ja, verwerfen",
+    "cancelDiscard": "Nein, weiter bearbeiten",
     "uploadImage": "Bild hochladen",
     "uploadImageDescription": "Laden Sie ein Bild für den Mitarbeiter hoch",
     "staffServices": "Mitarbeiterdienstleistungen",
@@ -164,7 +168,11 @@
     "staffServicesDescription": "Wählen Sie die Dienstleistungen aus, die dieser Mitarbeiter anbieten kann",
     "discard": "Verwerfen",
     "addStaff": "Mitarbeiter hinzufügen",
-    "selectStatus": "Status auswählen"
+    "selectStatus": "Status auswählen",
+    "discardConfirmTitle": "Änderungen verwerfen",
+    "discardConfirmDescription": "Sind Sie sicher, dass Sie alle Änderungen verwerfen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirmDiscard": "Ja, verwerfen",
+    "cancelDiscard": "Nein, weiter bearbeiten"
   },
   "admin-services":{
     "servicesDescription": "Dienstleistungsverwaltung",

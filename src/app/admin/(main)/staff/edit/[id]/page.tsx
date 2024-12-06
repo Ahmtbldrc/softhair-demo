@@ -30,6 +30,16 @@ import { ServiceType, StaffType, TimeSlot, WeeklyHours } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useParams, useRouter } from 'next/navigation';
 import { useLocale } from '@/contexts/LocaleContext';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const staffData: StaffType = {
   id: 0,
@@ -67,6 +77,9 @@ export default function StaffManagement() {
   const { id: staffId} = useParams();
 
   const router = useRouter();
+
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+  const [originalStaff, setOriginalStaff] = useState<StaffType>(staffData);
 
   const handleServiceChange = (serviceId: number) => {
     setSelectedServices(prevSelectedServices =>
@@ -257,11 +270,24 @@ export default function StaffManagement() {
           console.error(error);
         } else {
           setStaff(data);
+          setOriginalStaff(data);
           setCurrentUsername(data?.username);
           setSelectedServices(data?.services.map((s: ServiceType) => s.service.id));
-       }
+        }
       });
   }, [staffId]);
+
+  const handleDiscard = () => {
+    setShowDiscardDialog(true);
+  };
+
+  const handleConfirmDiscard = () => {
+    setStaff(originalStaff);
+    setStaffImageName("");
+    setStaffImage(null);
+    setSelectedServices(originalStaff?.services.map((s: ServiceType) => s.service.id) || []);
+    setShowDiscardDialog(false);
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -628,8 +654,8 @@ export default function StaffManagement() {
               </div>
             </div>
             <div className="flex items-center justify-end gap-2 mt-4">
-              <Button type="button" variant="outline">
-                  {t("admin-staff-edit.discard")}
+              <Button type="button" variant="outline" onClick={handleDiscard}>
+                {t("admin-staff-edit.discard")}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
@@ -641,6 +667,27 @@ export default function StaffManagement() {
           </form>
         </div>
       </main>
+
+      <AlertDialog open={showDiscardDialog} onOpenChange={setShowDiscardDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("admin-staff-edit.discardConfirmTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("admin-staff-edit.discardConfirmDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {t("admin-staff-edit.cancelDiscard")}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDiscard}>
+              {t("admin-staff-edit.confirmDiscard")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
