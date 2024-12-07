@@ -172,7 +172,10 @@
     "discardConfirmTitle": "Discard Changes",
     "discardConfirmDescription": "Are you sure you want to discard all changes? This action cannot be undone.",
     "confirmDiscard": "Yes, discard",
-    "cancelDiscard": "No, keep editing"
+    "cancelDiscard": "No, keep editing",
+    "usernameExists": "This username is already taken",
+    "emailExists": "This email is already registered",
+    "validationError": "Please fix the validation errors before continuing"
   },
   "admin-services":{
     "servicesDescription": "Services Management",

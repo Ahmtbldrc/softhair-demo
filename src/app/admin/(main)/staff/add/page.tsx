@@ -58,6 +58,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const;
 
@@ -91,6 +92,8 @@ export default function AddStaff() {
   const [staffImage, setStaffImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+  const [usernameError, setUsernameError] = useState<string>("");
+  const [emailError, setEmailError] = useState<string>("");
 
   const router = useRouter();
 
@@ -173,8 +176,50 @@ export default function AddStaff() {
     }
   };
 
+  const checkUsername = async (username: string) => {
+    if (!username) return;
+    
+    const { data: existingUser } = await supabase
+      .from("staff")
+      .select("username")
+      .eq("username", username)
+      .single();
+
+    if (existingUser) {
+      setUsernameError(t("admin-staff-add.usernameExists"));
+    } else {
+      setUsernameError("");
+    }
+  };
+
+  const checkEmail = async (email: string) => {
+    if (!email) return;
+    
+    const { data: existingEmail } = await supabase
+      .from("staff")
+      .select("email")
+      .eq("email", email)
+      .single();
+
+    if (existingEmail) {
+      setEmailError(t("admin-staff-add.emailExists"));
+    } else {
+      setEmailError("");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (usernameError || emailError) {
+      toast({
+        title: "Error!",
+        description: t("admin-staff-add.validationError"),
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     const { data: existUser } = await supabase
@@ -340,13 +385,20 @@ export default function AddStaff() {
                         <Input
                           id="email"
                           type="email"
-                          className="w-full"
+                          className={cn("w-full", emailError && "border-red-500")}
                           value={staff.email}
-                          onChange={(e) =>
-                            setStaff({ ...staff, email: e.target.value })
-                          }
+                          onChange={(e) => {
+                            setStaff({ ...staff, email: e.target.value });
+                            checkEmail(e.target.value);
+                          }}
+                          onBlur={(e) => checkEmail(e.target.value)}
                           required
                         />
+                        {emailError && (
+                          <p className="mt-1 text-sm text-red-500">
+                            {emailError}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <Label htmlFor="username">
@@ -355,13 +407,20 @@ export default function AddStaff() {
                         <Input
                           id="username"
                           type="text"
-                          className="w-full"
+                          className={cn("w-full", usernameError && "border-red-500")}
                           value={staff.username}
-                          onChange={(e) =>
-                            setStaff({ ...staff, username: e.target.value })
-                          }
+                          onChange={(e) => {
+                            setStaff({ ...staff, username: e.target.value });
+                            checkUsername(e.target.value);
+                          }}
+                          onBlur={(e) => checkUsername(e.target.value)}
                           required
                         />
+                        {usernameError && (
+                          <p className="mt-1 text-sm text-red-500">
+                            {usernameError}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <Label htmlFor="password">
