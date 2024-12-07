@@ -9,6 +9,7 @@ import { useGLTF, OrbitControls } from '@react-three/drei'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import * as THREE from 'three'
+import React from 'react'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -24,7 +25,7 @@ const prices = [
   { service: 'Damenhaarschnitt', price: '45€' },
   { service: 'Herrenhaarschnitt', price: '35€' },
   { service: 'Färben', price: '60€' },
-  { service: 'Strähnen', price: '80��' },
+  { service: 'Strähnen', price: '80€' },
   { service: 'Hochsteckfrisur', price: '70€' },
 ]
 
@@ -44,7 +45,7 @@ function BarberChair() {
     })
   }, [scene])
 
-  return <primitive object={scene} scale={0.005} position={[0, 0, 0]} rotation={[0, Math.PI / 4, 0]} />
+  return <primitive object={scene} scale={0.003} position={[0, 0, 0]} rotation={[0, Math.PI / 4, 0]} />
 }
 
 useGLTF.preload('/models/barber-chair.glb')
@@ -57,121 +58,273 @@ export default function Home() {
   const contactRef = useRef(null)
 
   useEffect(() => {
-    const heroTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: heroRef.current,
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true,
-      },
-    })
-
-    heroTl.to('.hero-content', { opacity: 0, y: -50 })
-
+    // Hero animasyonunu kaldırıyorum çünkü hero section zaten görünür olacak
+    
+    // Service cards animasyonu
     const serviceCards = gsap.utils.toArray<HTMLElement>('.service-card')
     serviceCards.forEach((card, index) => {
-      gsap.from(card, {
-        scrollTrigger: {
-          trigger: servicesRef.current,
-          start: 'top center',
-          end: 'bottom center',
-          scrub: true,
+      gsap.fromTo(card, 
+        {
+          opacity: 0,
+          y: 150,
+          rotation: index % 2 === 0 ? -10 : 10,
         },
+        {
+          opacity: 1,
+          y: 0,
+          rotation: 0,
+          duration: 1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: card,
+            start: "top 85%",
+            end: "top 60%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      )
+    })
+
+    // About section animasyonu
+    const aboutTimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: '.about-text',
+        start: "top center",
+        end: "top 25%",
+        toggleActions: "play none none reverse"
+      }
+    })
+
+    // Başlık harfleri için animasyon
+    gsap.utils.toArray<HTMLElement>('.about-title-char').forEach((char, index) => {
+      aboutTimeline.fromTo(char,
+        {
+          opacity: 0,
+          scale: 3,
+          rotateY: -180,
+          z: -500,
+          filter: 'blur(20px)',
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          rotateY: 0,
+          z: 0,
+          filter: 'blur(0px)',
+          duration: 1.2,
+          ease: "power4.out",
+        },
+        index * 0.15 // Her harf 0.15 saniye arayla gelecek
+      )
+    })
+
+    // Normal metin animasyonu
+    aboutTimeline.fromTo('.about-content',
+      {
         opacity: 0,
-        x: index % 2 === 0 ? -100 : 100,
-        rotation: index % 2 === 0 ? -10 : 10,
-      })
+        y: 50
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out"
+      },
+      "-=0.5"
+    )
+
+    // Vurgulu kelimeler için animasyon
+    gsap.utils.toArray<HTMLElement>('.gradient-text').forEach((text) => {
+      aboutTimeline.fromTo(text,
+        {
+          opacity: 0,
+          scale: 0.8,
+          filter: 'blur(10px)'
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          filter: 'blur(0px)',
+          duration: 0.8,
+          ease: "power2.out"
+        },
+        "-=0.6"
+      )
     })
 
-    gsap.from('.about-text', {
-      scrollTrigger: {
-        trigger: aboutRef.current,
-        start: 'top center',
-        end: 'bottom center',
-        scrub: true,
+    // Price section animasyonu
+    gsap.fromTo('.price-container',
+      {
+        opacity: 0,
+        y: 300,
       },
-      opacity: 0,
-      x: '100%',
-    })
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1.5,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: priceRef.current,
+          start: "top center",
+          end: "top 25%",
+          toggleActions: "play none none reverse"
+        }
+      }
+    )
 
-    gsap.from('.price-item', {
-      scrollTrigger: {
-        trigger: priceRef.current,
-        start: 'top center',
-        end: 'bottom center',
-        scrub: true,
+    // Price items için ayrı animasyon
+    gsap.fromTo('.price-item',
+      {
+        opacity: 0,
+        x: -50,
       },
-      opacity: 0,
-      y: 50,
-      stagger: 0.1,
-    })
+      {
+        opacity: 1,
+        x: 0,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: priceRef.current,
+          start: "top 45%",
+          toggleActions: "play none none reverse"
+        }
+      }
+    )
 
-    gsap.from('.contact-info', {
-      scrollTrigger: {
-        trigger: contactRef.current,
-        start: 'top center',
-        end: 'bottom center',
-        scrub: true,
+    // Contact animasyonları
+    gsap.fromTo('.contact-info',
+      {
+        opacity: 0,
+        x: -100,
+        y: 50,
       },
-      opacity: 0,
-      x: -100,
-    })
+      {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        duration: 1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: contactRef.current,
+          start: "top center",
+          end: "top 25%",
+          toggleActions: "play none none reverse"
+        }
+      }
+    )
 
-    gsap.from('.contact-map', {
-      scrollTrigger: {
-        trigger: contactRef.current,
-        start: 'top center',
-        end: 'bottom center',
-        scrub: true,
+    // Contact başlığı için ayrı animasyon
+    gsap.fromTo('.contact-title',
+      {
+        opacity: 0,
+        y: 50,
+        scale: 0.9,
       },
-      opacity: 0,
-      x: 100,
-    })
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.8,
+        ease: "back.out(1.7)",
+        scrollTrigger: {
+          trigger: contactRef.current,
+          start: "top center",
+          toggleActions: "play none none reverse"
+        }
+      }
+    )
+
+    // Contact detayları için stagger animasyon
+    gsap.fromTo('.contact-detail',
+      {
+        opacity: 0,
+        x: -50,
+      },
+      {
+        opacity: 1,
+        x: 0,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: contactRef.current,
+          start: "top 45%",
+          toggleActions: "play none none reverse"
+        }
+      }
+    )
+
+    // Map için ayrı animasyon
+    gsap.fromTo('.contact-map',
+      {
+        opacity: 0,
+        x: 100,
+        y: 50,
+      },
+      {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        duration: 1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: contactRef.current,
+          start: "top center",
+          end: "top 25%",
+          toggleActions: "play none none reverse"
+        }
+      }
+    )
   }, [])
 
   return (
     <div className="bg-black text-white">
-      <section ref={heroRef} className="h-screen flex items-center justify-between px-4">
-        <div className="hero-content w-1/2">
-          <motion.h1
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-            className="text-6xl font-bold mb-4 metal-text"
-          >
-            Royal Team
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="text-2xl mb-8"
-          >
-            Ihr Stil, unsere Leidenschaft
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 1 }}
-          >
-            <Button size="lg">Termin buchen</Button>
-          </motion.div>
-        </div>
-        <div className="w-1/2 h-full">
-          <Canvas
-            camera={{ position: [0, 2, 8], fov: 45 }}
-            style={{ background: 'transparent' }}
-          >
-            <ambientLight intensity={0.5} />
-            <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-            <OrbitControls 
-              enableZoom={false} 
-              autoRotate 
-              minPolarAngle={Math.PI / 3}  // Minimum açıyı sınırla
-              maxPolarAngle={Math.PI / 2}  // Maximum açıyı sınırla
-            />
-            <BarberChair />
-          </Canvas>
+      <section ref={heroRef} className="h-screen relative">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full">
+          <div className="flex items-center justify-between h-full pt-16 sm:pt-20">
+            <div className="hero-content w-1/2">
+              <motion.h1
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1 }}
+                className="text-6xl font-bold mb-4 metal-text"
+              >
+                Royal Team
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.5 }}
+                className="text-2xl mb-8"
+              >
+                Ihr Stil, unsere Leidenschaft
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 1 }}
+              >
+                <Button size="lg">Termin buchen</Button>
+              </motion.div>
+            </div>
+            <div className="w-1/2 h-full">
+              <Canvas
+                camera={{ position: [0, 2, 8], fov: 45 }}
+                style={{ background: 'transparent' }}
+              >
+                <ambientLight intensity={0.5} />
+                <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+                <OrbitControls 
+                  enableZoom={false} 
+                  autoRotate 
+                  minPolarAngle={Math.PI / 3}
+                  maxPolarAngle={Math.PI / 2}
+                />
+                <BarberChair />
+              </Canvas>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -187,21 +340,59 @@ export default function Home() {
         </div>
       </section>
 
-      <section ref={aboutRef} className="min-h-screen flex items-center justify-center px-4 py-16">
-        <div className="about-text text-center">
-          <h2 className="text-4xl font-bold mb-8 metal-text">Über uns</h2>
-          <p className="text-xl max-w-3xl mx-auto">
-            Royal Team ist Ihr <span className="metal-text">vertrauenswürdiger Partner</span> für perfektes Styling.
-            Mit <span className="metal-text">jahrelanger Erfahrung</span> und <span className="metal-text">Leidenschaft</span> für unser Handwerk
-            sorgen wir dafür, dass Sie sich <span className="metal-text">wohl und selbstbewusst</span> fühlen.
-            Unser Ziel ist es, Ihre <span className="metal-text">natürliche Schönheit</span> zu betonen und Ihnen ein
-            <span className="metal-text">strahlendes Lächeln</span> ins Gesicht zu zaubern.
+      <section ref={aboutRef} className="min-h-screen flex items-center justify-center px-4 py-4">
+        <div className="about-text text-center" style={{ perspective: '1000px' }}>
+          <h2 className="about-title text-7xl sm:text-8xl lg:text-9xl font-bold mb-10 text-transparent" 
+              style={{ 
+                WebkitTextStroke: '2px white',
+                transform: 'preserve-3d'
+              }}>
+            {'Über uns'.split('').map((char, index) => (
+              <span 
+                key={index} 
+                className="about-title-char inline-block"
+                style={{ 
+                  display: 'inline-block',
+                  transform: 'preserve-3d',
+                  backfaceVisibility: 'hidden'
+                }}
+              >
+                {char}
+              </span>
+            ))}
+          </h2>
+          <p className="about-content text-2xl sm:text-3xl max-w-4xl mx-auto leading-relaxed">
+            Royal Team ist Ihr{' '}
+            <span className="gradient-text bg-gradient-to-r from-gray-400 via-white to-gray-400 text-transparent bg-clip-text font-semibold">
+              vertrauenswürdiger Partner
+            </span>{' '}
+            für perfektes Styling. Mit{' '}
+            <span className="gradient-text bg-gradient-to-r from-gray-400 via-white to-gray-400 text-transparent bg-clip-text font-semibold">
+              jahrelanger Erfahrung
+            </span>{' '}
+            und{' '}
+            <span className="gradient-text bg-gradient-to-r from-gray-400 via-white to-gray-400 text-transparent bg-clip-text font-semibold">
+              Leidenschaft
+            </span>{' '}
+            für unser Handwerk sorgen wir dafür, dass Sie sich{' '}
+            <span className="gradient-text bg-gradient-to-r from-gray-400 via-white to-gray-400 text-transparent bg-clip-text font-semibold">
+              wohl und selbstbewusst
+            </span>{' '}
+            fühlen. Unser Ziel ist es, Ihre{' '}
+            <span className="gradient-text bg-gradient-to-r from-gray-400 via-white to-gray-400 text-transparent bg-clip-text font-semibold">
+              natürliche Schönheit
+            </span>{' '}
+            zu betonen und Ihnen ein{' '}
+            <span className="gradient-text bg-gradient-to-r from-gray-400 via-white to-gray-400 text-transparent bg-clip-text font-semibold">
+              strahlendes Lächeln
+            </span>{' '}
+            ins Gesicht zu zaubern.
           </p>
         </div>
       </section>
 
       <section ref={priceRef} className="min-h-screen flex items-center justify-center px-4 py-16">
-        <div className="bg-gray-900 p-8 rounded-lg neon-card">
+        <div className="price-container bg-gray-900 p-8 rounded-lg neon-card w-full max-w-2xl">
           <h2 className="text-4xl font-bold mb-8 text-center metal-text">Unsere Preise</h2>
           <ul className="space-y-4">
             {prices.map((item, index) => (
@@ -217,14 +408,14 @@ export default function Home() {
       <section ref={contactRef} className="min-h-screen flex items-center justify-center px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
           <div className="contact-info space-y-4">
-            <h2 className="text-4xl font-bold mb-8 metal-text">Kontakt</h2>
-            <p>
+            <h2 className="contact-title text-4xl font-bold mb-8 metal-text">Kontakt</h2>
+            <p className="contact-detail">
               <strong className="metal-text">Telefon:</strong> +49 123 456789
             </p>
-            <p>
+            <p className="contact-detail">
               <strong className="metal-text">E-Mail:</strong> info@royalteam.de
             </p>
-            <p>
+            <p className="contact-detail">
               <strong className="metal-text">Adresse:</strong> Hauptstraße 123, 10115 Berlin
             </p>
           </div>
