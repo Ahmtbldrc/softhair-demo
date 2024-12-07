@@ -361,7 +361,7 @@ export default function Home() {
               </span>
             ))}
           </h2>
-          <p className="about-content text-3xl sm:text-4xl max-w-5xl mx-auto leading-relaxed">
+          <p className="about-content text-2xl sm:text-3xl max-w-4xl mx-auto leading-relaxed">
             Royal Team ist Ihr{' '}
             <span className="gradient-text bg-gradient-to-r from-gray-400 via-white to-gray-400 text-transparent bg-clip-text font-semibold">
               vertrauenswürdiger Partner
