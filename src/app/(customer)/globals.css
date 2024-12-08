@@ -86,6 +86,12 @@
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.1);
 }
 
+.gradient-text {
+  @apply bg-gradient-to-r from-gray-400 via-white to-gray-400 bg-clip-text text-transparent inline-block;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  background-size: 200% 100%;
+}
+
 @keyframes gradient {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }

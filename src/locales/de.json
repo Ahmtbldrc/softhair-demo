@@ -22,7 +22,9 @@
     "loading": "Wird geladen...",
     "softhair": "SoftHair",
     "company": "Softside Digital",
-    "allRightsReserved": "Alle Rechte vorbehalten"
+    "allRightsReserved": "Alle Rechte vorbehalten",
+    "language": "Sprache",
+    "bookAppointment": "Termin buchen"
   },
   "auth": {
     "logout": "Abmelden",
@@ -297,5 +299,72 @@
     "reservationConfirmedDescription": "Ihr Termin wurde erfolgreich gebucht.",
     "reservationConfirmedMail": "Eine E-Mail-Bestätigung wurde an",
     "close": "Schließen"
+  },
+  "services": {
+    "haircut": {
+      "title": "Haarschnitt",
+      "description": "Professionelle Haarschnitte für jeden Stil"
+    },
+    "coloring": {
+      "title": "Färben",
+      "description": "Kreative Haarfärbetechniken"
+    },
+    "styling": {
+      "title": "Styling",
+      "description": "Perfektes Styling für jeden Anlass"
+    },
+    "treatments": {
+      "title": "Behandlungen",
+      "description": "Pflegende Haarbehandlungen"
+    },
+    "bridal": {
+      "title": "Brautfrisuren",
+      "description": "Traumhafte Frisuren für Ihren großen Tag"
+    },
+    "beard": {
+      "title": "Bartpflege",
+      "description": "Professionelle Bartpflege und Styling für den modernen Mann"
+    }
+  },
+  "prices": {
+    "title": "Unsere Preise",
+    "womensHaircut": "Damenhaarschnitt",
+    "mensHaircut": "Herrenhaarschnitt",
+    "coloring": "Färben",
+    "highlights": "Strähnen",
+    "updo": "Hochsteckfrisur"
+  },
+  "about": {
+    "title": "Über uns",
+    "content": {
+      "intro": "Royal Team ist Ihr",
+      "trustedPartner": "vertrauenswürdiger Partner",
+      "for": "für perfektes Styling. Mit",
+      "experience": "jahrelanger Erfahrung",
+      "and": "und",
+      "passion": "Leidenschaft",
+      "commitment": "für unser Handwerk sorgen wir dafür, dass Sie sich",
+      "confident": "wohl und selbstbewusst",
+      "feel": "fühlen. Unser Ziel ist es, Ihre",
+      "naturalBeauty": "natürliche Schönheit",
+      "enhance": "zu betonen und Ihnen ein",
+      "smile": "strahlendes Lächeln",
+      "create": "ins Gesicht zu zaubern."
+    }
+  },
+  "contact": {
+    "title": "Kontakt",
+    "phone": "Telefon",
+    "email": "E-Mail",
+    "address": "Adresse"
+  },
+  "navigation": {
+    "home": "Startseite",
+    "gallery": "Galerie",
+    "team": "Team"
+  },
+  "hero": {
+    "title": "Royal Team",
+    "subtitle": "Ihr Stil, unsere Leidenschaft"
   }
 }

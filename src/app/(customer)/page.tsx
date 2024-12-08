@@ -10,25 +10,10 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import * as THREE from 'three'
 import React from 'react'
+import { useLocale } from '@/contexts/LocaleContext'
+import Link from 'next/link'
 
 gsap.registerPlugin(ScrollTrigger)
-
-const services = [
-  { icon: '✂️', title: 'Haarschnitt', description: 'Professionelle Haarschnitte für jeden Stil' },
-  { icon: '🎨', title: 'Färben', description: 'Kreative Haarfärbetechniken' },
-  { icon: '💇', title: 'Styling', description: 'Perfektes Styling für jeden Anlass' },
-  { icon: '💆', title: 'Behandlungen', description: 'Pflegende Haarbehandlungen' },
-  { icon: '👰', title: 'Brautfrisuren', description: 'Traumhafte Frisuren für Ihren großen Tag' },
-  { icon: '🧔', title: 'Bartpflege', description: 'Professionelle Bartpflege und Styling für den modernen Mann' }
-]
-
-const prices = [
-  { service: 'Damenhaarschnitt', price: '45€' },
-  { service: 'Herrenhaarschnitt', price: '35€' },
-  { service: 'Färben', price: '60€' },
-  { service: 'Strähnen', price: '80€' },
-  { service: 'Hochsteckfrisur', price: '70€' },
-]
 
 function BarberChair() {
   const { scene } = useGLTF('/models/barber-chair.glb')
@@ -52,232 +37,268 @@ function BarberChair() {
 useGLTF.preload('/models/barber-chair.glb')
 
 export default function Home() {
+  const { t } = useLocale()
   const heroRef = useRef(null)
   const servicesRef = useRef(null)
   const aboutRef = useRef(null)
   const priceRef = useRef(null)
   const contactRef = useRef(null)
 
+  const [mounted, setMounted] = React.useState(false)
+
   useEffect(() => {
-    // Hero animasyonunu kaldırıyorum çünkü hero section zaten görünür olacak
-    
-    // Service cards animasyonu
-    const serviceCards = gsap.utils.toArray<HTMLElement>('.service-card')
-    serviceCards.forEach((card, index) => {
-      gsap.fromTo(card, 
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
+    // GSAP animasyonları
+    const ctx = gsap.context(() => {
+      // Service cards animasyonu
+      const serviceCards = gsap.utils.toArray<HTMLElement>('.service-card')
+      serviceCards.forEach((card, index) => {
+        gsap.fromTo(card, 
+          {
+            opacity: 0,
+            y: 150,
+            rotation: index % 2 === 0 ? -10 : 10,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            rotation: 0,
+            duration: 1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 85%",
+              end: "top 60%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        )
+      })
+
+      // About section animasyonu
+      const aboutTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: '.about-text',
+          start: "top center",
+          end: "top 25%",
+          toggleActions: "play none none reverse"
+        }
+      })
+
+      // Başlık harfleri için animasyon
+      gsap.utils.toArray<HTMLElement>('.about-title-char').forEach((char, index) => {
+        aboutTimeline.fromTo(char,
+          {
+            opacity: 0,
+            scale: 3,
+            rotateY: -180,
+            z: -500,
+            filter: 'blur(20px)',
+          },
+          {
+            opacity: 1,
+            scale: 1,
+            rotateY: 0,
+            z: 0,
+            filter: 'blur(0px)',
+            duration: 1.2,
+            ease: "power4.out",
+          },
+          index * 0.15 // Her harf 0.15 saniye arayla gelecek
+        )
+      })
+
+      // Normal metin animasyonu
+      aboutTimeline.fromTo('.about-content',
         {
           opacity: 0,
-          y: 150,
-          rotation: index % 2 === 0 ? -10 : 10,
+          y: 50
         },
         {
           opacity: 1,
           y: 0,
-          rotation: 0,
+          duration: 0.8,
+          ease: "power2.out"
+        },
+        "-=0.5"
+      )
+
+      // Vurgulu kelimeler için animasyon
+      gsap.utils.toArray<HTMLElement>('.gradient-text').forEach((text) => {
+        aboutTimeline.fromTo(text,
+          {
+            opacity: 0,
+            scale: 0.8,
+            filter: 'blur(10px)'
+          },
+          {
+            opacity: 1,
+            scale: 1,
+            filter: 'blur(0px)',
+            duration: 0.8,
+            ease: "power2.out"
+          },
+          "-=0.6"
+        )
+      })
+
+      // Price section animasyonu
+      gsap.fromTo('.price-container',
+        {
+          opacity: 0,
+          y: 300,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.5,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: priceRef.current,
+            start: "top center",
+            end: "top 25%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      )
+
+      // Price items için ayrı animasyon
+      gsap.fromTo('.price-item',
+        {
+          opacity: 0,
+          x: -50,
+        },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: priceRef.current,
+            start: "top 45%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      )
+
+      // Contact animasyonları
+      gsap.fromTo('.contact-info',
+        {
+          opacity: 0,
+          x: -100,
+          y: 50,
+        },
+        {
+          opacity: 1,
+          x: 0,
+          y: 0,
           duration: 1,
           ease: "power2.out",
           scrollTrigger: {
-            trigger: card,
-            start: "top 85%",
-            end: "top 60%",
+            trigger: contactRef.current,
+            start: "top center",
+            end: "top 25%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      )
+
+      // Contact başlığı için ayrı animasyon
+      gsap.fromTo('.contact-title',
+        {
+          opacity: 0,
+          y: 50,
+          scale: 0.9,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.8,
+          ease: "back.out(1.7)",
+          scrollTrigger: {
+            trigger: contactRef.current,
+            start: "top center",
+            toggleActions: "play none none reverse"
+          }
+        }
+      )
+
+      // Contact detayları için stagger animasyon
+      gsap.fromTo('.contact-detail',
+        {
+          opacity: 0,
+          x: -50,
+        },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: contactRef.current,
+            start: "top 45%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      )
+
+      // Map için ayrı animasyon
+      gsap.fromTo('.contact-map',
+        {
+          opacity: 0,
+          x: 100,
+          y: 50,
+        },
+        {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          duration: 1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: contactRef.current,
+            start: "top center",
+            end: "top 25%",
             toggleActions: "play none none reverse"
           }
         }
       )
     })
 
-    // About section animasyonu
-    const aboutTimeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: '.about-text',
-        start: "top center",
-        end: "top 25%",
-        toggleActions: "play none none reverse"
-      }
-    })
+    // Cleanup function
+    return () => {
+      ctx.revert() // Tüm GSAP animasyonlarını temizle
+    }
+  }, [mounted]) // mounted'i dependency olarak ekledik
 
-    // Başlık harfleri için animasyon
-    gsap.utils.toArray<HTMLElement>('.about-title-char').forEach((char, index) => {
-      aboutTimeline.fromTo(char,
-        {
-          opacity: 0,
-          scale: 3,
-          rotateY: -180,
-          z: -500,
-          filter: 'blur(20px)',
-        },
-        {
-          opacity: 1,
-          scale: 1,
-          rotateY: 0,
-          z: 0,
-          filter: 'blur(0px)',
-          duration: 1.2,
-          ease: "power4.out",
-        },
-        index * 0.15 // Her harf 0.15 saniye arayla gelecek
-      )
-    })
+  const services = [
+    { icon: '✂️', key: 'haircut' },
+    { icon: '🎨', key: 'coloring' },
+    { icon: '💇', key: 'styling' },
+    { icon: '💆', key: 'treatments' },
+    { icon: '👰', key: 'bridal' },
+    { icon: '🧔', key: 'beard' }
+  ]
 
-    // Normal metin animasyonu
-    aboutTimeline.fromTo('.about-content',
-      {
-        opacity: 0,
-        y: 50
-      },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: "power2.out"
-      },
-      "-=0.5"
-    )
+  const prices = [
+    { key: 'womensHaircut', price: '45€' },
+    { key: 'mensHaircut', price: '35€' },
+    { key: 'coloring', price: '60€' },
+    { key: 'highlights', price: '80€' },
+    { key: 'updo', price: '70€' },
+  ]
 
-    // Vurgulu kelimeler için animasyon
-    gsap.utils.toArray<HTMLElement>('.gradient-text').forEach((text) => {
-      aboutTimeline.fromTo(text,
-        {
-          opacity: 0,
-          scale: 0.8,
-          filter: 'blur(10px)'
-        },
-        {
-          opacity: 1,
-          scale: 1,
-          filter: 'blur(0px)',
-          duration: 0.8,
-          ease: "power2.out"
-        },
-        "-=0.6"
-      )
-    })
-
-    // Price section animasyonu
-    gsap.fromTo('.price-container',
-      {
-        opacity: 0,
-        y: 300,
-      },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1.5,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: priceRef.current,
-          start: "top center",
-          end: "top 25%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    )
-
-    // Price items için ayrı animasyon
-    gsap.fromTo('.price-item',
-      {
-        opacity: 0,
-        x: -50,
-      },
-      {
-        opacity: 1,
-        x: 0,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: priceRef.current,
-          start: "top 45%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    )
-
-    // Contact animasyonları
-    gsap.fromTo('.contact-info',
-      {
-        opacity: 0,
-        x: -100,
-        y: 50,
-      },
-      {
-        opacity: 1,
-        x: 0,
-        y: 0,
-        duration: 1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: contactRef.current,
-          start: "top center",
-          end: "top 25%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    )
-
-    // Contact başlığı için ayrı animasyon
-    gsap.fromTo('.contact-title',
-      {
-        opacity: 0,
-        y: 50,
-        scale: 0.9,
-      },
-      {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.8,
-        ease: "back.out(1.7)",
-        scrollTrigger: {
-          trigger: contactRef.current,
-          start: "top center",
-          toggleActions: "play none none reverse"
-        }
-      }
-    )
-
-    // Contact detayları için stagger animasyon
-    gsap.fromTo('.contact-detail',
-      {
-        opacity: 0,
-        x: -50,
-      },
-      {
-        opacity: 1,
-        x: 0,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: contactRef.current,
-          start: "top 45%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    )
-
-    // Map için ayrı animasyon
-    gsap.fromTo('.contact-map',
-      {
-        opacity: 0,
-        x: 100,
-        y: 50,
-      },
-      {
-        opacity: 1,
-        x: 0,
-        y: 0,
-        duration: 1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: contactRef.current,
-          start: "top center",
-          end: "top 25%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    )
-  }, [])
+  if (!mounted) {
+    return null
+  }
 
   return (
     <div className="bg-black text-white">
@@ -291,7 +312,7 @@ export default function Home() {
                 transition={{ duration: 1 }}
                 className="text-6xl font-bold mb-4 metal-text"
               >
-                Royal Team
+                {t('hero.title')}
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 50 }}
@@ -299,30 +320,26 @@ export default function Home() {
                 transition={{ duration: 1, delay: 0.5 }}
                 className="text-2xl mb-8"
               >
-                Ihr Stil, unsere Leidenschaft
+                {t('hero.subtitle')}
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 1 }}
               >
-                <Button size="lg">Termin buchen</Button>
+                <Button size="lg" asChild>
+                  <Link href="#termin">
+                    {t('common.bookAppointment')}
+                  </Link>
+                </Button>
               </motion.div>
             </div>
-            <div className="w-1/2 h-full">
-              <Canvas
-                camera={{ position: [0, 2, 8], fov: 45 }}
-                style={{ background: 'transparent' }}
-              >
+            <div className="w-1/2 h-full relative">
+              <Canvas>
                 <ambientLight intensity={0.5} />
-                <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-                <OrbitControls 
-                  enableZoom={false} 
-                  autoRotate 
-                  minPolarAngle={Math.PI / 3}
-                  maxPolarAngle={Math.PI / 2}
-                />
+                <pointLight position={[10, 10, 10]} />
                 <BarberChair />
+                <OrbitControls enableZoom={false} />
               </Canvas>
             </div>
           </div>
@@ -333,10 +350,12 @@ export default function Home() {
         <div className="w-full max-w-screen-xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {services.map((service, index) => (
-              <Card key={index} className="service-card neon-card p-6 bg-black border-gray-800">
+              <Card key={index} className="service-card neon-card p-6 bg-black">
                 <div className="text-4xl mb-4">{service.icon}</div>
-                <h3 className="text-xl font-bold mb-2 metal-text">{service.title}</h3>
-                <p>{service.description}</p>
+                <h3 className="text-xl font-bold mb-2 metal-text">
+                  {t(`services.${service.key}.title`)}
+                </h3>
+                <p>{t(`services.${service.key}.description`)}</p>
               </Card>
             ))}
           </div>
@@ -350,7 +369,7 @@ export default function Home() {
                 WebkitTextStroke: '2px white',
                 transform: 'preserve-3d'
               }}>
-            {'Über uns'.split('').map((char, index) => (
+            {t('about.title').split('').map((char, index) => (
               <span 
                 key={index} 
                 className="about-title-char inline-block"
@@ -364,43 +383,31 @@ export default function Home() {
               </span>
             ))}
           </h2>
-          <p className="about-content text-2xl sm:text-3xl max-w-4xl mx-auto leading-relaxed">
-            Royal Team ist Ihr{' '}
-            <span className="gradient-text bg-gradient-to-r from-gray-400 via-white to-gray-400 text-transparent bg-clip-text font-semibold">
-              vertrauenswürdiger Partner
-            </span>{' '}
-            für perfektes Styling. Mit{' '}
-            <span className="gradient-text bg-gradient-to-r from-gray-400 via-white to-gray-400 text-transparent bg-clip-text font-semibold">
-              jahrelanger Erfahrung
-            </span>{' '}
-            und{' '}
-            <span className="gradient-text bg-gradient-to-r from-gray-400 via-white to-gray-400 text-transparent bg-clip-text font-semibold">
-              Leidenschaft
-            </span>{' '}
-            für unser Handwerk sorgen wir dafür, dass Sie sich{' '}
-            <span className="gradient-text bg-gradient-to-r from-gray-400 via-white to-gray-400 text-transparent bg-clip-text font-semibold">
-              wohl und selbstbewusst
-            </span>{' '}
-            fühlen. Unser Ziel ist es, Ihre{' '}
-            <span className="gradient-text bg-gradient-to-r from-gray-400 via-white to-gray-400 text-transparent bg-clip-text font-semibold">
-              natürliche Schönheit
-            </span>{' '}
-            zu betonen und Ihnen ein{' '}
-            <span className="gradient-text bg-gradient-to-r from-gray-400 via-white to-gray-400 text-transparent bg-clip-text font-semibold">
-              strahlendes Lächeln
-            </span>{' '}
-            ins Gesicht zu zaubern.
-          </p>
+          <div className="about-content text-2xl sm:text-3xl max-w-4xl mx-auto leading-relaxed">
+            <span>{t('about.content.intro')}</span>{' '}
+            <span className="gradient-text">{t('about.content.trustedPartner')}</span>{' '}
+            <span>{t('about.content.for')}</span>{' '}
+            <span className="gradient-text">{t('about.content.experience')}</span>{' '}
+            <span>{t('about.content.and')}</span>{' '}
+            <span className="gradient-text">{t('about.content.passion')}</span>{' '}
+            <span>{t('about.content.commitment')}</span>{' '}
+            <span className="gradient-text">{t('about.content.confident')}</span>{' '}
+            <span>{t('about.content.feel')}</span>{' '}
+            <span className="gradient-text">{t('about.content.naturalBeauty')}</span>{' '}
+            <span>{t('about.content.enhance')}</span>{' '}
+            <span className="gradient-text">{t('about.content.smile')}</span>{' '}
+            <span>{t('about.content.create')}</span>
+          </div>
         </div>
       </section>
 
       <section ref={priceRef} className="min-h-screen flex items-center justify-center px-4 py-16">
-        <div className="price-container bg-black p-8 rounded-lg neon-card w-full max-w-2xl border border-gray-800">
-          <h2 className="text-4xl font-bold mb-8 text-center metal-text">Unsere Preise</h2>
+        <div className="price-container bg-black p-8 rounded-lg neon-card w-full max-w-2xl">
+          <h2 className="text-4xl font-bold mb-8 text-center metal-text">{t('prices.title')}</h2>
           <ul className="space-y-4">
             {prices.map((item, index) => (
               <li key={index} className="price-item flex justify-between items-center border-b border-gray-800 pb-2">
-                <span>{item.service}</span>
+                <span>{t(`prices.${item.key}`)}</span>
                 <span className="font-bold metal-text">{item.price}</span>
               </li>
             ))}
@@ -411,15 +418,15 @@ export default function Home() {
       <section ref={contactRef} className="min-h-screen flex items-center justify-center px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
           <div className="contact-info space-y-4">
-            <h2 className="contact-title text-4xl font-bold mb-8 metal-text">Kontakt</h2>
+            <h2 className="contact-title text-4xl font-bold mb-8 metal-text">{t('contact.title')}</h2>
             <p className="contact-detail">
-              <strong className="metal-text">Telefon:</strong> +49 123 456789
+              <strong className="metal-text">{t('contact.phone')}:</strong> +49 123 456789
             </p>
             <p className="contact-detail">
-              <strong className="metal-text">E-Mail:</strong> info@royalteam.de
+              <strong className="metal-text">{t('contact.email')}:</strong> info@royalteam.de
             </p>
             <p className="contact-detail">
-              <strong className="metal-text">Adresse:</strong> Hauptstraße 123, 10115 Berlin
+              <strong className="metal-text">{t('contact.address')}:</strong> Hauptstraße 123, 10115 Berlin
             </p>
           </div>
           <div className="contact-map">
@@ -431,7 +438,7 @@ export default function Home() {
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
+            />
           </div>
         </div>
       </section>

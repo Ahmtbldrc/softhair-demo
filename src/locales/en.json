@@ -22,7 +22,9 @@
     "loading": "Loading...",
     "softhair": "SoftHair",
     "company": "Softside Digital",
-    "allRightsReserved": "All rights reserved"
+    "allRightsReserved": "All rights reserved",
+    "language": "Language",
+    "bookAppointment": "Book Appointment"
   },
   "auth": {
     "logout": "Logout",
@@ -297,5 +299,72 @@
     "reservationConfirmedDescription": "Your reservation has been successfully booked.",
     "reservationConfirmedMail": "An email confirmation has been sent to",
     "close": "Close"
+  },
+  "services": {
+    "haircut": {
+      "title": "Haircut",
+      "description": "Professional haircuts for every style"
+    },
+    "coloring": {
+      "title": "Coloring",
+      "description": "Creative hair coloring techniques"
+    },
+    "styling": {
+      "title": "Styling",
+      "description": "Perfect styling for every occasion"
+    },
+    "treatments": {
+      "title": "Treatments",
+      "description": "Nourishing hair treatments"
+    },
+    "bridal": {
+      "title": "Bridal Hair",
+      "description": "Dream hairstyles for your big day"
+    },
+    "beard": {
+      "title": "Beard Care",
+      "description": "Professional beard care and styling for the modern man"
+    }
+  },
+  "prices": {
+    "title": "Our Prices",
+    "womensHaircut": "Women's Haircut",
+    "mensHaircut": "Men's Haircut",
+    "coloring": "Coloring",
+    "highlights": "Highlights",
+    "updo": "Updo"
+  },
+  "about": {
+    "title": "About Us",
+    "content": {
+      "intro": "Royal Team is your",
+      "trustedPartner": "trusted partner",
+      "for": "for perfect styling. With",
+      "experience": "years of experience",
+      "and": "and",
+      "passion": "passion",
+      "commitment": "for our craft, we ensure that you feel",
+      "confident": "comfortable and confident",
+      "feel": "Our goal is to emphasize your",
+      "naturalBeauty": "natural beauty",
+      "enhance": "and create a",
+      "smile": "radiant smile",
+      "create": "on your face."
+    }
+  },
+  "contact": {
+    "title": "Contact",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address"
+  },
+  "navigation": {
+    "home": "Home",
+    "gallery": "Gallery",
+    "team": "Team"
+  },
+  "hero": {
+    "title": "Royal Team",
+    "subtitle": "Your Style, Our Passion"
   }
 }
