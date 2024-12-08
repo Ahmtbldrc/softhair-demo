@@ -395,11 +395,11 @@ export default function Home() {
       </section>
 
       <section ref={priceRef} className="min-h-screen flex items-center justify-center px-4 py-16">
-        <div className="price-container bg-gray-900 p-8 rounded-lg neon-card w-full max-w-2xl">
+        <div className="price-container bg-black p-8 rounded-lg neon-card w-full max-w-2xl border border-gray-800">
           <h2 className="text-4xl font-bold mb-8 text-center metal-text">Unsere Preise</h2>
           <ul className="space-y-4">
             {prices.map((item, index) => (
-              <li key={index} className="price-item flex justify-between items-center border-b border-gray-700 pb-2">
+              <li key={index} className="price-item flex justify-between items-center border-b border-gray-800 pb-2">
                 <span>{item.service}</span>
                 <span className="font-bold metal-text">{item.price}</span>
               </li>
