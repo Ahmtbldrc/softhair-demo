@@ -19,6 +19,7 @@ const services = [
   { icon: '💇', title: 'Styling', description: 'Perfektes Styling für jeden Anlass' },
   { icon: '💆', title: 'Behandlungen', description: 'Pflegende Haarbehandlungen' },
   { icon: '👰', title: 'Brautfrisuren', description: 'Traumhafte Frisuren für Ihren großen Tag' },
+  { icon: '🧔', title: 'Bartpflege', description: 'Professionelle Bartpflege und Styling für den modernen Mann' }
 ]
 
 const prices = [
@@ -328,15 +329,17 @@ export default function Home() {
         </div>
       </section>
 
-      <section ref={servicesRef} className="min-h-screen flex items-center justify-center px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {services.map((service, index) => (
-            <Card key={index} className="service-card neon-card p-6 bg-gray-900">
-              <div className="text-4xl mb-4">{service.icon}</div>
-              <h3 className="text-xl font-bold mb-2 metal-text">{service.title}</h3>
-              <p>{service.description}</p>
-            </Card>
-          ))}
+      <section ref={servicesRef} className="min-h-screen flex items-center justify-center px-8 py-16">
+        <div className="w-full max-w-screen-xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {services.map((service, index) => (
+              <Card key={index} className="service-card neon-card p-6 bg-black border-gray-800">
+                <div className="text-4xl mb-4">{service.icon}</div>
+                <h3 className="text-xl font-bold mb-2 metal-text">{service.title}</h3>
+                <p>{service.description}</p>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
