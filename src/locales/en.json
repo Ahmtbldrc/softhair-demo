@@ -10,10 +10,9 @@
     "reservations": "Reservations"
   },
   "theme": {
-    "light": "Light Theme",
-    "dark": "Dark Theme",
-    "system": "System Theme",
-    "toggle": "Toggle theme"
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
   },
   "common": {
     "settings": "Settings",
@@ -21,10 +20,11 @@
     "search": "Search...",
     "loading": "Loading...",
     "softhair": "SoftHair",
-    "company": "Softside Digital",
+    "company": "SoftSide Digital",
     "allRightsReserved": "All rights reserved",
     "language": "Language",
-    "bookAppointment": "Book Appointment"
+    "bookAppointment": "Book Appointment",
+    "brand": "Royal Team"
   },
   "auth": {
     "logout": "Logout",
@@ -366,5 +366,19 @@
   "hero": {
     "title": "Royal Team",
     "subtitle": "Your Style, Our Passion"
+  },
+  "footer": {
+    "slogan": "Your hairdresser for the perfect look",
+    "links": "Links",
+    "contact": "Contact",
+    "followFacebook": "Follow us on Facebook",
+    "followInstagram": "Follow us on Instagram",
+    "followTwitter": "Follow us on Twitter",
+    "phone": "+49 123 456 789",
+    "email": "info@royalteam.de",
+    "addressOneLine": "Sample Street 123, 12345 Berlin, Germany",
+    "street": "Sample Street 123",
+    "city": "12345 Berlin",
+    "country": "Germany"
   }
 }

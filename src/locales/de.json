@@ -10,25 +10,26 @@
     "reservations": "Termine"
   },
   "theme": {
-    "light": "Helles Design",
-    "dark": "Dunkles Design",
-    "system": "System Design",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System",
     "toggle": "Design umschalten"
   },
   "common": {
     "settings": "Einstellungen",
-    "support": "Hilfe",
+    "support": "Support",
     "search": "Suchen...",
     "loading": "Wird geladen...",
     "softhair": "SoftHair",
-    "company": "Softside Digital",
+    "company": "SoftSide Digital",
     "allRightsReserved": "Alle Rechte vorbehalten",
     "language": "Sprache",
-    "bookAppointment": "Termin buchen"
+    "bookAppointment": "Termin buchen",
+    "brand": "Royal Team"
   },
   "auth": {
     "logout": "Abmelden",
-    "poweredBy": "Unterstützt von",
+    "poweredBy": "Powered by",
     "loginTitle": "Willkommen zurück",
     "loginDescription": "Geben Sie Ihre Anmeldedaten ein, um auf Ihr Konto zuzugreifen",
     "username": "Benutzername",
@@ -366,5 +367,19 @@
   "hero": {
     "title": "Royal Team",
     "subtitle": "Ihr Stil, unsere Leidenschaft"
+  },
+  "footer": {
+    "slogan": "Ihr Friseur für den perfekten Look",
+    "links": "Links",
+    "contact": "Kontakt",
+    "followFacebook": "Folgen Sie uns auf Facebook",
+    "followInstagram": "Folgen Sie uns auf Instagram",
+    "followTwitter": "Folgen Sie uns auf Twitter",
+    "phone": "+49 123 456 789",
+    "email": "info@royalteam.de",
+    "addressOneLine": "Musterstraße 123, 12345 Berlin, Deutschland",
+    "street": "Musterstraße 123",
+    "city": "12345 Berlin",
+    "country": "Deutschland"
   }
 }

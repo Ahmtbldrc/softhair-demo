@@ -40,9 +40,46 @@ const Footer = () => {
   const { t } = useLocale();
 
   const menuItems = [
-    { name: 'Startseite', href: '/' },
-    { name: 'Galerie', href: '/gallery' },
-    { name: 'Team', href: '/team' },
+    { key: 'home', href: '/' },
+    { key: 'gallery', href: '/gallery' },
+    { key: 'team', href: '/team' },
+  ]
+
+  const socialLinks = [
+    { 
+      key: 'facebook', 
+      href: 'https://facebook.com/royalteam',
+      icon: Facebook,
+      ariaLabel: 'footer.followFacebook'
+    },
+    { 
+      key: 'instagram', 
+      href: 'https://instagram.com/royalteam',
+      icon: Instagram,
+      ariaLabel: 'footer.followInstagram'
+    },
+    { 
+      key: 'twitter', 
+      href: 'https://twitter.com/royalteam',
+      icon: Twitter,
+      ariaLabel: 'footer.followTwitter'
+    }
+  ]
+
+  const contactInfo = [
+    {
+      icon: Phone,
+      value: 'footer.phone'
+    },
+    {
+      icon: Mail,
+      value: 'footer.email'
+    },
+    {
+      icon: MapPin,
+      value: 'footer.addressOneLine',
+      desktopValue: ['footer.street', 'footer.city', 'footer.country']
+    }
   ]
 
   return (
@@ -52,35 +89,38 @@ const Footer = () => {
           {/* Logo ve Sosyal Medya */}
           <div className="flex flex-col space-y-4 items-center md:items-start">
             <Link href="/" className="text-3xl font-bold metal-text">
-              Royal Team
+              {t('common.brand')}
             </Link>
             <p className="text-gray-400 text-center md:text-left">
-              Ihr Friseur für den perfekten Look
+              {t('footer.slogan')}
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="hover:text-gray-300 transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="hover:text-gray-300 transition-colors">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="hover:text-gray-300 transition-colors">
-                <Twitter className="w-5 h-5" />
-              </a>
+              {socialLinks.map(({ key, href, icon: Icon, ariaLabel }) => (
+                <a 
+                  key={key}
+                  href={href}
+                  className="hover:text-gray-300 transition-colors" 
+                  aria-label={t(ariaLabel)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon className="w-5 h-5" />
+                </a>
+              ))}
             </div>
           </div>
 
           {/* Linkler */}
           <div className="flex flex-col space-y-4 items-center md:items-start">
-            <h3 className="text-xl font-semibold">Links</h3>
+            <h3 className="text-xl font-semibold">{t('footer.links')}</h3>
             <ul className="space-y-3 text-center md:text-left">
               {menuItems.map((item) => (
-                <li key={item.name} className="relative group">
+                <li key={item.key} className="relative group">
                   <Link 
                     href={item.href} 
                     className="text-gray-400 hover:text-white transition-colors relative after:content-['↗'] after:ml-2 after:opacity-0 after:absolute after:top-0 after:right-[-20px] group-hover:after:opacity-100 after:transition-opacity"
                   >
-                    <span>{item.name}</span>
+                    <span>{t(`navigation.${item.key}`)}</span>
                   </Link>
                 </li>
               ))}
@@ -89,33 +129,30 @@ const Footer = () => {
 
           {/* İletişim Bilgileri */}
           <div className="flex flex-col space-y-4 items-center col-span-1 md:col-span-2">
-            <h3 className="text-xl font-semibold">Kontakt</h3>
+            <h3 className="text-xl font-semibold">{t('footer.contact')}</h3>
             <ul className="space-y-3 w-full max-w-sm">
-              <li>
-                <div className="flex items-center justify-center space-x-2 text-gray-400">
-                  <Phone className="w-4 h-4 flex-shrink-0" />
-                  <span>+49 123 456 789</span>
-                </div>
-              </li>
-              <li>
-                <div className="flex items-center justify-center space-x-2 text-gray-400">
-                  <Mail className="w-4 h-4 flex-shrink-0" />
-                  <span>info@royalteam.de</span>
-                </div>
-              </li>
-              <li>
-                <div className="flex items-start justify-center space-x-2 text-gray-400">
-                  <MapPin className="w-4 h-4 flex-shrink-0 mt-1" />
-                  <span className="text-center">
-                    <span className="md:hidden">Musterstraße 123, 12345 Berlin, Deutschland</span>
-                    <span className="hidden md:inline">
-                      Musterstraße 123<br />
-                      12345 Berlin<br />
-                      Deutschland
-                    </span>
-                  </span>
-                </div>
-              </li>
+              {contactInfo.map(({ icon: Icon, value, desktopValue }, index) => (
+                <li key={index}>
+                  <div className="flex items-start justify-center space-x-2 text-gray-400">
+                    <Icon className="w-4 h-4 flex-shrink-0 mt-1" />
+                    {desktopValue ? (
+                      <span className="text-center">
+                        <span className="md:hidden">{t(value)}</span>
+                        <span className="hidden md:inline">
+                          {desktopValue.map((key, i) => (
+                            <span key={key}>
+                              {t(key)}
+                              {i < desktopValue.length - 1 && <br />}
+                            </span>
+                          ))}
+                        </span>
+                      </span>
+                    ) : (
+                      <span>{t(value)}</span>
+                    )}
+                  </div>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -152,7 +189,7 @@ const Footer = () => {
       <div className="border-t border-gray-800 mt-8">
         <div className="container mx-auto px-4 py-4 max-w-6xl">
           <div className="text-center text-sm text-gray-400">
-            <span>© {new Date().getFullYear()} Royal Team | {t('auth.poweredBy')}{' '}</span>
+            <span>© {new Date().getFullYear()} {t('common.brand')} | {t('auth.poweredBy')}{' '}</span>
             <Link
               href="https://softsidedigital.com"
               target="_blank"
