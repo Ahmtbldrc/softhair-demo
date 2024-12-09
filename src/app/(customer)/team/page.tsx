@@ -160,30 +160,40 @@ export default function Team() {
       </section>
       <section ref={aboutRef} className="min-h-screen flex items-center px-4">
         <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-16">
-            <div className="md:w-1/2 mb-8 md:mb-0">
-              <div className="relative mb-8">
-                <h2 className="text-5xl font-bold metal-text">Über unser</h2>
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
+            <div className="w-full lg:w-1/2 space-y-6">
+              <div className="relative">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold metal-text">Über unser</h2>
                 <div 
                   ref={teamTextRef}
                   className="absolute opacity-0 z-50"
                   style={{ width: 'auto', whiteSpace: 'nowrap' }}
                 >
-                  <span className="inline-block border border-white/40 rounded-lg px-3 py-1 text-lg metal-text">
+                  <span className="inline-block border border-white/40 rounded-lg px-3 py-1 text-base md:text-lg metal-text">
                     Team
                   </span>
                 </div>
               </div>
-              <p className="text-lg">
+              <p className="text-base md:text-lg leading-relaxed">
                 Unser <span className="metal-text">erfahrenes Team</span> von Stylisten und Coloristen ist darauf spezialisiert,
                 Ihnen den <span className="metal-text">perfekten Look</span> zu verleihen. Mit jahrelanger Erfahrung und
                 ständiger Weiterbildung sind wir immer auf dem neuesten Stand der <span className="metal-text">Frisurentrends</span>.
+              </p>
+              <p className="text-base md:text-lg leading-relaxed">
                 Wir legen großen Wert auf <span className="metal-text">individuelle Beratung</span> und gehen auf Ihre persönlichen
                 Wünsche ein, um sicherzustellen, dass Sie unser Salon mit einem <span className="metal-text">strahlenden Lächeln</span> verlassen.
               </p>
             </div>
-            <div className="md:w-1/2">
-              <Image src="/placeholder.svg?height=400&width=600" alt="Team" width={600} height={400} className="rounded-lg neon-card" />
+            <div className="w-full lg:w-1/2">
+              <div className="relative aspect-[4/3] w-full">
+                <Image 
+                  src="/placeholder.svg?height=400&width=600" 
+                  alt="Team" 
+                  fill
+                  className="rounded-lg neon-card object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+                />
+              </div>
             </div>
           </div>
         </div>
