@@ -302,15 +302,15 @@ export default function Home() {
 
   return (
     <div className="bg-black text-white">
-      <section ref={heroRef} className="h-screen relative">
+      <section ref={heroRef} className="min-h-screen relative">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full">
-          <div className="flex items-center justify-between h-full pt-16 sm:pt-20">
-            <div className="hero-content w-1/2">
+          <div className="flex flex-col lg:flex-row items-center justify-between h-full pt-20 lg:pt-0">
+            <div className="hero-content w-full lg:w-1/2 text-center lg:text-left mb-8 lg:mb-0">
               <motion.h1
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1 }}
-                className="text-6xl font-bold mb-4 metal-text"
+                className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 metal-text"
               >
                 {t('hero.title')}
               </motion.h1>
@@ -318,7 +318,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.5 }}
-                className="text-2xl mb-8"
+                className="text-xl sm:text-2xl mb-8"
               >
                 {t('hero.subtitle')}
               </motion.p>
@@ -326,6 +326,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 1 }}
+                className="flex justify-center lg:justify-start"
               >
                 <Button size="lg" asChild>
                   <Link href="#termin">
@@ -334,7 +335,8 @@ export default function Home() {
                 </Button>
               </motion.div>
             </div>
-            <div className="w-1/2 h-full relative">
+
+            <div className="w-full lg:w-1/2 h-[300px] sm:h-[400px] lg:h-full relative">
               <Canvas>
                 <ambientLight intensity={0.5} />
                 <pointLight position={[10, 10, 10]} />
@@ -415,8 +417,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section ref={contactRef} className="min-h-screen flex items-center justify-center px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+      <section ref={contactRef} className="min-h-screen flex items-center justify-center px-4 py-16 overflow-x-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mx-auto">
           <div className="contact-info space-y-4">
             <h2 className="contact-title text-4xl font-bold mb-8 metal-text">{t('contact.title')}</h2>
             <p className="contact-detail">
@@ -429,16 +431,17 @@ export default function Home() {
               <strong className="metal-text">{t('contact.address')}:</strong> Hauptstraße 123, 10115 Berlin
             </p>
           </div>
-          <div className="contact-map">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2428.409722750949!2d13.394913776680424!3d52.52000687210677!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a851c655f20989%3A0x26bbfb4e84674c63!2sHauptstra%C3%9Fe%2C%20Berlin%2C%20Germany!5e0!3m2!1sen!2sus!4v1701745391689!5m2!1sen!2sus"
-              width="100%"
-              height="300"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
+          <div className="contact-map w-full">
+            <div className="relative w-full h-[300px]">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2428.409722750949!2d13.394913776680424!3d52.52000687210677!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a851c655f20989%3A0x26bbfb4e84674c63!2sHauptstra%C3%9Fe%2C%20Berlin%2C%20Germany!5e0!3m2!1sen!2sus!4v1701745391689!5m2!1sen!2sus"
+                className="absolute inset-0 w-full h-full"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
           </div>
         </div>
       </section>

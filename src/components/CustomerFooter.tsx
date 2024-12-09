@@ -2,10 +2,11 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { Facebook, Instagram, Twitter, ExternalLink, Phone, Mail, MapPin } from 'lucide-react'
+import { Facebook, Instagram, Twitter, Phone, Mail, MapPin } from 'lucide-react'
 import { Canvas } from '@react-three/fiber'
 import { useGLTF, OrbitControls, Preload } from '@react-three/drei'
 import * as THREE from 'three'
+import { useLocale } from '@/contexts/LocaleContext'
 
 // Model yolunu sabit bir değişken olarak tanımlayalım
 const MODEL_PATH = '/models/scene.gltf'
@@ -36,6 +37,8 @@ function BarberChair() {
 useGLTF.preload(MODEL_PATH)
 
 const Footer = () => {
+  const { t } = useLocale();
+
   const menuItems = [
     { name: 'Startseite', href: '/' },
     { name: 'Galerie', href: '/gallery' },
@@ -45,13 +48,15 @@ const Footer = () => {
   return (
     <footer className="bg-black text-white pt-12">
       <div className="container mx-auto px-4 max-w-6xl">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-4">
           {/* Logo ve Sosyal Medya */}
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col space-y-4 items-center md:items-start">
             <Link href="/" className="text-3xl font-bold metal-text">
               Royal Team
             </Link>
-            <p className="text-gray-400">Ihr Friseur für den perfekten Look</p>
+            <p className="text-gray-400 text-center md:text-left">
+              Ihr Friseur für den perfekten Look
+            </p>
             <div className="flex space-x-4">
               <a href="#" className="hover:text-gray-300 transition-colors">
                 <Facebook className="w-5 h-5" />
@@ -66,18 +71,16 @@ const Footer = () => {
           </div>
 
           {/* Linkler */}
-          <div className="flex flex-col space-y-4 mx-auto">
+          <div className="flex flex-col space-y-4 items-center md:items-start">
             <h3 className="text-xl font-semibold">Links</h3>
-            <ul className="space-y-3">
+            <ul className="space-y-3 text-center md:text-left">
               {menuItems.map((item) => (
-                <li key={item.name} className="relative w-fit group">
+                <li key={item.name} className="relative group">
                   <Link 
                     href={item.href} 
-                    className="flex items-center text-gray-400 hover:text-white transition-colors"
+                    className="text-gray-400 hover:text-white transition-colors relative after:content-['↗'] after:ml-2 after:opacity-0 after:absolute after:top-0 after:right-[-20px] group-hover:after:opacity-100 after:transition-opacity"
                   >
                     <span>{item.name}</span>
-                    <ExternalLink className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
                   </Link>
                 </li>
               ))}
@@ -85,32 +88,39 @@ const Footer = () => {
           </div>
 
           {/* İletişim Bilgileri */}
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col space-y-4 items-center col-span-1 md:col-span-2">
             <h3 className="text-xl font-semibold">Kontakt</h3>
-            <ul className="space-y-3">
+            <ul className="space-y-3 w-full max-w-sm">
               <li>
-                <div className="flex items-center space-x-2 text-gray-400">
+                <div className="flex items-center justify-center space-x-2 text-gray-400">
                   <Phone className="w-4 h-4 flex-shrink-0" />
                   <span>+49 123 456 789</span>
                 </div>
               </li>
               <li>
-                <div className="flex items-center space-x-2 text-gray-400">
+                <div className="flex items-center justify-center space-x-2 text-gray-400">
                   <Mail className="w-4 h-4 flex-shrink-0" />
                   <span>info@royalteam.de</span>
                 </div>
               </li>
               <li>
-                <div className="flex items-start space-x-2 text-gray-400">
+                <div className="flex items-start justify-center space-x-2 text-gray-400">
                   <MapPin className="w-4 h-4 flex-shrink-0 mt-1" />
-                  <span>Musterstraße 123<br />12345 Berlin<br />Deutschland</span>
+                  <span className="text-center">
+                    <span className="md:hidden">Musterstraße 123, 12345 Berlin, Deutschland</span>
+                    <span className="hidden md:inline">
+                      Musterstraße 123<br />
+                      12345 Berlin<br />
+                      Deutschland
+                    </span>
+                  </span>
                 </div>
               </li>
             </ul>
           </div>
 
           {/* 3D Model */}
-          <div className="flex items-center justify-center h-[200px] relative">
+          <div className="flex items-center justify-center h-[200px] relative mt-8 md:mt-0">
             <Canvas
               camera={{ position: [0, 0, 5], fov: 45 }}
               className="w-[250px] h-full"
@@ -138,17 +148,18 @@ const Footer = () => {
         </div>
       </div>
 
+      {/* Copyright bölümü */}
       <div className="border-t border-gray-800 mt-8">
         <div className="container mx-auto px-4 py-4 max-w-6xl">
           <div className="text-center text-sm text-gray-400">
-            <span>© {new Date().getFullYear()} Royal Team | Entwickelt von </span>
+            <span>© {new Date().getFullYear()} Royal Team | {t('auth.poweredBy')}{' '}</span>
             <Link
               href="https://softsidedigital.com"
               target="_blank"
               rel="noopener noreferrer"
               className="dark:bg-gradient-to-r dark:from-gray-400 dark:via-white dark:to-gray-400 bg-gradient-to-r from-black via-gray-200 to-black animate-gradient bg-[length:200%_100%] bg-clip-text text-transparent hover:opacity-80 transition-opacity"
             >
-              Softside Digital
+              {t('common.company')}
             </Link>          
           </div>
         </div>
