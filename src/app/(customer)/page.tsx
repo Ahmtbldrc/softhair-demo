@@ -329,7 +329,7 @@ export default function Home() {
                 className="flex justify-center lg:justify-start"
               >
                 <Button size="lg" asChild>
-                  <Link href="#termin">
+                  <Link href="/new-reservation">
                     {t('common.bookAppointment')}
                   </Link>
                 </Button>
