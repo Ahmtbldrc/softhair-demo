@@ -8,8 +8,8 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full border-t bg-background py-3">
-      <div className="container flex justify-center items-center">
+    <footer className="w-full border-t bg-background py-3 flex justify-center items-center">
+      <div className="container">
         <p className="text-sm text-center">
           © {currentYear}{" "}
           <Link
