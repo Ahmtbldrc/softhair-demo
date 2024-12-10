@@ -404,7 +404,7 @@ export default function NewReservation() {
 <tr>
 <td class="pad">
 <div style="color:#ffffff;font-family:'Varela Round', 'Trebuchet MS', Helvetica, sans-serif;font-size:15px;font-weight:400;line-height:150%;text-align:center;mso-line-height-alt:22.5px;">
-<p style="margin: 0; word-break: break-word;"><strong>Staff E-mail:  ${staff.find(s => s.id === selectedStaff)?.email}</strong></p>
+<p style="margin: 0; word-break: break-word;"><strong>Staff: ${staff.find(s => s.id === selectedStaff)?.firstName} ${staff.find(s => s.id === selectedStaff)?.lastName}</strong></p>
 </div>
 </td>
 </tr>

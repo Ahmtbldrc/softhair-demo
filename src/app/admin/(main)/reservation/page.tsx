@@ -385,7 +385,7 @@ export default function AppointmentCalendar() {
 <tr>
 <td class="pad">
 <div style="color:#ffffff;font-family:'Varela Round', 'Trebuchet MS', Helvetica, sans-serif;font-size:16px;font-weight:700;line-height:150%;text-align:center;mso-line-height-alt:24px;">
-<p style="margin: 0; word-break: break-word;"><strong>Service & Preis : ${service?.name} ${service?.price} CHF</strong></p>
+<p style="margin: 0; word-break: break-word;"><strong>Service & Preis: ${service?.name} ${service?.price} CHF</strong></p>
 </div>
 </td>
 </tr>
@@ -394,7 +394,7 @@ export default function AppointmentCalendar() {
 <tr>
 <td class="pad">
 <div style="color:#ffffff;font-family:'Varela Round', 'Trebuchet MS', Helvetica, sans-serif;font-size:15px;font-weight:400;line-height:150%;text-align:center;mso-line-height-alt:22.5px;">
-<p style="margin: 0; word-break: break-word;"><strong>Personal : ${staffMember?.firstName} ${staffMember?.lastName}</strong></p>
+<p style="margin: 0; word-break: break-word;"><strong>Staff: ${staffMember?.firstName} ${staffMember?.lastName}</strong></p>
 </div>
 </td>
 </tr>
@@ -799,7 +799,7 @@ export default function AppointmentCalendar() {
 <tr>
 <td class="pad">
 <div style="color:#ffffff;font-family:'Varela Round', 'Trebuchet MS', Helvetica, sans-serif;font-size:15px;font-weight:400;line-height:150%;text-align:center;mso-line-height-alt:22.5px;">
-<p style="margin: 0; word-break: break-word;"><strong>Staff E-mail: ${staffMember?.email}</strong></p>
+<p style="margin: 0; word-break: break-word;"><strong>Staff: ${staffMember?.firstName} ${staffMember?.lastName}</strong></p>
 </div>
 </td>
 </tr>
