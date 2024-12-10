@@ -88,10 +88,12 @@ export default function TransactionsChart() {
                 </TableCell> */}
                 <TableCell className="hidden xl:table-cell">
                     {new Date(transaction.date).toLocaleDateString('de-CH', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric',
-                    })}
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }).replace(',', '')}
                 </TableCell>
                 <TableCell className="text-right">{transaction.amount.toFixed(2)}</TableCell>
               </TableRow>
