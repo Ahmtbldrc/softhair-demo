@@ -39,7 +39,7 @@ const chartConfig = {
     color: "hsl(var(--chart-2))",
   },
   passive: {
-    label: "passive",
+    label: "canceled",
     color: "hsl(var(--chart-5))",
   },
 } satisfies ChartConfig
