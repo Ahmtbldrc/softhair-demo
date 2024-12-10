@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import { Facebook, Instagram, Twitter, Phone, Mail, MapPin } from 'lucide-react'
 import { Canvas } from '@react-three/fiber'
-import { useGLTF, OrbitControls, Preload } from '@react-three/drei'
+import { useGLTF, OrbitControls, Preload, Environment } from '@react-three/drei'
 import * as THREE from 'three'
 import { useLocale } from '@/contexts/LocaleContext'
 
@@ -17,15 +17,15 @@ function BarberChair() {
   useEffect(() => {
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
-        child.material = new THREE.MeshPhysicalMaterial({
-          color: 0xF5F5F5,
-          metalness: 0.3,
-          roughness: 0.2,
-          clearcoat: 0.4,
-          clearcoatRoughness: 0.2,
-          reflectivity: 0.8,
-          envMapIntensity: 1.5
-        })
+        if (!child.material) {
+          child.material = new THREE.MeshPhysicalMaterial({
+            color: 0xF5F5F5,
+            metalness: 0.3,
+            roughness: 0.2,
+            clearcoat: 0.4,
+            clearcoatRoughness: 0.2,
+          })
+        }
       }
     })
   }, [scene])
@@ -173,6 +173,7 @@ const Footer = () => {
                 intensity={1}
                 castShadow
               />
+              <Environment preset="studio" />
               <BarberChair />
               <OrbitControls 
                 enableZoom={false}
