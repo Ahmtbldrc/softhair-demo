@@ -11,19 +11,24 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLocale } from '@/contexts/LocaleContext'
 
-gsap.registerPlugin(ScrollTrigger)
-
 const Navbar = () => {
   const { currentLocale, changeLocale, t } = useLocale()
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
+    setIsClient(true)
     setMounted(true)
+    
+    // GSAP'i yalnızca client tarafında yükle
+    if (typeof window !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger)
+    }
   }, [])
 
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted || typeof window === 'undefined') return
 
     const ctx = gsap.context(() => {
       gsap.fromTo('nav', 
@@ -61,8 +66,15 @@ const Navbar = () => {
     { key: 'team', href: '/team' },
   ]
 
-  if (!mounted) {
-    return null
+  // Server-side rendering sırasında minimal içerik göster
+  if (!isClient) {
+    return (
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-md">
+        <div className="container mx-auto px-4 py-4">
+          <div className="text-2xl font-bold metal-text">Royal Team</div>
+        </div>
+      </nav>
+    )
   }
 
   return (
@@ -72,26 +84,25 @@ const Navbar = () => {
           Royal Team
         </Link>
 
-        {/* Desktop Menu */}
-        <ul className="hidden md:flex space-x-8">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-8">
           {menuItems.map((item) => (
-            <li key={item.key}>
-              <Link
-                href={item.href}
-                className={`text-white hover:text-gray-300 transition-colors ${
-                  pathname === item.href ? 'font-bold' : ''
-                }`}
-              >
-                {t(`navigation.${item.key}`)}
-              </Link>
-            </li>
+            <Link
+              key={item.key}
+              href={item.href}
+              className={`text-white hover:text-gray-300 transition-colors ${
+                pathname === item.href ? 'font-bold' : ''
+              }`}
+            >
+              {t(`navigation.${item.key}`)}
+            </Link>
           ))}
-        </ul>
+        </div>
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center space-x-4">
           <Select value={currentLocale} onValueChange={changeLocale}>
-            <SelectTrigger className="w-[100px]">
+            <SelectTrigger className="w-[120px]">
               <SelectValue placeholder={t('common.language')} />
             </SelectTrigger>
             <SelectContent>
@@ -106,7 +117,7 @@ const Navbar = () => {
           </Button>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu */}
         <Sheet>
           <SheetTrigger asChild className="md:hidden">
             <Button variant="ghost" size="icon">
@@ -121,7 +132,6 @@ const Navbar = () => {
                 </Link>
               </SheetHeader>
             
-              {/* Mobile Navigation Links */}
               <nav className="flex-1 mt-8">
                 <ul className="space-y-4">
                   {menuItems.map((item) => (
@@ -139,9 +149,7 @@ const Navbar = () => {
                 </ul>
               </nav>
 
-              {/* Actions ve Footer */}
               <div className="mt-auto">
-                {/* Mobile Actions */}
                 <div className="space-y-4 mb-4">
                   <Select value={currentLocale} onValueChange={changeLocale}>
                     <SelectTrigger className="w-full">
@@ -159,7 +167,6 @@ const Navbar = () => {
                   </Button>
                 </div>
 
-                {/* Footer */}
                 <div className="pt-4 text-sm text-center text-gray-400 border-t border-gray-800">
                   {t('auth.poweredBy')}{' '}
                   <span className="gradient-text animate-gradient">

@@ -1,43 +1,24 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Facebook, Instagram, Twitter, Phone, Mail, MapPin } from 'lucide-react'
-import { Canvas } from '@react-three/fiber'
-import { useGLTF, OrbitControls, Preload, Environment } from '@react-three/drei'
-import * as THREE from 'three'
+import dynamic from 'next/dynamic'
 import { useLocale } from '@/contexts/LocaleContext'
 
-// Model yolunu sabit bir değişken olarak tanımlayalım
-const MODEL_PATH = '/models/scene.gltf'
-
-function BarberChair() {
-  const { scene } = useGLTF(MODEL_PATH)
-
-  useEffect(() => {
-    scene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        if (!child.material) {
-          child.material = new THREE.MeshPhysicalMaterial({
-            color: 0xF5F5F5,
-            metalness: 0.3,
-            roughness: 0.2,
-            clearcoat: 0.4,
-            clearcoatRoughness: 0.2,
-          })
-        }
-      }
-    })
-  }, [scene])
-
-  return <primitive object={scene} scale={0.7} />
-}
-
-// Model'i önceden yükle
-useGLTF.preload(MODEL_PATH)
+// 3D modeli dinamik olarak import et
+const ThreeJSScene = dynamic(() => import('@/components/ThreeJSScene'), {
+  ssr: false,
+  loading: () => <div className="h-[200px] md:h-[250px]" />
+})
 
 const Footer = () => {
-  const { t } = useLocale();
+  const { t } = useLocale()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const menuItems = [
     { key: 'home', href: '/' },
@@ -82,21 +63,23 @@ const Footer = () => {
     }
   ]
 
+  if (!mounted) {
+    return null
+  }
+
   return (
-    <footer className="bg-black text-white pt-12">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 justify-items-center">
+    <footer className="bg-black text-white mt-20">
+      <div className="container mx-auto px-4 py-12 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Logo ve Sosyal Medya */}
-          <div className="flex flex-col space-y-4 items-center md:items-center">
+          <div className="flex flex-col items-center space-y-6">
             <Link href="/" className="text-3xl font-bold metal-text">
-              {t('common.brand')}
+              Royal Team
             </Link>
-            <p className="text-gray-400 text-center">
-              {t('footer.slogan')}
-            </p>
+            <p className="text-gray-400 text-center">{t('footer.slogan')}</p>
             <div className="flex space-x-4">
               {socialLinks.map(({ key, href, icon: Icon, ariaLabel }) => (
-                <a 
+                <Link
                   key={key}
                   href={href}
                   className="hover:text-gray-300 transition-colors" 
@@ -105,7 +88,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                 >
                   <Icon className="w-5 h-5" />
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -157,31 +140,8 @@ const Footer = () => {
           </div>
 
           {/* 3D Model */}
-          <div className="flex items-center justify-center h-[200px] md:h-[250px] relative mt-8 md:mt-0">
-            <Canvas
-              camera={{ position: [0, 0, 5], fov: 45 }}
-              className="w-[250px] h-full"
-              dpr={[1, 2]}
-            >
-              <ambientLight intensity={0.8} />
-              <pointLight position={[10, 10, 10]} intensity={1} />
-              <pointLight position={[-10, -10, -10]} intensity={0.5} />
-              <spotLight
-                position={[5, 5, 5]}
-                angle={0.3}
-                penumbra={1}
-                intensity={1}
-                castShadow
-              />
-              <Environment preset="studio" />
-              <BarberChair />
-              <OrbitControls 
-                enableZoom={false}
-                autoRotate
-                autoRotateSpeed={5}
-              />
-              <Preload all />
-            </Canvas>
+          <div className="flex items-center justify-center relative mt-8 md:mt-0">
+            {mounted && <ThreeJSScene />}
           </div>
         </div>
       </div>
