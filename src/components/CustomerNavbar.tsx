@@ -100,7 +100,7 @@ const Navbar = () => {
             </SelectContent>
           </Select>
           <Button asChild>
-            <Link href="/new-reservation">
+            <Link href="/newReservation">
               {t('common.bookAppointment')}
             </Link>
           </Button>
@@ -153,7 +153,7 @@ const Navbar = () => {
                     </SelectContent>
                   </Select>
                   <Button asChild className="w-full">
-                    <Link href="/new-reservation">
+                    <Link href="/newReservation">
                       {t('common.bookAppointment')}
                     </Link>
                   </Button>
