@@ -174,7 +174,7 @@ export default function MyAccount() {
         </div>
         <div className="mx-auto grid max-w-[59rem] min-[640px]:flex-1 auto-rows-max gap-4 max-[640px]:p-2">
           <div className="flex items-center gap-4">
-            <Link href="/staff">
+            <Link href="/staff/my-account">
               <Button variant="outline" size="icon" className="h-7 w-7">
                 <ChevronLeft className="h-4 w-4" />
                 <span className="sr-only">{t('staff-my-account.back')}</span>
