@@ -235,7 +235,8 @@
     "confirmBooking": "Buchung bestätigen",
     "customer": "Kunden ",
     "notAvailable": "Nicht verfügbar",
-    "dateAndTime": "Datum & Zeit"
+    "dateAndTime": "Datum & Zeit",
+    "pastReservation": "Vergangener Termin"
   },
   "staff-my-account":{
     "myAccount": "Mein Konto",

@@ -206,11 +206,35 @@ export default function AppointmentCalendar() {
   }
 
   const handleCancelReservation = async (reservationId: number) => {
+    const reservation = reservations.find(res => res.id === reservationId);
+    
+    if (!reservation) {
+      toast({ 
+        title: 'Error', 
+        description: 'Reservation not found.', 
+        variant: 'destructive' 
+      });
+      return;
+    }
+
+    if (reservation.start < new Date()) {
+      toast({ 
+        title: 'Error', 
+        description: 'Cannot cancel past reservations.', 
+        variant: 'destructive' 
+      });
+      return;
+    }
+
     const error = await deleteReservation(reservationId);
     
     if (error) {
       console.error('Error cancelling reservation:', error)
-      toast({ title: 'Error', description: 'Failed to cancel reservation.', variant: 'destructive' })
+      toast({ 
+        title: 'Error', 
+        description: 'Failed to cancel reservation.', 
+        variant: 'destructive' 
+      })
     } else {
       toast({ title: 'Success', description: 'Reservation cancelled successfully.' })
       setReservations(prev => prev.filter(res => res.id !== reservationId))

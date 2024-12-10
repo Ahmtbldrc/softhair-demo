@@ -234,7 +234,8 @@
     "confirmBooking": "Confirm Booking",
     "customer": "Customer",
     "notAvailable": "Not available",
-    "dateAndTime": "Date & Time"
+    "dateAndTime": "Date & Time",
+    "pastReservation": "Past Reservation"
   },
   "staff-my-account":{
     "myAccount": "My Account",
