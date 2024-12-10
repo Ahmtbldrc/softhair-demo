@@ -25,7 +25,8 @@
     "allRightsReserved": "Alle Rechte vorbehalten",
     "language": "Sprache",
     "bookAppointment": "Termin buchen",
-    "brand": "Royal Team"
+    "brand": "Royal Team",
+    "navigation": "Navigationsmenü"
   },
   "auth": {
     "logout": "Abmelden",

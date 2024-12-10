@@ -24,7 +24,8 @@
     "allRightsReserved": "All rights reserved",
     "language": "Language",
     "bookAppointment": "Book Appointment",
-    "brand": "Royal Team"
+    "brand": "Royal Team",
+    "navigation": "Navigation Menu"
   },
   "auth": {
     "logout": "Logout",

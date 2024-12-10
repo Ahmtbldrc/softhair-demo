@@ -10,6 +10,8 @@ import { Menu } from 'lucide-react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLocale } from '@/contexts/LocaleContext'
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
+import { DialogTitle } from '@/components/ui/dialog'
 
 const Navbar = () => {
   const { currentLocale, changeLocale, t } = useLocale()
@@ -125,13 +127,16 @@ const Navbar = () => {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-black/95 backdrop-blur-md">
+            <SheetHeader>
+              <VisuallyHidden asChild>
+                <DialogTitle>{t('common.navigation')}</DialogTitle>
+              </VisuallyHidden>
+              <Link href="/" className="text-2xl font-bold metal-text">
+                Royal Team
+              </Link>
+            </SheetHeader>
+
             <div className="flex flex-col h-full">
-              <SheetHeader>
-                <Link href="/" className="text-2xl font-bold metal-text">
-                  Royal Team
-                </Link>
-              </SheetHeader>
-            
               <nav className="flex-1 mt-8">
                 <ul className="space-y-4">
                   {menuItems.map((item) => (
