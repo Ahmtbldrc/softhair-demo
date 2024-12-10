@@ -304,9 +304,9 @@ export default function Home() {
 
   return (
     <div className="bg-black text-white">
-      <section ref={heroRef} className="min-h-screen relative">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full">
-          <div className="flex flex-col lg:flex-row items-center justify-between h-full pt-20 lg:pt-0">
+      <section ref={heroRef} className="min-h-screen relative flex items-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="hero-content w-full lg:w-1/2 text-center lg:text-left mb-8 lg:mb-0">
               <motion.h1
                 initial={{ opacity: 0, y: 50 }}
@@ -338,7 +338,7 @@ export default function Home() {
               </motion.div>
             </div>
 
-            <div className="w-full lg:w-1/2 h-[300px] sm:h-[400px] lg:h-full relative">
+            <div className="w-full lg:w-1/2 h-[300px] sm:h-[400px] lg:h-[500px] relative">
               <Canvas>
                 <ambientLight intensity={0.5} />
                 <pointLight position={[10, 10, 10]} intensity={1} />
