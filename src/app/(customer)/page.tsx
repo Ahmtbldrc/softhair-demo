@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Canvas } from '@react-three/fiber'
-import { useGLTF, OrbitControls } from '@react-three/drei'
+import { useGLTF, OrbitControls, Environment } from '@react-three/drei'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import * as THREE from 'three'
@@ -21,12 +21,14 @@ function BarberChair() {
   useEffect(() => {
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
-        child.material = new THREE.MeshStandardMaterial({
-          color: 0xF5F5F5,
-          metalness: 0.8,
-          roughness: 0.2,
-          envMapIntensity: 1.5
-        })
+        if (!child.material) {
+          child.material = new THREE.MeshStandardMaterial({
+            color: 0xF5F5F5,
+            metalness: 0.8,
+            roughness: 0.2,
+            envMapIntensity: 1.5
+          })
+        }
       }
     })
   }, [scene])
@@ -339,7 +341,15 @@ export default function Home() {
             <div className="w-full lg:w-1/2 h-[300px] sm:h-[400px] lg:h-full relative">
               <Canvas>
                 <ambientLight intensity={0.5} />
-                <pointLight position={[10, 10, 10]} />
+                <pointLight position={[10, 10, 10]} intensity={1} />
+                <spotLight
+                  position={[5, 5, 5]}
+                  angle={0.3}
+                  penumbra={1}
+                  intensity={1}
+                  castShadow
+                />
+                <Environment preset="studio" />
                 <BarberChair />
                 <OrbitControls enableZoom={false} />
               </Canvas>
