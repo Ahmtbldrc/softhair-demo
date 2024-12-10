@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/chart"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AnalyticType } from "@/lib/types"
-import { useLocale } from "@/contexts/LocaleContext";
+import { useLocale } from "@/contexts/LocaleContext"
 
 const chartConfig = {
   visitors: {
@@ -26,7 +26,7 @@ const chartConfig = {
 }
 
 export default function CustomerServiceChart() {
-  const { t } = useLocale();
+  const { t } = useLocale()
   const [activeTab, setActiveTab] = React.useState<keyof ChartData>("daily")
   type ChartData = {
     daily: { visitors: number; service: string, fill: string }[];
@@ -52,9 +52,9 @@ export default function CustomerServiceChart() {
     }
 
     setChartData({
-      daily: dailyData,
-      weekly: weeklyData,
-      monthly: monthlyData,
+      daily: dailyData || [],
+      weekly: weeklyData || [],
+      monthly: monthlyData || [],
     })
   }
 
@@ -86,6 +86,65 @@ export default function CustomerServiceChart() {
     return chartData[activeTab].reduce((acc: number, curr: { visitors: number }) => acc + curr.visitors, 0)
   }, [activeTab, chartData])
 
+  const renderChart = () => {
+    const emptyChartData = [{
+      visitors: 1,
+      service: "empty",
+      fill: "hsl(var(--muted))"
+    }]
+
+    return (
+      <ChartContainer
+        config={{ ...chartConfig, ...servicesConfig }}
+        className="mx-auto aspect-square max-h-[250px]"
+      >
+        <PieChart>
+          <ChartTooltip
+            cursor={false}
+            content={<ChartTooltipContent hideLabel />}
+          />
+          <Pie
+            data={totalVisitors === 0 ? emptyChartData : chartData[activeTab]}
+            dataKey="visitors"
+            nameKey="service"
+            innerRadius={60}
+            strokeWidth={5}
+          >
+            <Label
+              content={({ viewBox }) => {
+                if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                  return (
+                    <text
+                      x={viewBox.cx}
+                      y={viewBox.cy}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                    >
+                      <tspan
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        className="fill-foreground text-3xl font-bold"
+                      >
+                        {totalVisitors.toLocaleString()}
+                      </tspan>
+                      <tspan
+                        x={viewBox.cx}
+                        y={(viewBox.cy || 0) + 24}
+                        className="fill-muted-foreground"
+                      >
+                        {t("customer-service.visitors")}
+                      </tspan>
+                    </text>
+                  )
+                }
+              }}
+            />
+          </Pie>
+        </PieChart>
+      </ChartContainer>
+    )
+  }
+
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
@@ -100,54 +159,7 @@ export default function CustomerServiceChart() {
           </TabsList>
           {Object.entries(chartData).map(([period, data]) => (
             <TabsContent key={period} value={period}>
-              <ChartContainer
-                config={{ ...chartConfig, ...servicesConfig }}
-                className="mx-auto aspect-square max-h-[250px]"
-              >
-                <PieChart>
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent hideLabel />}
-                  />
-                  <Pie
-                    data={data}
-                    dataKey="visitors"
-                    nameKey="service"
-                    innerRadius={60}
-                    strokeWidth={5}
-                  >
-                    <Label
-                      content={({ viewBox }) => {
-                        if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                          return (
-                            <text
-                              x={viewBox.cx}
-                              y={viewBox.cy}
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                            >
-                              <tspan
-                                x={viewBox.cx}
-                                y={viewBox.cy}
-                                className="fill-foreground text-3xl font-bold"
-                              >
-                                {totalVisitors.toLocaleString()}
-                              </tspan>
-                              <tspan
-                                x={viewBox.cx}
-                                y={(viewBox.cy || 0) + 24}
-                                className="fill-muted-foreground"
-                              >
-                                {t("customer-service.visitors")}
-                              </tspan>
-                            </text>
-                          )
-                        }
-                      }}
-                    />
-                  </Pie>
-                </PieChart>
-              </ChartContainer>
+              {renderChart()}
             </TabsContent>
           ))}
         </Tabs>
