@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -12,6 +12,8 @@ import * as THREE from 'three'
 import React from 'react'
 import { useLocale } from '@/contexts/LocaleContext'
 import Link from 'next/link'
+import { Service } from '@/lib/types'
+import { supabase } from '@/lib/supabase'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -45,8 +47,27 @@ export default function Home() {
   const aboutRef = useRef(null)
   const priceRef = useRef(null)
   const contactRef = useRef(null)
+  const [mounted, setMounted] = useState(false)
+  const [prices, setPrices] = useState<Service[]>([])
 
-  const [mounted, setMounted] = React.useState(false)
+  // Servisleri getir
+  useEffect(() => {
+    const fetchPrices = async () => {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .order('price', { ascending: true })
+
+      if (error) {
+        console.error('Error fetching services:', error)
+        return
+      }
+
+      setPrices(data || [])
+    }
+
+    fetchPrices()
+  }, [])
 
   useEffect(() => {
     setMounted(true)
@@ -290,14 +311,6 @@ export default function Home() {
     { icon: '🧔', key: 'beard' }
   ]
 
-  const prices = [
-    { key: 'womensHaircut', price: '45€' },
-    { key: 'mensHaircut', price: '35€' },
-    { key: 'coloring', price: '60€' },
-    { key: 'highlights', price: '80€' },
-    { key: 'updo', price: '70€' },
-  ]
-
   if (!mounted) {
     return null
   }
@@ -417,10 +430,10 @@ export default function Home() {
         <div className="price-container bg-black p-8 rounded-lg neon-card w-full max-w-2xl">
           <h2 className="text-4xl font-bold mb-8 text-center metal-text">{t('prices.title')}</h2>
           <ul className="space-y-4">
-            {prices.map((item, index) => (
-              <li key={index} className="price-item flex justify-between items-center border-b border-gray-800 pb-2">
-                <span>{t(`prices.${item.key}`)}</span>
-                <span className="font-bold metal-text">{item.price}</span>
+            {prices.map((price) => (
+              <li key={price.id} className="price-item flex justify-between items-center border-b border-gray-800 pb-2">
+                <span>{price.name}</span>
+                <span className="font-bold metal-text">{price.price}€</span>
               </li>
             ))}
           </ul>

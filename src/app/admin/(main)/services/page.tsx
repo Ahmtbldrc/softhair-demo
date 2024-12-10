@@ -29,16 +29,9 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Service } from "@/lib/types";
 
-interface Service {
-  id: number;
-  name: string;
-  price: number;
-}
 
 export default function Services() {
   const { t } = useLocale();

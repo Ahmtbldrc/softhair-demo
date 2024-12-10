@@ -39,3 +39,9 @@ export enum AnalyticType {
   WEEKLY = 'weekly',
   MONTHLY = 'monthly'
 }
+
+export interface Service {
+  id: number;
+  name: string;
+  price: number;
+}
