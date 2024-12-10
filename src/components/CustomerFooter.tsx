@@ -84,14 +84,14 @@ const Footer = () => {
 
   return (
     <footer className="bg-black text-white pt-12">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-4">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 justify-items-center">
           {/* Logo ve Sosyal Medya */}
-          <div className="flex flex-col space-y-4 items-center md:items-start">
+          <div className="flex flex-col space-y-4 items-center md:items-center">
             <Link href="/" className="text-3xl font-bold metal-text">
               {t('common.brand')}
             </Link>
-            <p className="text-gray-400 text-center md:text-left">
+            <p className="text-gray-400 text-center">
               {t('footer.slogan')}
             </p>
             <div className="flex space-x-4">
@@ -111,9 +111,9 @@ const Footer = () => {
           </div>
 
           {/* Linkler */}
-          <div className="flex flex-col space-y-4 items-center md:items-start">
+          <div className="flex flex-col space-y-4 items-center">
             <h3 className="text-xl font-semibold">{t('footer.links')}</h3>
-            <ul className="space-y-3 text-center md:text-left">
+            <ul className="space-y-3 text-center">
               {menuItems.map((item) => (
                 <li key={item.key} className="relative group">
                   <Link 
@@ -128,7 +128,7 @@ const Footer = () => {
           </div>
 
           {/* İletişim Bilgileri */}
-          <div className="flex flex-col space-y-4 items-center col-span-1 md:col-span-2">
+          <div className="flex flex-col space-y-4 items-center">
             <h3 className="text-xl font-semibold">{t('footer.contact')}</h3>
             <ul className="space-y-3 w-full max-w-sm">
               {contactInfo.map(({ icon: Icon, value, desktopValue }, index) => (
@@ -157,7 +157,7 @@ const Footer = () => {
           </div>
 
           {/* 3D Model */}
-          <div className="flex items-center justify-center h-[200px] relative mt-8 md:mt-0">
+          <div className="flex items-center justify-center h-[200px] md:h-[250px] relative mt-8 md:mt-0">
             <Canvas
               camera={{ position: [0, 0, 5], fov: 45 }}
               className="w-[250px] h-full"
@@ -188,7 +188,7 @@ const Footer = () => {
 
       {/* Copyright bölümü */}
       <div className="border-t border-gray-800 mt-8">
-        <div className="container mx-auto px-4 py-4 max-w-6xl">
+        <div className="container mx-auto px-4 py-4 max-w-7xl">
           <div className="text-center text-sm text-gray-400">
             <span>© {new Date().getFullYear()} {t('common.brand')} | {t('auth.poweredBy')}{' '}</span>
             <Link
