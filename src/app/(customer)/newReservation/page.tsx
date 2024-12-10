@@ -23,6 +23,7 @@ import { supabase } from '@/lib/supabase'
 import { StaffType, TimeSlot } from '@/lib/types'
 import { useRouter } from 'next/navigation'
 import useMail from '@/hooks/use-mail'
+import { useLocale } from '@/contexts/LocaleContext' // Add this import
 
 interface Service {
   id: number;
@@ -64,6 +65,7 @@ export default function NewReservation() {
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd })
 
   const mail = useMail();
+  const { t } = useLocale()
 
   const fetchServices = async () => {
     const { data, error } = await supabase.from("services").select("*")
@@ -71,7 +73,7 @@ export default function NewReservation() {
       console.error("Error fetching services:", error)
       toast({
         title: "Error",
-        description: "Failed to fetch services. Please try again.",
+        description: t("newReservation.errors.fetchServices"),
         variant: "destructive",
       })
     } else {
@@ -83,11 +85,12 @@ export default function NewReservation() {
     const { data, error } = await supabase
       .from("staff")
       .select("*, services:staff_services(service:service_id(id, name))")
+      .eq('status', true)
     if (error) {
       console.error("Error fetching staff:", error)
       toast({
         title: "Error",
-        description: "Failed to fetch staff. Please try again.",
+        description: t("newReservation.errors.fetchStaff"),
         variant: "destructive",
       })
     } else {
@@ -106,7 +109,7 @@ export default function NewReservation() {
       console.error("Error fetching appointments:", error)
       toast({
         title: "Error",
-        description: "Failed to fetch existing appointments. Please try again.",
+        description: t("newReservation.errors.fetchAppointments"),
         variant: "destructive",
       })
     } else {
@@ -200,7 +203,7 @@ export default function NewReservation() {
     if (!selectedService || !selectedStaff || !selectedTime) {
       toast({
         title: "Error",
-        description: "Please select a service, staff, and time.",
+        description: t("newReservation.errors.selectAll"),
         variant: "destructive",
       })
       return
@@ -212,7 +215,7 @@ export default function NewReservation() {
     if (!service) {
       toast({
         title: "Error",
-        description: "Selected service not found.",
+        description: t("newReservation.errors.serviceNotFound"),
         variant: "destructive",
       })
       setIsSubmitting(false)
@@ -242,7 +245,7 @@ export default function NewReservation() {
       console.error("Error creating reservation:", error)
       toast({
         title: "Error",
-        description: "Failed to create reservation. Please try again.",
+        description: t("newReservation.errors.createReservation"),
         variant: "destructive",
       })
     } else {
@@ -564,16 +567,16 @@ export default function NewReservation() {
     <div className="min-h-screen flex items-center justify-center bg-black text-white p-4">
       <Card className="w-full max-w-[90%] md:max-w-[60%]">
         <CardHeader>
-          <CardTitle>New Reservation</CardTitle>
-          <CardDescription>Book your appointment</CardDescription>
+          <CardTitle>{t("newReservation.title")}</CardTitle>
+          <CardDescription>{t("newReservation.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Customer Information</h3>
+              <h3 className="text-lg font-semibold">{t("newReservation.customerInformation")}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName">{t("newReservation.firstName")}</Label>
                   <Input
                     id="firstName"
                     value={customerInfo.firstName}
@@ -581,7 +584,7 @@ export default function NewReservation() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName">{t("newReservation.lastName")}</Label>
                   <Input
                     id="lastName"
                     value={customerInfo.lastName}
@@ -589,7 +592,7 @@ export default function NewReservation() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("newReservation.email")}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -598,7 +601,7 @@ export default function NewReservation() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="phone">Phone</Label>
+                  <Label htmlFor="phone">{t("newReservation.phone")}</Label>
                   <Input
                     id="phone"
                     type="tel"
@@ -609,7 +612,7 @@ export default function NewReservation() {
               </div>
             </div>
             <div>
-              <Label htmlFor="service">Select Service</Label>
+              <Label htmlFor="service">{t("newReservation.selectService")}</Label>
               <Select 
                 onValueChange={(value) => {
                   setSelectedService(Number(value))
@@ -618,7 +621,7 @@ export default function NewReservation() {
                 }}
               >
                 <SelectTrigger id="service">
-                  <SelectValue placeholder="Choose a service" />
+                  <SelectValue placeholder={t("newReservation.chooseService")} />
                 </SelectTrigger>
                 <SelectContent>
                   {services.map((service) => (
@@ -631,7 +634,7 @@ export default function NewReservation() {
             </div>
             {selectedService && (
               <div>
-                <Label>Select Staff</Label>
+                <Label>{t("newReservation.selectStaff")}</Label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-2">
                   {staff
                     .filter(staffMember => 
@@ -666,11 +669,15 @@ export default function NewReservation() {
           {selectedService && selectedStaff && (
             <div className="mt-6">
               <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
-                <Button onClick={handlePrevWeek} className="mb-2 sm:mb-0">&lt; Previous Week</Button>
+                <Button onClick={handlePrevWeek} className="mb-2 sm:mb-0">
+                  &lt; {t("newReservation.previousWeek")}
+                </Button>
                 <h2 className="text-lg font-semibold text-center">
                   {format(weekStart, 'MMM d, yyyy')} - {format(weekEnd, 'MMM d, yyyy')}
                 </h2>
-                <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">Next Week &gt;</Button>
+                <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">
+                  {t("newReservation.nextWeek")} &gt;
+                </Button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 select-none">
                 {days.map((day) => (
@@ -706,7 +713,7 @@ export default function NewReservation() {
                             )
                           })
                         ) : (
-                          <p className="text-xs text-muted-foreground">Not available</p>
+                          <p className="text-xs text-muted-foreground">{t("newReservation.notAvailable")}</p>
                         )}
                       </ScrollArea>
                     </CardContent>
@@ -720,26 +727,28 @@ export default function NewReservation() {
           <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
             <DialogTrigger asChild>
               <Button className="w-full" disabled={!selectedTime || !customerInfo.firstName || !customerInfo.lastName || !customerInfo.email || !customerInfo.phone}>
-                Book Appointment
+                {t("newReservation.bookAppointment")}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Confirm Your Reservation</DialogTitle>
-                <DialogDescription>Please review your reservation details.</DialogDescription>
+                <DialogTitle>{t("newReservation.confirmTitle")}</DialogTitle>
+                <DialogDescription>{t("newReservation.confirmDescription")}</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
-                <p><strong>Service:</strong> {services.find(s => s.id === selectedService)?.name}</p>
-                <p><strong>Staff:</strong> {staff.find(s => s.id === selectedStaff)?.firstName} {staff.find(s => s.id === selectedStaff)?.lastName}</p>
-                <p><strong>Date & Time:</strong> {selectedTime && format(selectedTime, 'MMMM d, yyyy HH:mm')}</p>
-                <p><strong>Name:</strong> {customerInfo.firstName} {customerInfo.lastName}</p>
-                <p><strong>Email:</strong> {customerInfo.email}</p>
-                <p><strong>Phone:</strong> {customerInfo.phone}</p>
+                <p><strong>{t("newReservation.service")}:</strong> {services.find(s => s.id === selectedService)?.name}</p>
+                <p><strong>{t("newReservation.staff")}:</strong> {staff.find(s => s.id === selectedStaff)?.firstName} {staff.find(s => s.id === selectedStaff)?.lastName}</p>
+                <p><strong>{t("newReservation.dateTime")}:</strong> {selectedTime && format(selectedTime, 'MMMM d, yyyy HH:mm')}</p>
+                <p><strong>{t("newReservation.name")}:</strong> {customerInfo.firstName} {customerInfo.lastName}</p>
+                <p><strong>{t("newReservation.email")}:</strong> {customerInfo.email}</p>
+                <p><strong>{t("newReservation.phone")}:</strong> {customerInfo.phone}</p>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>Cancel</Button>
+                <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>
+                  {t("newReservation.cancel")}
+                </Button>
                 <Button onClick={handleReservation} disabled={isSubmitting}>
-                  {isSubmitting ? 'Confirming...' : 'Confirm Reservation'}
+                  {isSubmitting ? t("newReservation.confirming") : t("newReservation.confirmReservation")}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -750,9 +759,9 @@ export default function NewReservation() {
       <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Reservation Completed</DialogTitle>
+            <DialogTitle>{t("newReservation.successTitle")}</DialogTitle>
             <DialogDescription>
-              Your reservation has been successfully made. Please check your email for confirmation.
+              {t("newReservation.successDescription")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -761,7 +770,7 @@ export default function NewReservation() {
               resetForm()
               router.push('/')
             }}>
-              Return to Main Page
+              {t("newReservation.returnToMain")}
             </Button>
           </DialogFooter>
         </DialogContent>

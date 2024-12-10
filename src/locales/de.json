@@ -382,5 +382,41 @@
     "street": "Musterstraße 123",
     "city": "12345 Berlin",
     "country": "Deutschland"
+  },
+  "newReservation": {
+    "title": "Neue Reservierung",
+    "description": "Buchen Sie Ihren Termin",
+    "customerInformation": "Kundeninformationen",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "selectService": "Service auswählen",
+    "chooseService": "Wählen Sie einen Service",
+    "selectStaff": "Mitarbeiter auswählen",
+    "previousWeek": "Vorherige Woche",
+    "nextWeek": "Nächste Woche",
+    "notAvailable": "Nicht verfügbar",
+    "bookAppointment": "Termin buchen",
+    "confirmTitle": "Bestätigen Sie Ihre Reservierung",
+    "confirmDescription": "Bitte überprüfen Sie Ihre Reservierungsdetails.",
+    "service": "Service",
+    "staff": "Mitarbeiter",
+    "dateTime": "Datum & Uhrzeit",
+    "name": "Name",
+    "cancel": "Abbrechen",
+    "confirming": "Wird bestätigt...",
+    "confirmReservation": "Reservierung bestätigen",
+    "successTitle": "Reservierung abgeschlossen",
+    "successDescription": "Ihre Reservierung wurde erfolgreich erstellt. Bitte überprüfen Sie Ihre E-Mail für die Bestätigung.",
+    "returnToMain": "Zurück zur Hauptseite",
+    "errors": {
+      "selectAll": "Bitte wählen Sie einen Service, Mitarbeiter und Zeitpunkt aus.",
+      "serviceNotFound": "Ausgewählter Service wurde nicht gefunden.",
+      "fetchServices": "Fehler beim Abrufen der Services. Bitte versuchen Sie es erneut.",
+      "fetchStaff": "Fehler beim Abrufen der Mitarbeiter. Bitte versuchen Sie es erneut.",
+      "fetchAppointments": "Fehler beim Abrufen der bestehenden Termine. Bitte versuchen Sie es erneut.",
+      "createReservation": "Fehler beim Erstellen der Reservierung. Bitte versuchen Sie es erneut."
+    }
   }
 }
