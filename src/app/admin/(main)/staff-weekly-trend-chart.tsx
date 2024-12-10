@@ -79,11 +79,11 @@ export default function StaffWeeklyTrendChart() {
             </div>
           </div>
         ))}
-        <div className="flex items-center justify-between space-x-2 py-4">
-          <div className="text-sm text-muted-foreground">
-              {t("staff-weekly-trend.showing")} {(currentPage - 1) * itemsPerPage + 1} {t("staff-weekly-trend.to")} {Math.min(currentPage * itemsPerPage, staffData.length)} {t("staff-weekly-trend.of")} {staffData.length} {t("staff-weekly-trend.staffMembers")}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-2 py-4">
+          <div className="text-sm text-muted-foreground text-center sm:text-left">
+            {t("staff-weekly-trend.showing")} {(currentPage - 1) * itemsPerPage + 1} {t("staff-weekly-trend.to")} {Math.min(currentPage * itemsPerPage, staffData.length)} {t("staff-weekly-trend.of")} {staffData.length} {t("staff-weekly-trend.staffMembers")}
           </div>
-          <div className="space-x-2">
+          <div className="flex space-x-2">
             <Button
               variant="outline"
               size="sm"
