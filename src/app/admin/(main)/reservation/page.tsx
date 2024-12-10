@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { addDays, format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, compareAsc, addMinutes, parse, subMinutes } from 'date-fns'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -44,6 +44,7 @@ type Staff = {
   lastName: string;
   image: string;
   email: string;
+  status: boolean; // true: active, false: passive
   weeklyHours: {
     [key: string]: { start: string; end: string }[];
   };
@@ -530,6 +531,10 @@ export default function AppointmentCalendar() {
 </td>
 </tr>
 </tbody>
+</table>
+</td>
+</tr>
+</tbody>
 </table><!-- End -->
 </body>
 </html>
@@ -931,6 +936,10 @@ export default function AppointmentCalendar() {
 </td>
 </tr>
 </tbody>
+</table>
+</td>
+</tr>
+</tbody>
 </table><!-- End -->
 </body>
 </html>
@@ -1158,24 +1167,55 @@ export default function AppointmentCalendar() {
                   <span className="text-base font-medium">{t('admin-reservation.allStaff')}</span>
                 </div>
               </SelectItem>
-              {staffMembers.map((staff) => (
-                <SelectItem key={staff.id} value={staff.id.toString()} className="py-2">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 relative overflow-hidden rounded-md flex-shrink-0">
-                      <Image
-                        src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`}
-                        alt={`${staff.firstName} ${staff.lastName}`}
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
+              
+              {/* Aktif Staff'lar */}
+              {staffMembers
+                .filter(staff => staff.status)
+                .map((staff) => (
+                  <SelectItem key={staff.id} value={staff.id.toString()} className="py-2">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 relative overflow-hidden rounded-md flex-shrink-0">
+                        <Image
+                          src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`}
+                          alt={`${staff.firstName} ${staff.lastName}`}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
+                      <span className="text-base font-medium">
+                        {staff.firstName} {staff.lastName}
+                      </span>
                     </div>
-                    <span className="text-base font-medium">
-                      {staff.firstName} {staff.lastName}
-                    </span>
-                  </div>
-                </SelectItem>
-              ))}
+                  </SelectItem>
+                ))}
+
+              {/* Pasif Staff'lar için ayırıcı */}
+              {staffMembers.some(staff => !staff.status) && (
+                <SelectSeparator className="my-2" />
+              )}
+
+              {/* Pasif Staff'lar */}
+              {staffMembers
+                .filter(staff => !staff.status)
+                .map((staff) => (
+                  <SelectItem key={staff.id} value={staff.id.toString()} className="py-2">
+                    <div className="flex items-center gap-3 opacity-50">
+                      <div className="h-10 w-10 relative overflow-hidden rounded-md flex-shrink-0 grayscale">
+                        <Image
+                          src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`}
+                          alt={`${staff.firstName} ${staff.lastName}`}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
+                      <span className="text-base font-medium line-through">
+                        {staff.firstName} {staff.lastName}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         </div>
@@ -1232,7 +1272,17 @@ export default function AppointmentCalendar() {
                       </Avatar>
                       <div>
                         <h3 className="font-semibold">{t('admin-reservation.staff')}</h3>
-                        <p>{staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName} {staffMembers.find(s => s.id === selectedReservation.staffId)?.lastName}</p>
+                        <div className="flex items-center gap-2">
+                          <p>
+                            {staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName} 
+                            {staffMembers.find(s => s.id === selectedReservation.staffId)?.lastName}
+                          </p>
+                          {!staffMembers.find(s => s.id === selectedReservation.staffId)?.status && (
+                            <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full">
+                              Inactive
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className="mb-4">
