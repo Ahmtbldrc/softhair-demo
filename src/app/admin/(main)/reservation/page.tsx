@@ -526,6 +526,10 @@ export default function AppointmentCalendar() {
 </td>
 </tr>
 </tbody>
+</table>
+</td>
+</tr>
+</tbody>
 </table><!-- End -->
 </body>
 </html>
@@ -953,157 +957,14 @@ export default function AppointmentCalendar() {
 
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle>{t('admin-reservation.reservationCalendar')}</CardTitle>
-        <CardDescription>{t('admin-reservation.reservationCalendarDescription')}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex justify-between items-center mb-4">
-          <Button onClick={handlePrevWeek} size="icon" className="md:hidden"><ChevronLeft /></Button>
-          <Button onClick={handlePrevWeek} className="hidden md:inline-flex">&lt; {t('admin-reservation.previousWeek')}</Button>
-          <h2 className="text-lg font-semibold text-center">
-            <span className="hidden md:inline">{format(weekStart, 'MMM d, yyyy')} - {format(weekEnd, 'MMM d, yyyy')}</span>
-            <span className="md:hidden">{format(weekStart, 'MMM d')} - {format(weekEnd, 'MMM d')}</span>
-          </h2>
-          <Button onClick={handleNextWeek} size="icon" className="md:hidden"><ChevronRight /></Button>
-          <Button onClick={handleNextWeek} className="hidden md:inline-flex">{t('admin-reservation.nextWeek')} &gt;</Button>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>{t('admin-reservation.reservationCalendar')}</CardTitle>
+          <CardDescription>{t('admin-reservation.reservationCalendarDescription')}</CardDescription>
         </div>
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">{t('admin-reservation.selectStaff')}</h3>
-          <ScrollArea className="w-full">
-            <div className="flex space-x-4 pb-4 md:grid md:grid-cols-3 md:gap-4 lg:grid-cols-6">
-              <Card 
-                className={`flex-shrink-0 w-24 md:w-auto cursor-pointer transition-all ${selectedStaff === 'all' ? 'ring-2 ring-primary' : ''}`}
-                onClick={() => setSelectedStaff('all')}
-              >
-                <CardContent className="flex flex-col items-center p-4">
-                  <Users width={60} height={60} className="rounded-md mb-2" />
-                  <p className="font-semibold text-center text-sm">{t('admin-reservation.allStaff')}</p>
-                </CardContent>
-              </Card>
-              {staffMembers.map((staff) => (
-                <Card 
-                  key={staff.id} 
-                  className={`flex-shrink-0 w-24 md:w-auto cursor-pointer transition-all ${selectedStaff === staff.id.toString() ? 'ring-2 ring-primary' : ''}`}
-                  onClick={() => setSelectedStaff(staff.id.toString())}
-                >
-                  <CardContent className="flex flex-col items-center p-4">
-                    <Image
-                      src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`}
-                      alt={`${staff.firstName} ${staff.lastName}`}
-                      width={60}
-                      height={60}
-                      className="rounded-md mb-2"
-                      unoptimized
-                    />
-                    <p className="font-semibold text-center text-sm">{staff.firstName}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
-          {days.map((day) => (
-            <Card key={day.toString()} className="p-2">
-              <CardHeader className="p-2">
-                <CardTitle className="text-sm">{format(day, 'EEE')}</CardTitle>
-                <p className="text-xs text-muted-foreground">{format(day, 'MMM d')}</p>
-              </CardHeader>
-              <CardContent className="p-2">
-                <ScrollArea className="h-40 md:h-60">
-                  {Object.entries(groupReservationsByTime(sortedReservations.filter((res) => isSameDay(res.start, day))))
-                    .map(([time, reservations]) => (
-                      <div key={time} className="mb-2">
-                        <p className="text-xs font-semibold">{time}</p>
-                        {reservations.map((res) => (
-                          <div 
-                            key={res.id} 
-                            className="text-xs mb-1 p-1 bg-primary text-primary-foreground rounded cursor-pointer"
-                            onClick={() => handleReservationClick(res)}
-                          >
-                            <span className="md:hidden">{services.find(s => s.id === res.serviceId)?.name} - {staffMembers.find(s => s.id === res.staffId)?.firstName}</span>
-                            <span className="hidden md:inline">{services.find(s => s.id === res.serviceId)?.name} - {staffMembers.find(s => s.id === res.staffId)?.firstName}</span>
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>{t('admin-reservation.reservationDetails')}</DialogTitle>
-            </DialogHeader>
-            {selectedReservation && (
-              <div className="mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{services.find(s => s.id === selectedReservation.serviceId)?.name}</CardTitle>
-                    <CardDescription>
-                      {format(selectedReservation.start, 'MMMM d, yyyy')} {t('admin-reservation.at')} {format(selectedReservation.start, 'HH:mm')} - {format(addMinutes(selectedReservation.end, 1), 'HH:mm')}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center space-x-4 mb-4">
-                      <Avatar>
-                        <AvatarImage src={staffMembers.find(s => s.id === selectedReservation.staffId)?.image} />
-                        <AvatarFallback>{staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName[0]}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="font-semibold">{t('admin-reservation.staff')}</h3>
-                        <p>{staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName} {staffMembers.find(s => s.id === selectedReservation.staffId)?.lastName}</p>
-                      </div>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="font-semibold">{t('admin-reservation.service')}</h3>
-                      <p>{services.find(s => s.id === selectedReservation.serviceId)?.name}</p>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="font-semibold">{t('admin-reservation.price')}</h3>
-                      <p>{services.find(s => s.id === selectedReservation.serviceId)?.price} CHF</p>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-2">{t('admin-reservation.customerInformation')}</h3>
-                      <p>{t('admin-reservation.name')}: {selectedReservation.customer.firstName} {selectedReservation.customer.lastName}</p>
-                      <p>{t('admin-reservation.email')}: {selectedReservation.customer.email}</p>
-                      <p>{t('admin-reservation.phone')}: {selectedReservation.customer.phone}</p>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" className="w-full">{t('admin-reservation.cancelReservation')}</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>{t('admin-reservation.confirmCancellationDescription')}</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            {t('admin-reservation.confirmCancellationDescription-2')}
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>{t('admin-reservation.noKeepReservation')}</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleCancelReservation(selectedReservation.id)}>
-                            {t('admin-reservation.yesCancelReservation')}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </CardFooter>
-                </Card>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-
         <Dialog open={isNewReservationDialogOpen} onOpenChange={setIsNewReservationDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="mt-4">{t('admin-reservation.newReservation')}</Button>
+            <Button>{t('admin-reservation.newReservation')}</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[800px]">
             <DialogHeader>
@@ -1263,6 +1124,156 @@ export default function AppointmentCalendar() {
                 {t('admin-reservation.bookAppointment')}
               </Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent>
+        <div className="flex justify-center items-center gap-4 mb-4">
+          <Button onClick={handlePrevWeek} size="icon" variant="outline">
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <h2 className="text-lg font-semibold text-center min-w-[200px]">
+            <span className="hidden md:inline">{format(weekStart, 'MMM d, yyyy')} - {format(weekEnd, 'MMM d, yyyy')}</span>
+            <span className="md:hidden">{format(weekStart, 'MMM d')} - {format(weekEnd, 'MMM d')}</span>
+          </h2>
+          <Button onClick={handleNextWeek} size="icon" variant="outline">
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold mb-2">{t('admin-reservation.selectStaff')}</h3>
+          <Select
+            value={selectedStaff || ""}
+            onValueChange={(value) => setSelectedStaff(value)}
+          >
+            <SelectTrigger className="w-full md:w-[300px]">
+              <SelectValue placeholder={t('admin-reservation.selectStaff')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="py-2">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center">
+                    <Users className="h-6 w-6" />
+                  </div>
+                  <span className="text-base font-medium">{t('admin-reservation.allStaff')}</span>
+                </div>
+              </SelectItem>
+              {staffMembers.map((staff) => (
+                <SelectItem key={staff.id} value={staff.id.toString()} className="py-2">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 relative overflow-hidden rounded-md flex-shrink-0">
+                      <Image
+                        src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`}
+                        alt={`${staff.firstName} ${staff.lastName}`}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                    <span className="text-base font-medium">
+                      {staff.firstName} {staff.lastName}
+                    </span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+          {days.map((day) => (
+            <Card key={day.toString()} className="p-2">
+              <CardHeader className="p-2">
+                <CardTitle className="text-sm">{format(day, 'EEE')}</CardTitle>
+                <p className="text-xs text-muted-foreground">{format(day, 'MMM d')}</p>
+              </CardHeader>
+              <CardContent className="p-2">
+                <ScrollArea className="h-40 md:h-60">
+                  {Object.entries(groupReservationsByTime(sortedReservations.filter((res) => isSameDay(res.start, day))))
+                    .map(([time, reservations]) => (
+                      <div key={time} className="mb-2">
+                        <p className="text-xs font-semibold">{time}</p>
+                        {reservations.map((res) => (
+                          <div 
+                            key={res.id} 
+                            className="text-xs mb-1 p-1 bg-primary text-primary-foreground rounded cursor-pointer"
+                            onClick={() => handleReservationClick(res)}
+                          >
+                            <span className="md:hidden">{services.find(s => s.id === res.serviceId)?.name} - {staffMembers.find(s => s.id === res.staffId)?.firstName}</span>
+                            <span className="hidden md:inline">{services.find(s => s.id === res.serviceId)?.name} - {staffMembers.find(s => s.id === res.staffId)?.firstName}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{t('admin-reservation.reservationDetails')}</DialogTitle>
+            </DialogHeader>
+            {selectedReservation && (
+              <div className="mt-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{services.find(s => s.id === selectedReservation.serviceId)?.name}</CardTitle>
+                    <CardDescription>
+                      {format(selectedReservation.start, 'MMMM d, yyyy')} {t('admin-reservation.at')} {format(selectedReservation.start, 'HH:mm')} - {format(addMinutes(selectedReservation.end, 1), 'HH:mm')}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-4 mb-4">
+                      <Avatar>
+                        <AvatarImage src={staffMembers.find(s => s.id === selectedReservation.staffId)?.image} />
+                        <AvatarFallback>{staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName[0]}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold">{t('admin-reservation.staff')}</h3>
+                        <p>{staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName} {staffMembers.find(s => s.id === selectedReservation.staffId)?.lastName}</p>
+                      </div>
+                    </div>
+                    <div className="mb-4">
+                      <h3 className="font-semibold">{t('admin-reservation.service')}</h3>
+                      <p>{services.find(s => s.id === selectedReservation.serviceId)?.name}</p>
+                    </div>
+                    <div className="mb-4">
+                      <h3 className="font-semibold">{t('admin-reservation.price')}</h3>
+                      <p>{services.find(s => s.id === selectedReservation.serviceId)?.price} CHF</p>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-2">{t('admin-reservation.customerInformation')}</h3>
+                      <p>{t('admin-reservation.name')}: {selectedReservation.customer.firstName} {selectedReservation.customer.lastName}</p>
+                      <p>{t('admin-reservation.email')}: {selectedReservation.customer.email}</p>
+                      <p>{t('admin-reservation.phone')}: {selectedReservation.customer.phone}</p>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" className="w-full">{t('admin-reservation.cancelReservation')}</Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>{t('admin-reservation.confirmCancellationDescription')}</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {t('admin-reservation.confirmCancellationDescription-2')}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>{t('admin-reservation.noKeepReservation')}</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleCancelReservation(selectedReservation.id)}>
+                            {t('admin-reservation.yesCancelReservation')}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </CardFooter>
+                </Card>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
 
