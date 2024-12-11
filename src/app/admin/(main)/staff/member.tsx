@@ -24,6 +24,9 @@ function Member({ member, handleDelete }: Props) {
           width={64}
           height={64}
           unoptimized
+          onError={(e) => {
+            e.currentTarget.src = "https://www.gravatar.com/avatar/000?d=mp&f=y";
+          }}
         />
       </TableCell>
       <TableCell className="font-medium">
