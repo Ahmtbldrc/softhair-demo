@@ -1146,6 +1146,9 @@ export default function AppointmentCalendar() {
                           fill
                           className="object-cover"
                           unoptimized
+                          onError={(e) => {
+                            e.currentTarget.src = "https://www.gravatar.com/avatar/000?d=mp&f=y";
+                          }}
                         />
                       </div>
                       <span className="text-base font-medium">
@@ -1173,6 +1176,9 @@ export default function AppointmentCalendar() {
                           fill
                           className="object-cover"
                           unoptimized
+                          onError={(e) => {
+                            e.currentTarget.src = "https://www.gravatar.com/avatar/000?d=mp&f=y";
+                          }}
                         />
                       </div>
                       <span className="text-base font-medium line-through">
