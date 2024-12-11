@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import { CartesianGrid, LabelList, Line, LineChart, XAxis } from "recharts"
+import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
 
 import {
   Card,
@@ -100,14 +100,7 @@ export function WeeklyTrendChart() {
               activeDot={{
                 r: 6,
               }}
-            >
-              <LabelList
-                position="top"
-                offset={12}
-                className="fill-foreground"
-                fontSize={12}
-              />
-            </Line>
+            />
             <Line
               dataKey="lastWeek"
               type="natural"
@@ -119,14 +112,7 @@ export function WeeklyTrendChart() {
               activeDot={{
                 r: 6,
               }}
-            >
-              <LabelList
-                position="bottom"
-                offset={12}
-                className="fill-foreground"
-                fontSize={12}
-              />
-            </Line>
+            />
           </LineChart>
         </ChartContainer>
       </CardContent>
