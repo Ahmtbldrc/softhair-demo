@@ -74,12 +74,14 @@ export default function MyAccount() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [currentUsername, setCurrentUsername] = useState<string>("");
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
+  const [oldPassword, setOldPassword] = useState<string>("");
 
   const router = useRouter();
 
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [originalStaff, setOriginalStaff] = useState<StaffType>(staffData);
   const [showPassword, setShowPassword] = useState(false);
+  const [lastEmailUpdate, setLastEmailUpdate] = useState<Date | null>(null);
 
   const handleServiceChange = (serviceId: number) => {
     setSelectedServices(prevSelectedServices =>
@@ -140,106 +142,163 @@ export default function MyAccount() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-  
-    const { error: authError } = await supabase.auth.updateUser({
-      email: staff.email,
-      password: staff.password !== "********" ? staff.password : undefined,
-      data: {
-        fullName: `${staff.firstName} ${staff.lastName}`,
-        username: staff.username,
-        email: staff.email
-      },
-    });
-  
-    if (authError) {
-      toast({
-        title: "Error",
-        description: "Failed to update authentication details",
-        variant: "destructive",
-      });
-      setIsSubmitting(false);
-      return;
-    }
 
-    if (currentUsername !== staff.username) {
-      const { data: existUser } = await supabase
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const updates: { 
+        data: { 
+          fullName: string; 
+          username: string; 
+          email: string; 
+        };
+        password?: string;
+      } = {
+        data: {
+          fullName: `${staff.firstName} ${staff.lastName}`,
+          username: staff.username,
+          email: staff.email
+        }
+      };
+
+      // Sadece şifre değişmişse şifre güncellemesi yap
+      if (staff) {
+        if (staff.password.length < 6) {
+          toast({
+            title: "Error",
+            description: "Password must be at least 6 characters",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
+      if (staff.password !== oldPassword) {
+        updates.password = staff.password;
+      }
+
+      // Diğer kullanıcı verilerini güncelle
+      const { error: updateError } = await supabase.auth.updateUser(updates);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      if (user?.email !== staff.email) {
+        if (lastEmailUpdate && Date.now() - lastEmailUpdate.getTime() < 60000) {
+          toast({
+            title: "Error",
+            description: "Please wait 1 minute before updating username again",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        const { error: emailError } = await supabase.auth.updateUser({
+          email: `${staff.username}@softsidedigital.com`
+        });
+
+        if (emailError) {
+          toast({
+            title: "Error",
+            description: "Failed to update email",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        setLastEmailUpdate(new Date());
+      }
+
+      if (currentUsername !== staff.username) {
+        const { data: existUser } = await supabase
+          .from("staff")
+          .select("*")
+          .eq("username", staff.username)
+          .neq("id", staff.id);
+
+        if (existUser?.length) {
+          toast({
+            title: "Error!",
+            description: `Username already exists (${staff.username})`,
+          });
+          setIsSubmitting(false);
+          return;
+        }
+      }
+    
+      const { error: staffError } = await supabase
         .from("staff")
-        .select("*")
-        .eq("username", staff.username)
-        .neq("id", staff.id);
-
-      if (existUser?.length) {
+        .update({
+          firstName: staff.firstName,
+          lastName: staff.lastName,
+          email: staff.email,
+          username: staff.username,
+          password: staff.password !== "********" ? staff.password : undefined,
+          status: staff.status,
+          image: staff.image,
+          weeklyHours: staff.weeklyHours,
+        })
+        .eq("id", staff.id);
+    
+      if (staffError) {
         toast({
-          title: "Error!",
-          description: `Username already exists (${staff.username})`,
+          title: "Error",
+          description: "Error updating staff profile",
+          variant: "destructive",
         });
         setIsSubmitting(false);
         return;
       }
-    }
-  
-    const { error: staffError } = await supabase
-      .from("staff")
-      .update({
-        firstName: staff.firstName,
-        lastName: staff.lastName,
-        email: staff.email,
-        username: staff.username,
-        password: staff.password !== "********" ? staff.password : undefined,
-        status: staff.status,
-        image: staff.image,
-        weeklyHours: staff.weeklyHours,
-      })
-      .eq("id", staff.id);
-  
-    if (staffError) {
+
+      const { data: existingItems } = await supabase
+        .from("staff_services")
+        .select("service_id")
+        .eq("staff_id", staff.id);
+    
+      const existingIds = existingItems?.map((item) => item.service_id);
+      const toAdd = selectedServices.filter((id) => !existingIds?.includes(id));
+      const toDelete = existingIds!.filter((id) => !selectedServices.includes(id));
+    
+      if (toAdd.length > 0) {
+        await supabase
+          .from("staff_services")
+          .insert(toAdd.map((service_id) => ({ staff_id: staff.id, service_id })));
+      }
+    
+      if (toDelete.length > 0) {
+        await supabase
+          .from("staff_services")
+          .delete()
+          .in("service_id", toDelete)
+          .eq("staff_id", staff.id);
+      }
+    
+      if (staffImage) {
+        await supabase.storage
+          .from("staff")
+          .upload(staff.image, staffImage, {
+            cacheControl: '3600',
+            upsert: true
+          });
+      }
+    
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
       toast({
         title: "Error",
-        description: "Error updating staff profile",
-        variant: "destructive",
+        description: "Failed to update profile",
+        variant: "destructive"
       });
+    }
+    finally {
       setIsSubmitting(false);
-      return;
     }
 
-    const { data: existingItems } = await supabase
-      .from("staff_services")
-      .select("service_id")
-      .eq("staff_id", staff.id);
-  
-    const existingIds = existingItems?.map((item) => item.service_id);
-    const toAdd = selectedServices.filter((id) => !existingIds?.includes(id));
-    const toDelete = existingIds!.filter((id) => !selectedServices.includes(id));
-  
-    if (toAdd.length > 0) {
-      await supabase
-        .from("staff_services")
-        .insert(toAdd.map((service_id) => ({ staff_id: staff.id, service_id })));
-    }
-  
-    if (toDelete.length > 0) {
-      await supabase
-        .from("staff_services")
-        .delete()
-        .in("service_id", toDelete)
-        .eq("staff_id", staff.id);
-    }
-  
-    if (staffImage) {
-      await supabase.storage
-        .from("staff")
-        .upload(staff.image, staffImage, {
-          cacheControl: '3600',
-          upsert: true
-        });
-    }
-  
-    toast({
-      title: "Success",
-      description: "Profile updated successfully",
-    });
-  
-    setIsSubmitting(false);
   };
 
   useEffect(() => {
@@ -275,6 +334,7 @@ export default function MyAccount() {
       setOriginalStaff(staffData);
       setCurrentUsername(staffData?.username);
       setSelectedServices(staffData?.services.map((s: ServiceType) => s.service.id));
+      setOldPassword(staffData?.password);
     };
 
     supabase
