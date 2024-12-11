@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   CircleUser,
   Menu,
@@ -104,6 +104,11 @@ const Loading = () => {
 const UserDropdownContent = ({ user }: { user: User | null | undefined }) => {
   const { t } = useLocale();
   const { setTheme } = useTheme();
+  const router = useRouter();
+
+  const handleSupportClick = () => {
+    window.location.href = "mailto:info@softsidedigital.com";
+  };
 
   return (
     <DropdownMenuContent align="end">
@@ -121,8 +126,12 @@ const UserDropdownContent = ({ user }: { user: User | null | undefined }) => {
         {t("theme.system")}
       </DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem>{t("common.settings")}</DropdownMenuItem>
-      <DropdownMenuItem>{t("common.support")}</DropdownMenuItem>
+      <DropdownMenuItem onClick={() => window.location.href ="/admin/my-account"}>
+        {t("common.settings")}
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={handleSupportClick}>
+        {t("common.support")}
+      </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuItem onClick={() => logout()}>
         {t("auth.logout")}
