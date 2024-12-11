@@ -351,7 +351,10 @@ export default function Home() {
                 transition={{ duration: 1, delay: 0.5 }}
                 className="text-2xl sm:text-3xl mb-10"
               >
-                {t('hero.subtitle')}
+                {t('hero.subtitle.part1')}
+                <span className="dark:bg-gradient-to-r dark:from-gray-500 dark:via-white dark:to-gray-500 bg-gradient-to-r from-black via-gray-200 to-black animate-gradient bg-[length:200%_100%] bg-clip-text text-transparent">
+                  {t('hero.subtitle.part2')}
+                </span>
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 50 }}

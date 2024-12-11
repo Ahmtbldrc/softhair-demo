@@ -367,7 +367,10 @@
   },
   "hero": {
     "title": "Royal Team",
-    "subtitle": "Your Style, Our Passion"
+    "subtitle": {
+      "part1": "Your Style, ",
+      "part2": "Our Passion"
+    }
   },
   "footer": {
     "slogan": "Your hairdresser for the perfect look",
