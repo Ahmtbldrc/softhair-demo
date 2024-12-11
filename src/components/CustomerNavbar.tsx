@@ -94,7 +94,7 @@ const Navbar = () => {
           <Image
             src="/image/Logo-2007.png"
             alt="Royal Team Logo"
-            width={150}
+            width={120}
             height={50}
             className="object-contain"
             priority
