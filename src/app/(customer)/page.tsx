@@ -14,6 +14,7 @@ import { useLocale } from '@/contexts/LocaleContext'
 import Link from 'next/link'
 import { Service } from '@/lib/types'
 import { supabase } from '@/lib/supabase'
+import { Scissors, Palette, Brush, Sparkles, Heart } from 'lucide-react'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -319,12 +320,12 @@ export default function Home() {
   }, [mounted]) // mounted'i dependency olarak ekledik
 
   const services = [
-    { icon: '✂️', key: 'haircut' },
-    { icon: '🎨', key: 'coloring' },
-    { icon: '💇', key: 'styling' },
-    { icon: '💆', key: 'treatments' },
-    { icon: '👰', key: 'bridal' },
-    { icon: '🧔', key: 'beard' }
+    { icon: Scissors, key: 'haircut' },
+    { icon: Palette, key: 'coloring' },
+    { icon: Brush, key: 'styling' },
+    { icon: Sparkles, key: 'treatments' },
+    { icon: Heart, key: 'bridal' },
+    { icon: Scissors, key: 'beard' }
   ]
 
   if (!mounted) {
@@ -401,7 +402,12 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {services.map((service, index) => (
               <Card key={index} className="service-card neon-card p-6 bg-black">
-                <div className="text-4xl mb-4">{service.icon}</div>
+                <div className="text-4xl mb-4">
+                  {React.createElement(service.icon, { 
+                    size: 40,
+                    className: "mx-auto" 
+                  })}
+                </div>
                 <h3 className="text-xl font-bold mb-2 metal-text">
                   {t(`services.${service.key}.title`)}
                 </h3>
