@@ -211,19 +211,19 @@ export default function AddStaff() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (staff.services.length === 0) {
+    if (usernameError || emailError) {
       toast({
         title: "Error!",
-        description: t("admin-staff-add.selectAtLeastOneService"),
+        description: t("admin-staff-add.validationError"),
         variant: "destructive",
       });
       return;
     }
 
-    if (usernameError || emailError) {
+    if (staff.services.length === 0) {
       toast({
         title: "Error!",
-        description: t("admin-staff-add.validationError"),
+        description: t("admin-staff-add.selectAtLeastOneService"),
         variant: "destructive",
       });
       return;

@@ -178,8 +178,8 @@
     "confirmDiscard": "Ja, verwerfen",
     "cancelDiscard": "Nein, weiter bearbeiten",
     "usernameExists": "Dieser Benutzername ist bereits vergeben",
-    "emailExists": "Diese E-Mail ist bereits registriert",
-    "validationError": "Bitte beheben Sie die Validierungsfehler, bevor Sie fortfahren",
+    "emailExists": "Diese E-Mail-Adresse ist bereits registriert",
+    "validationError": "Bitte beheben Sie die Validierungsfehler vor dem Absenden",
     "selectAtLeastOneService": "Bitte wählen Sie mindestens einen Service aus"
   },
   "admin-services":{
