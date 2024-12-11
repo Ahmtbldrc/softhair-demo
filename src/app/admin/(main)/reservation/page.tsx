@@ -386,165 +386,173 @@ export default function AppointmentCalendar() {
           <DialogTrigger asChild>
             <Button>{t('admin-reservation.newReservation')}</Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[800px]">
+          <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col overflow-hidden">
             <DialogHeader>
               <DialogTitle>{t('admin-reservation.newReservation')}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">{t('admin-reservation.customerInformation')}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName">{t('admin-reservation.firstName')}</Label>
-                    <Input
-                      id="firstName"
-                      value={newReservation.customer.firstName}
-                      onChange={(e) => setNewReservation({...newReservation, customer: {...newReservation.customer, firstName: e.target.value}})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName">{t('admin-reservation.lastName')}</Label>
-                    <Input
-                      id="lastName"
-                      value={newReservation.customer.lastName}
-                      onChange={(e) => setNewReservation({...newReservation, customer: {...newReservation.customer, lastName: e.target.value}})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">{t('admin-reservation.email')}</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={newReservation.customer.email}
-                      onChange={(e) => setNewReservation({...newReservation, customer: {...newReservation.customer, email: e.target.value}})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">{t('admin-reservation.phone')}</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={newReservation.customer.phone}
-                      onChange={(e) => setNewReservation({...newReservation, customer: {...newReservation.customer, phone: e.target.value}})}
-                    />
+            
+            <ScrollArea className="flex-1 px-4">
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">{t('admin-reservation.customerInformation')}</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="firstName">{t('admin-reservation.firstName')}</Label>
+                      <Input
+                        id="firstName"
+                        value={newReservation.customer.firstName}
+                        onChange={(e) => setNewReservation({...newReservation, customer: {...newReservation.customer, firstName: e.target.value}})}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName">{t('admin-reservation.lastName')}</Label>
+                      <Input
+                        id="lastName"
+                        value={newReservation.customer.lastName}
+                        onChange={(e) => setNewReservation({...newReservation, customer: {...newReservation.customer, lastName: e.target.value}})}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">{t('admin-reservation.email')}</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={newReservation.customer.email}
+                        onChange={(e) => setNewReservation({...newReservation, customer: {...newReservation.customer, email: e.target.value}})}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="phone">{t('admin-reservation.phone')}</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={newReservation.customer.phone}
+                        onChange={(e) => setNewReservation({...newReservation, customer: {...newReservation.customer, phone: e.target.value}})}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div>
-                <Label htmlFor="service">{t('admin-reservation.selectService')}</Label>
-                <Select 
-                  onValueChange={(value) => {
-                    setNewReservation({...newReservation, serviceId: Number(value), staffId: null, start: null})
-                  }}
-                >
-                  <SelectTrigger id="service">
-                    <SelectValue placeholder={t('admin-reservation.selectService')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {services.map((service) => (
-                      <SelectItem key={service.id} value={service.id.toString()}>
-                        {service.name} ({service.price} CHF)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {newReservation.serviceId && (
                 <div>
-                  <Label>{t('admin-reservation.selectStaff')}</Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-2">
-                    {staffMembers
-                      .filter(staffMember => 
-                        staffMember.status && 
-                        staffMember.services.some(s => s.service.id === newReservation.serviceId)
-                      )
-                      .map((staffMember) => (
-                        <Card 
-                          key={staffMember.id} 
-                          className={`cursor-pointer transition-all ${newReservation.staffId === staffMember.id ? 'ring-2 ring-primary' : ''}`}
-                          onClick={() => {
-                            setNewReservation({...newReservation, staffId: staffMember.id, start: null})
-                          }}
-                        >
-                          <CardContent className="flex flex-col items-center p-4">
-                            <Image
-                              src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staffMember.image}`}
-                              alt={`${staffMember.firstName} ${staffMember.lastName}`}
-                              width={100}
-                              height={100}
-                              className="rounded-md mb-2"
-                              unoptimized
-                              onError={(e) => {
-                                e.currentTarget.src = "https://www.gravatar.com/avatar/000?d=mp&f=y";
-                              }}
-                            />
-                            <p className="text-center text-sm">{`${staffMember.firstName} ${staffMember.lastName}`}</p>
+                  <Label htmlFor="service">{t('admin-reservation.selectService')}</Label>
+                  <Select 
+                    onValueChange={(value) => {
+                      setNewReservation({...newReservation, serviceId: Number(value), staffId: null, start: null})
+                    }}
+                  >
+                    <SelectTrigger id="service">
+                      <SelectValue placeholder={t('admin-reservation.selectService')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {services.map((service) => (
+                        <SelectItem key={service.id} value={service.id.toString()}>
+                          {service.name} ({service.price} CHF)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {newReservation.serviceId && (
+                  <div>
+                    <Label>{t('admin-reservation.selectStaff')}</Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-2">
+                      {staffMembers
+                        .filter(staffMember => 
+                          staffMember.status && 
+                          staffMember.services.some(s => s.service.id === newReservation.serviceId)
+                        )
+                        .map((staffMember) => (
+                          <Card 
+                            key={staffMember.id} 
+                            className={`cursor-pointer transition-all ${newReservation.staffId === staffMember.id ? 'ring-2 ring-primary' : ''}`}
+                            onClick={() => {
+                              setNewReservation({...newReservation, staffId: staffMember.id, start: null})
+                            }}
+                          >
+                            <CardContent className="flex flex-col items-center p-4">
+                              <Image
+                                src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staffMember.image}`}
+                                alt={`${staffMember.firstName} ${staffMember.lastName}`}
+                                width={100}
+                                height={100}
+                                className="rounded-md mb-2"
+                                unoptimized
+                                onError={(e) => {
+                                  e.currentTarget.src = "https://www.gravatar.com/avatar/000?d=mp&f=y";
+                                }}
+                              />
+                              <p className="text-center text-sm">{`${staffMember.firstName} ${staffMember.lastName}`}</p>
+                            </CardContent>
+                          </Card>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {newReservation.serviceId && newReservation.staffId && (
+                  <div className="mt-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
+                      <Button onClick={handlePrevWeek} className="mb-2 sm:mb-0">&lt; {t('admin-reservation.previousWeek')}</Button>
+                      <h2 className="text-lg font-semibold text-center">
+                        {format(weekStart, 'MMM d, yyyy')} - {format(weekEnd, 'MMM d, yyyy')}
+                      </h2>
+                      <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">{t('admin-reservation.nextWeek')} &gt;</Button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 select-none">
+                      {days.map((day) => (
+                        <Card key={day.toString()} className="p-2">
+                          <CardHeader className="p-2">
+                            <CardTitle className="text-sm">{format(day, 'EEE')}</CardTitle>
+                            <p className="text-xs text-muted-foreground">{format(day, 'MMM d')}</p>
+                          </CardHeader>
+                          <CardContent className="p-2">
+                            <ScrollArea className="h-32 sm:h-40">
+                              {newReservation.staffId && isStaffWorkingOnDay(newReservation.staffId, day) ? (
+                                getAvailableTimesForDay(day).map(({ time, available }) => {
+                                  const isPastDateTime = time < new Date()
+                                  const isFutureDateTime = time > addDays(new Date(), 14)
+                                  return (
+                                    <Button
+                                      key={time.toISOString()}
+                                      variant="outline"
+                                      className={`w-full mb-1 ${
+                                        isPastDateTime || isFutureDateTime
+                                          ? 'line-through text-muted-foreground hover:no-underline cursor-not-allowed'
+                                          : available 
+                                            ? newReservation.start &&
+                                              isSameDay(newReservation.start, time) &&
+                                              newReservation.start.getTime() === time.getTime()
+                                              ? 'bg-green-500 text-white hover:bg-green-600'
+                                              : 'hover:bg-green-100'
+                                            : 'bg-red-100 cursor-not-allowed'
+                                      }`}
+                                      onClick={() => !isPastDateTime && !isFutureDateTime && available && setNewReservation({
+                                        ...newReservation,
+                                        start: time,
+                                      })}
+                                      disabled={isPastDateTime || isFutureDateTime || !available}
+                                    >
+                                      {format(time, 'HH:mm')}
+                                    </Button>
+                                  )
+                                })
+                              ) : (
+                                <p className="text-xs text-muted-foreground">{t('admin-reservation.notAvailable')}</p>
+                              )}
+                            </ScrollArea>
                           </CardContent>
                         </Card>
                       ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-            {newReservation.serviceId && newReservation.staffId && (
-              <div className="mt-6">
-                <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
-                  <Button onClick={handlePrevWeek} className="mb-2 sm:mb-0">&lt; {t('admin-reservation.previousWeek')}</Button>
-                  <h2 className="text-lg font-semibold text-center">
-                    {format(weekStart, 'MMM d, yyyy')} - {format(weekEnd, 'MMM d, yyyy')}
-                  </h2>
-                  <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">{t('admin-reservation.nextWeek')} &gt;</Button>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 select-none">
-                  {days.map((day) => (
-                    <Card key={day.toString()} className="p-2">
-                      <CardHeader className="p-2">
-                        <CardTitle className="text-sm">{format(day, 'EEE')}</CardTitle>
-                        <p className="text-xs text-muted-foreground">{format(day, 'MMM d')}</p>
-                      </CardHeader>
-                      <CardContent className="p-2">
-                        <ScrollArea className="h-32 sm:h-40">
-                          {newReservation.staffId && isStaffWorkingOnDay(newReservation.staffId, day) ? (
-                            getAvailableTimesForDay(day).map(({ time, available }) => {
-                              const isPastDateTime = time < new Date()
-                              const isFutureDateTime = time > addDays(new Date(), 14)
-                              return (
-                                <Button
-                                  key={time.toISOString()}
-                                  variant="outline"
-                                  className={`w-full mb-1 ${
-                                    isPastDateTime || isFutureDateTime
-                                      ? 'line-through text-muted-foreground hover:no-underline cursor-not-allowed'
-                                      : available 
-                                        ? newReservation.start &&
-                                          isSameDay(newReservation.start, time) &&
-                                          newReservation.start.getTime() === time.getTime()
-                                          ? 'bg-green-500 text-white hover:bg-green-600'
-                                          : 'hover:bg-green-100'
-                                        : 'bg-red-100 cursor-not-allowed'
-                                  }`}
-                                  onClick={() => !isPastDateTime && !isFutureDateTime && available && setNewReservation({
-                                    ...newReservation,
-                                    start: time,
-                                  })}
-                                  disabled={isPastDateTime || isFutureDateTime || !available}
-                                >
-                                  {format(time, 'HH:mm')}
-                                </Button>
-                              )
-                            })
-                          ) : (
-                            <p className="text-xs text-muted-foreground">{t('admin-reservation.notAvailable')}</p>
-                          )}
-                        </ScrollArea>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                )}
               </div>
-            )}
-            <DialogFooter>
-              <Button onClick={() => setIsConfirmDialogOpen(true)} disabled={!newReservation.start || !newReservation.customer.firstName || !newReservation.customer.lastName || !newReservation.customer.email || !newReservation.customer.phone}>
+            </ScrollArea>
+
+            <DialogFooter className="mt-4 px-4 py-2">
+              <Button 
+                onClick={() => setIsConfirmDialogOpen(true)} 
+                disabled={!newReservation.start || !newReservation.customer.firstName || !newReservation.customer.lastName || !newReservation.customer.email || !newReservation.customer.phone}
+              >
                 {t('admin-reservation.bookAppointment')}
               </Button>
             </DialogFooter>
