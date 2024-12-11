@@ -1006,6 +1006,7 @@ export default function AppointmentCalendar() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-2">
                     {staffMembers
                       .filter(staffMember => 
+                        staffMember.status && 
                         staffMember.services.some(s => s.service.id === newReservation.serviceId)
                       )
                       .map((staffMember) => (
