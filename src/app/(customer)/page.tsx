@@ -36,7 +36,7 @@ function BarberChair() {
     })
   }, [scene])
 
-  useFrame((_state: any, delta: number) => {
+  useFrame((_state, delta: number) => {
     if (meshRef.current) {
       meshRef.current.rotation.y -= delta * 0.3
     }

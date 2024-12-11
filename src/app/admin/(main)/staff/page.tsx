@@ -61,17 +61,54 @@ export default function StaffPage() {
   );
 
   useEffect(() => {
-    supabase
-      .from("staff")
-      .select("*, services:staff_services(service:service_id(id, name))")
-      .then(({ data, error }) => {
-        if (error) {
-          console.error(error);
-        } else {
-          setStaff(data);
-          setIsLoading(false);
+    const fetchStaff = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          return;
         }
-      });
+
+        const { data, error } = await supabase
+          .from("staff")
+          .select(`
+            id,
+            firstName,
+            lastName,
+            email,
+            image,
+            status,
+            services:staff_services (
+              service:service_id (
+                id,
+                name
+              )
+            )
+          `)
+          .neq("userId", session.user.id)
+          .order('status', { ascending: false })
+          .order('firstName', { ascending: true });
+
+        if (error) {
+          console.error('Error fetching staff:', error);
+          return;
+        }
+
+        setStaff((data || []).map(staff => ({
+          ...staff,
+          username: '',
+          password: '',
+          userId: '',
+          weeklyHours: {}
+        }) as unknown as StaffType));
+      } catch (error) {
+        console.error('Error in fetchStaff:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStaff();
   }, []);
 
   return (

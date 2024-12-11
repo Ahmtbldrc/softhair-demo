@@ -36,46 +36,8 @@ import Image from 'next/image'
 import { deleteReservation } from '@/lib/services/reservation.service'
 import useMail from '@/hooks/use-mail'
 import { useLocale } from '@/contexts/LocaleContext'
+import { Reservation, Service, Staff } from '@/lib/types'
 
-
-type Staff = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  image: string;
-  email: string;
-  status: boolean; // true: active, false: passive
-  weeklyHours: {
-    [key: string]: { start: string; end: string }[];
-  };
-  services: {
-    service: {
-      id: number;
-      name: string;
-    };
-  }[];
-}
-
-type Service = {
-  id: number;
-  name: string;
-  price: number;
-  duration: number;
-}
-
-type Reservation = {
-  id: number;
-  serviceId: number;
-  start: Date;
-  end: Date;
-  staffId: number;
-  customer: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-  };
-}
 
 export default function AppointmentCalendar() {
   const {t} = useLocale();

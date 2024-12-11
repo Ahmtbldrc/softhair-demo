@@ -40,8 +40,40 @@ export enum AnalyticType {
   MONTHLY = 'monthly'
 }
 
-export interface Service {
+export type Staff = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  image: string;
+  email: string;
+  status: boolean; // true: active, false: passive
+  weeklyHours: {
+    [key: string]: { start: string; end: string }[];
+  };
+  services: {
+    service: {
+      id: number;
+      name: string;
+    };
+  }[];
+}
+
+export type Service = {
   id: number;
   name: string;
   price: number;
+}
+
+export type Reservation = {
+  id: number;
+  serviceId: number;
+  start: Date;
+  end: Date;
+  staffId: number;
+  customer: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
 }
