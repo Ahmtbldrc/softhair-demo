@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF, OrbitControls, Environment } from '@react-three/drei'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -19,6 +19,7 @@ gsap.registerPlugin(ScrollTrigger)
 
 function BarberChair() {
   const { scene } = useGLTF('/models/barber-chair.glb')
+  const meshRef = useRef<THREE.Group | null>(null)
 
   useEffect(() => {
     scene.traverse((child) => {
@@ -35,7 +36,22 @@ function BarberChair() {
     })
   }, [scene])
 
-  return <primitive object={scene} scale={0.003} position={[0, 0, 0]} rotation={[0, Math.PI / 4, 0]} />
+  useFrame((_state: any, delta: number) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.y -= delta * 0.3
+    }
+  })
+
+  return (
+    <group ref={meshRef}>
+      <primitive 
+        object={scene} 
+        scale={0.005} 
+        position={[0, -1, 0]} 
+        rotation={[0, Math.PI, 0]} 
+      />
+    </group>
+  )
 }
 
 useGLTF.preload('/models/barber-chair.glb')
@@ -317,15 +333,15 @@ export default function Home() {
 
   return (
     <div className="bg-black text-white">
-      <section ref={heroRef} className="min-h-screen relative flex items-center">
+      <section ref={heroRef} className="min-h-screen relative flex items-center pt-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-            <div className="hero-content w-full lg:w-1/2 text-center lg:text-left mb-8 lg:mb-0">
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-16">
+            <div className="hero-content w-full lg:w-1/2 text-center lg:text-left mb-8 lg:mb-0 lg:pl-32">
               <motion.h1
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1 }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 metal-text"
+                className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 metal-text"
               >
                 {t('hero.title')}
               </motion.h1>
@@ -333,7 +349,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.5 }}
-                className="text-xl sm:text-2xl mb-8"
+                className="text-2xl sm:text-3xl mb-10"
               >
                 {t('hero.subtitle')}
               </motion.p>
@@ -343,7 +359,7 @@ export default function Home() {
                 transition={{ duration: 1, delay: 1 }}
                 className="flex justify-center lg:justify-start"
               >
-                <Button size="lg" asChild>
+                <Button size="lg" className="text-lg px-8 py-6" asChild>
                   <Link href="/newReservation">
                     {t('common.bookAppointment')}
                   </Link>
@@ -351,8 +367,8 @@ export default function Home() {
               </motion.div>
             </div>
 
-            <div className="w-full lg:w-1/2 h-[300px] sm:h-[400px] lg:h-[500px] relative">
-              <Canvas>
+            <div className="w-full lg:w-1/2 h-[400px] sm:h-[500px] lg:h-[600px] relative">
+              <Canvas camera={{ position: [0, 0, 12], fov: 40 }}>
                 <ambientLight intensity={0.5} />
                 <pointLight position={[10, 10, 10]} intensity={1} />
                 <spotLight
@@ -364,7 +380,13 @@ export default function Home() {
                 />
                 <Environment preset="studio" />
                 <BarberChair />
-                <OrbitControls enableZoom={false} />
+                <OrbitControls 
+                  enableZoom={false}
+                  enablePan={false}
+                  enableRotate={true}
+                  minPolarAngle={Math.PI / 3}
+                  maxPolarAngle={Math.PI / 2}
+                />
               </Canvas>
             </div>
           </div>
@@ -433,7 +455,7 @@ export default function Home() {
             {prices.map((price) => (
               <li key={price.id} className="price-item flex justify-between items-center border-b border-gray-800 pb-2">
                 <span>{price.name}</span>
-                <span className="font-bold metal-text">{price.price}€</span>
+                <span className="font-bold metal-text">{price.price}</span>
               </li>
             ))}
           </ul>
