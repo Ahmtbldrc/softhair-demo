@@ -1024,6 +1024,9 @@ export default function AppointmentCalendar() {
                               height={100}
                               className="rounded-md mb-2"
                               unoptimized
+                              onError={(e) => {
+                                e.currentTarget.src = "https://www.gravatar.com/avatar/000?d=mp&f=y";
+                              }}
                             />
                             <p className="text-center text-sm">{`${staffMember.firstName} ${staffMember.lastName}`}</p>
                           </CardContent>
