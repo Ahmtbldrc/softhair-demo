@@ -246,7 +246,7 @@ export default function Team() {
             <div className="w-full lg:w-1/2">
               <div className="relative aspect-[4/3] w-full">
                 <Image 
-                  src="/placeholder.svg?height=400&width=600" 
+                  src="/image/team-1.jpg" 
                   alt="Team" 
                   fill
                   className="rounded-lg neon-card object-cover"

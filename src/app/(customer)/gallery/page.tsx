@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { gsap } from 'gsap'
@@ -11,19 +11,36 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 gsap.registerPlugin(ScrollTrigger)
 
 const images = [
-  '/placeholder.svg?height=300&width=300',
-  '/placeholder.svg?height=300&width=300',
-  '/placeholder.svg?height=300&width=300',
-  '/placeholder.svg?height=300&width=300',
-  '/placeholder.svg?height=300&width=300',
-  '/placeholder.svg?height=300&width=300',
-  '/placeholder.svg?height=300&width=300',
-  '/placeholder.svg?height=300&width=300',
-  '/placeholder.svg?height=300&width=300',
+  '/image/gallery/g-1.jpg',
+  '/image/gallery/g-2.jpg',
+  '/image/gallery/g-3.jpg',
+  '/image/gallery/g-4.jpg',
+  '/image/gallery/g-5.jpg',
+  '/image/gallery/g-6.jpg',
 ]
+
+const ITEMS_PER_PAGE = 6
 
 export default function Gallery() {
   const galleryRef = useRef(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  
+  // Toplam sayfa sayısını hesapla
+  const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE)
+  
+  // Mevcut sayfada gösterilecek görüntüleri hesapla
+  const getCurrentPageImages = () => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    const endIndex = startIndex + ITEMS_PER_PAGE
+    return images.slice(startIndex, endIndex)
+  }
+
+  // Sayfa değiştirme işlevi
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    // Sayfa değiştiğinde sayfanın üstüne scroll
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   useEffect(() => {
     const images = gsap.utils.toArray<HTMLElement>('.gallery-image')
@@ -71,7 +88,16 @@ export default function Gallery() {
         stagger: 0.1
       })
     }
-  }, [])
+  }, [currentPage]) // currentPage değiştiğinde efektleri yeniden uygula
+
+  // Pagination için sayfa numaralarını oluştur
+  const getPageNumbers = () => {
+    const pages = []
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i)
+    }
+    return pages
+  }
 
   return (
     <div className="bg-black text-white min-h-screen">
@@ -85,8 +111,8 @@ export default function Gallery() {
             &gt; Galerie
           </div>
           <div ref={galleryRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {images.map((src, index) => (
-              <Card key={index} className="gallery-image neon-card overflow-hidden">
+            {getCurrentPageImages().map((src, index) => (
+              <Card key={`${currentPage}-${index}`} className="gallery-image neon-card overflow-hidden">
                 <CardContent className="p-0">
                   <Image src={src} alt={`Gallery image ${index + 1}`} width={300} height={300} className="w-full h-auto" />
                 </CardContent>
@@ -97,22 +123,29 @@ export default function Gallery() {
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious href="#" />
+                  <PaginationPrevious 
+                    onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
                 </PaginationItem>
+                
+                {getPageNumbers().map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      onClick={() => handlePageChange(page)}
+                      isActive={currentPage === page}
+                      className="cursor-pointer"
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+
                 <PaginationItem>
-                  <PaginationLink href="#" isActive>1</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">2</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">3</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext href="#" />
+                  <PaginationNext 
+                    onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>

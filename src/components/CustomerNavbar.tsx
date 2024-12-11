@@ -12,6 +12,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLocale } from '@/contexts/LocaleContext'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { DialogTitle } from '@/components/ui/dialog'
+import Image from 'next/image'
 
 const Navbar = () => {
   const { currentLocale, changeLocale, t } = useLocale()
@@ -73,7 +74,14 @@ const Navbar = () => {
     return (
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-md">
         <div className="container mx-auto px-4 py-4">
-          <div className="text-2xl font-bold metal-text">Royal Team</div>
+          <Image
+            src="/image/Logo-2007.png"
+            alt="Royal Team Logo"
+            width={150}
+            height={50}
+            className="object-contain"
+            priority
+          />
         </div>
       </nav>
     )
@@ -82,8 +90,15 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-md transition-all duration-300">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold metal-text">
-          Royal Team
+        <Link href="/">
+          <Image
+            src="/image/Logo-2007.png"
+            alt="Royal Team Logo"
+            width={150}
+            height={50}
+            className="object-contain"
+            priority
+          />
         </Link>
 
         {/* Desktop Navigation */}
@@ -131,8 +146,15 @@ const Navbar = () => {
               <VisuallyHidden asChild>
                 <DialogTitle>{t('common.navigation')}</DialogTitle>
               </VisuallyHidden>
-              <Link href="/" className="text-2xl font-bold metal-text">
-                Royal Team
+              <Link href="/">
+                <Image
+                  src="/image/Logo-2007.png"
+                  alt="Royal Team Logo"
+                  width={120}
+                  height={40}
+                  className="object-contain"
+                  priority
+                />
               </Link>
             </SheetHeader>
 
