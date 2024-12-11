@@ -179,7 +179,8 @@
     "cancelDiscard": "Nein, weiter bearbeiten",
     "usernameExists": "Dieser Benutzername ist bereits vergeben",
     "emailExists": "Diese E-Mail ist bereits registriert",
-    "validationError": "Bitte beheben Sie die Validierungsfehler, bevor Sie fortfahren"
+    "validationError": "Bitte beheben Sie die Validierungsfehler, bevor Sie fortfahren",
+    "selectAtLeastOneService": "Bitte wählen Sie mindestens einen Service aus"
   },
   "admin-services":{
     "servicesDescription": "Dienstleistungsverwaltung",

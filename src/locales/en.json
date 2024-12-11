@@ -178,7 +178,8 @@
     "cancelDiscard": "No, keep editing",
     "usernameExists": "This username is already taken",
     "emailExists": "This email is already registered",
-    "validationError": "Please fix the validation errors before continuing"
+    "validationError": "Please fix the validation errors before continuing",
+    "selectAtLeastOneService": "Please select at least one service"
   },
   "admin-services":{
     "servicesDescription": "Services Management",

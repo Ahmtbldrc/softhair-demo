@@ -211,6 +211,15 @@ export default function AddStaff() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (staff.services.length === 0) {
+      toast({
+        title: "Error!",
+        description: t("admin-staff-add.selectAtLeastOneService"),
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (usernameError || emailError) {
       toast({
         title: "Error!",
@@ -393,6 +402,7 @@ export default function AddStaff() {
                           }}
                           onBlur={(e) => checkEmail(e.target.value)}
                           required
+                          minLength={5}
                         />
                         {emailError && (
                           <p className="mt-1 text-sm text-red-500">
@@ -415,6 +425,7 @@ export default function AddStaff() {
                           }}
                           onBlur={(e) => checkUsername(e.target.value)}
                           required
+                          minLength={3}
                         />
                         {usernameError && (
                           <p className="mt-1 text-sm text-red-500">
@@ -434,8 +445,8 @@ export default function AddStaff() {
                           onChange={(e) =>
                             setStaff({ ...staff, password: e.target.value })
                           }
-                          minLength={6}
                           required
+                          minLength={6}
                         />
                       </div>
                     </div>
@@ -636,6 +647,7 @@ export default function AddStaff() {
                       onValueChange={(value: string) =>
                         setStaff({ ...staff, status: value === "true" })
                       }
+                      required
                     >
                       <SelectTrigger>
                         <SelectValue placeholder={t("admin-staff-add.selectStatus")} />
