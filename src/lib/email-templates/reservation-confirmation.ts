@@ -1,7 +1,6 @@
 import { format } from 'date-fns';
 
 export const getReservationConfirmationTemplate = (
-  customerName: string,
   startDate: Date,
   serviceName: string,
   servicePrice: number,
@@ -116,7 +115,7 @@ export const getReservationConfirmationTemplate = (
 <tr>
 <td class="pad" style="padding-bottom:15px;padding-top:10px;">
 <div style="color:#ffffff;font-family:'Varela Round', 'Trebuchet MS', Helvetica, sans-serif;font-size:30px;line-height:120%;text-align:center;mso-line-height-alt:36px;">
-<p style="margin: 0; word-break: break-word;"><span style="word-break: break-word;">${customerName}, Ihr Termin wurde erstellt</span></p>
+<p style="margin: 0; word-break: break-word;"><span style="word-break: break-word;">Ihr Termin wurde erstellt</span></p>
 </div>
 </td>
 </tr>

@@ -64,6 +64,8 @@ import {
   getAdminReservationConfirmationTemplate,
   getAdminReservationCancellationTemplate
 } from '@/lib/email-templates'
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
 
 type Staff = {
   id: number;
@@ -331,7 +333,6 @@ export default function ReservationPage() {
           to: cancelledReservation.customer.email,
           subject: `${cancelledReservation.customer.firstName} ${cancelledReservation.customer.lastName} your appointment has been canceled`,
           html: getReservationCancellationTemplate(
-            `${cancelledReservation.customer.firstName} ${cancelledReservation.customer.lastName}`,
             cancelledReservation.start,
             service?.name || '',
             service?.price || 0,
@@ -481,7 +482,6 @@ export default function ReservationPage() {
         to: newReservation.customer.email,
         subject: `${newReservation.customer.firstName} Appointment Confirmation`,
        html: getReservationConfirmationTemplate(
-        `${newReservation.customer.firstName} ${newReservation.customer.lastName}`,
         newReservation.start!,
         service?.name || '',
         service?.price || 0,
@@ -496,7 +496,7 @@ export default function ReservationPage() {
         mail.sendMail({
           to: adminEmails.join(", "),
           subject: `${staffMember?.firstName} ${staffMember?.lastName} has a new appointment`,
-          html:getAdminReservationConfirmationTemplate( `${newReservation.customer.firstName} ${newReservation.customer.lastName}`,
+          html:getAdminReservationConfirmationTemplate(
             newReservation.start!,
             service?.name || '',
             service?.price || 0,
@@ -615,22 +615,36 @@ export default function ReservationPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="phone">
-                          {t("staff-reservation.phone")}
-                        </Label>
-                        <Input
-                          id="phone"
-                          type="tel"
+                        <Label htmlFor="phone">{t("staff-reservation.phone")}</Label>
+                        <PhoneInput
+                          country={'ch'}
                           value={newReservation.customer.phone}
-                          onChange={(e) =>
-                            setNewReservation({
-                              ...newReservation,
-                              customer: {
-                                ...newReservation.customer,
-                                phone: e.target.value,
-                              },
-                            })
-                          }
+                          onChange={(phone) => setNewReservation({
+                            ...newReservation, 
+                            customer: {
+                              ...newReservation.customer, 
+                              phone: phone
+                            }
+                          })}
+                          inputClass="!w-full !h-10 !text-base !border-input !bg-background !text-foreground"
+                          containerClass="!w-full"
+                          buttonClass="!h-10 !border-input !bg-background"
+                          dropdownClass="!bg-popover !text-foreground"
+                          searchClass="!bg-background !text-foreground"
+                          enableSearch={true}
+                          inputProps={{
+                            id: 'phone',
+                            required: true,
+                          }}
+                          inputStyle={{
+                            width: '100%',
+                            height: '40px',
+                            fontSize: '16px',
+                            borderRadius: '6px',
+                          }}
+                          buttonStyle={{
+                            borderRadius: '6px 0 0 6px',
+                          }}
                         />
                       </div>
                     </div>

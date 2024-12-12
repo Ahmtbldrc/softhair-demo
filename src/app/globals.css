@@ -51,7 +51,7 @@ body {
     --primary-foreground: 240 5.9% 10%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
+    --muted: 240 3.7% 12%;
     --muted-foreground: 240 5% 64.9%;
     --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
@@ -75,4 +75,58 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Phone Input Styles */
+.react-tel-input .form-control {
+  @apply w-full h-10 border-input bg-background text-foreground;
+}
+
+.react-tel-input .form-control:focus {
+  @apply ring-2 ring-ring ring-offset-2 ring-offset-background;
+}
+
+.react-tel-input .flag-dropdown {
+  @apply bg-background border-input;
+}
+
+.react-tel-input .selected-flag:hover,
+.react-tel-input .selected-flag:focus {
+  @apply dark:bg-[#121212] bg-muted;
+}
+
+.react-tel-input .country-list {
+  @apply bg-background text-foreground border-input;
+}
+
+.react-tel-input .country-list .country {
+  @apply bg-background text-foreground;
+}
+
+.react-tel-input .country-list .country:hover {
+  @apply dark:bg-[#121212] bg-muted text-foreground;
+}
+
+.react-tel-input .country-list .country.highlight {
+  @apply dark:bg-[#121212] bg-muted text-foreground;
+}
+
+.react-tel-input .country-list .search {
+  @apply bg-background text-foreground border-input;
+}
+
+.react-tel-input .country-list .search-box {
+  @apply bg-background text-foreground border-input;
+}
+
+.react-tel-input .country-list .country-name {
+  @apply text-foreground;
+}
+
+.react-tel-input .country-list .country-code {
+  @apply text-muted-foreground;
+}
+
+.react-tel-input .country-list .dial-code {
+  @apply text-muted-foreground;
 }
