@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   CircleUser,
   Menu,
@@ -104,7 +104,6 @@ const Loading = () => {
 const UserDropdownContent = ({ user }: { user: User | null | undefined }) => {
   const { t } = useLocale();
   const { setTheme } = useTheme();
-  const router = useRouter();
 
   const handleSupportClick = () => {
     window.location.href = "mailto:info@softsidedigital.com";

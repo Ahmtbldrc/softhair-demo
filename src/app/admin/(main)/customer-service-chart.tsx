@@ -157,7 +157,7 @@ export default function CustomerServiceChart() {
             <TabsTrigger value={AnalyticType.WEEKLY}>{t("customer-service.weekly")}</TabsTrigger>
             <TabsTrigger value={AnalyticType.MONTHLY}>{t("customer-service.monthly")}</TabsTrigger>
           </TabsList>
-          {Object.entries(chartData).map(([period, data]) => (
+          {Object.entries(chartData).map(([period]) => (
             <TabsContent key={period} value={period}>
               {renderChart()}
             </TabsContent>
