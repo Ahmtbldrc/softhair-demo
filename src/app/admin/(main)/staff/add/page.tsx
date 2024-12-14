@@ -10,6 +10,8 @@ import {
   CloudUpload,
   Loader2,
   Clock,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -94,6 +96,7 @@ export default function AddStaff() {
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [usernameError, setUsernameError] = useState<string>("");
   const [emailError, setEmailError] = useState<string>("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
 
@@ -437,17 +440,35 @@ export default function AddStaff() {
                         <Label htmlFor="password">
                           {t("admin-staff-add.password")}
                         </Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          className="w-full"
-                          value={staff.password}
-                          onChange={(e) =>
-                            setStaff({ ...staff, password: e.target.value })
-                          }
-                          required
-                          minLength={6}
-                        />
+                        <div className="relative flex items-center">
+                          <Input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            className="w-full pr-10"
+                            value={staff.password}
+                            onChange={(e) =>
+                              setStaff({ ...staff, password: e.target.value })
+                            }
+                            minLength={6}
+                            required
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 h-full px-3 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                            )}
+                            <span className="sr-only">
+                              {showPassword ? "Hide password" : "Show password"}
+                            </span>
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </CardContent>

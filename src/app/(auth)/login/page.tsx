@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Roles } from "@/lib/types";
 import LocaleToggle from "@/components/LocalToggle";
 import { useLocale } from "@/contexts/LocaleContext";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const { t } = useLocale();
@@ -22,10 +23,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const { toast } = useToast();
   const [mounted, setMounted] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -84,13 +90,32 @@ export default function LoginPage() {
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="password">{t("auth.password")}</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="********"
-                      required
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="********"
+                        required
+                        className="pr-10"
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full"
+                        onClick={togglePasswordVisibility}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                        <span className="sr-only">
+                          {showPassword ? "Hide password" : "Show password"}
+                        </span>
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
