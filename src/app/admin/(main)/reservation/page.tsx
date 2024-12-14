@@ -254,32 +254,27 @@ export default function AppointmentCalendar() {
 
     const availableTimes: { time: Date; available: boolean }[] = []
     const now = new Date()
-    const twoWeeksFromNow = addDays(now, 14)
+    const oneMonthFromNow = addDays(now, 30)
 
     workingHours.forEach(slot => {
       let currentTime = parse(slot.start, 'HH:mm', day)
       const endTime = parse(slot.end, 'HH:mm', day)
 
-      // Saatlik slotlar oluştur
       while (currentTime <= subMinutes(endTime, 60)) {
-        
-        // Sadece tam olarak bu slot saatinde rezervasyon var mı kontrol et
         const hasConflict = reservations.some((res) =>
           res.staffId === newReservation.staffId &&
           isSameDay(res.start, day) &&
           format(currentTime, "HH:mm") === format(new Date(res.start), "HH:mm")
         )
 
-        // Geçmiş tarih/saat ve gelecek tarih kontrolü
         const isPastDateTime = currentTime < now
-        const isFutureDateTime = currentTime > twoWeeksFromNow
+        const isFutureDateTime = currentTime > oneMonthFromNow
 
         availableTimes.push({
           time: new Date(currentTime),
           available: !hasConflict && !isPastDateTime && !isFutureDateTime
         })
 
-        // Bir sonraki saate geç
         currentTime = addMinutes(currentTime, 60)
       }
     })
@@ -533,7 +528,7 @@ export default function AppointmentCalendar() {
                               {newReservation.staffId && isStaffWorkingOnDay(newReservation.staffId, day) ? (
                                 getAvailableTimesForDay(day).map(({ time, available }) => {
                                   const isPastDateTime = time < new Date()
-                                  const isFutureDateTime = time > addDays(new Date(), 14)
+                                  const isFutureDateTime = time > addDays(new Date(), 30)
                                   return (
                                     <Button
                                       key={time.toISOString()}
