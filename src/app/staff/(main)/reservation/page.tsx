@@ -190,7 +190,15 @@ export default function ReservationPage() {
   }, [currentDate, user]);
 
   const fetchServices = async () => {
-    const { data, error } = await supabase.from("services").select("*");
+    const { data: { user } } = await supabase.auth.getUser();
+    const selectedBranchId = user?.user_metadata?.selectedBranchId;
+
+    const { data, error } = await supabase
+      .from("services")
+      .select("*")
+      .eq('status', true)
+      .eq('branchId', selectedBranchId);
+
     if (error) {
       console.error("Error fetching services:", error);
       toast({

@@ -40,8 +40,14 @@ export default function Services() {
   const itemsPerPage = 5;
 
   const getServices = async () => {
-    const { data } = await supabase.from("services").select("*");
-    console.log(data);
+    const { data: { user } } = await supabase.auth.getUser();
+    const selectedBranchId = user?.user_metadata?.selectedBranchId;
+
+    const { data } = await supabase
+      .from("services")
+      .select("*")
+      .eq('status', true)
+      .eq('branchId', selectedBranchId);
     return data;
   };
 
@@ -55,6 +61,8 @@ export default function Services() {
   const [newService, setNewService] = useState<Omit<Service, "id">>({
     name: "",
     price: 0,
+    status: true,
+    branchId: 1,
   });
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -74,10 +82,27 @@ export default function Services() {
     }
     setIsLoading(true);
     setTimeout(async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      const selectedBranchId = user?.user_metadata?.selectedBranchId;
+
+      if (!selectedBranchId) {
+        toast({
+          title: "Error",
+          description: "Branch information not found",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
 
       const { error } = await supabase
-      .from('services')
-      .insert({ price: newService.price, name: newService.name });
+        .from('services')
+        .insert({ 
+          price: newService.price, 
+          name: newService.name,
+          branchId: selectedBranchId,
+          status: true
+        });
 
       if (error) {
         toast({
@@ -85,6 +110,7 @@ export default function Services() {
           description: error.message,
           variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
     
@@ -94,16 +120,17 @@ export default function Services() {
           ...newService,
           id: Date.now(),
           price: Number(newService.price.toFixed(2)),
+          branchId: selectedBranchId
         },
       ]);
-      setNewService({ name: "", price: 0 });
+      setNewService({ name: "", price: 0, status: true, branchId: 1 });
       setIsAddDialogOpen(false);
       setIsLoading(false);
       toast({
         title: "Success",
         description: "Service added successfully.",
       });
-    }, 500); // Simulating API call
+    }, 500);
   };
 
   const handleEditService = () => {
@@ -153,19 +180,21 @@ export default function Services() {
     if (serviceToDelete) {
       setIsLoading(true);
       setTimeout(async () => {
-        const response = await supabase.from("services").delete().eq("id", serviceToDelete.id);
-        if (response.error) {
+        const { error: updateError } = await supabase
+          .from("services")
+          .update({ status: false })
+          .eq("id", serviceToDelete.id);
+
+        if (updateError) {
           toast({
             title: "Error",
-            description: response.error.message,
+            description: updateError.message,
             variant: "destructive",
           });
           return;
         }
 
-        setServices(
-          services.filter((service) => service.id !== serviceToDelete.id)
-        );
+        setServices(services.filter((service) => service.id !== serviceToDelete.id));
         setServiceToDelete(null);
         setIsDeleteDialogOpen(false);
         setIsLoading(false);
@@ -173,7 +202,7 @@ export default function Services() {
           title: "Success",
           description: "Service deleted successfully.",
         });
-      }, 500); // Simulating API call
+      }, 500);
     }
   };
 

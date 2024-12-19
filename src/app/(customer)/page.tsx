@@ -73,18 +73,20 @@ export default function Home() {
       const { data, error } = await supabase
         .from('services')
         .select('*')
-        .order('price', { ascending: true })
+        .eq('status', true)
+        .eq('branchId', 1)
+        .order('price', { ascending: true });
 
       if (error) {
-        console.error('Error fetching services:', error)
-        return
+        console.error('Error fetching services:', error);
+        return;
       }
 
-      setPrices(data || [])
-    }
+      setPrices(data || []);
+    };
 
-    fetchPrices()
-  }, [])
+    fetchPrices();
+  }, []);
 
   useEffect(() => {
     setMounted(true)
