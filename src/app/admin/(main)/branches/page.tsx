@@ -2,9 +2,9 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { PlusCircle, Search, DoorOpen, MoreVertical, Pencil, Trash2 } from "lucide-react"
+import { PlusCircle, Search, MoreVertical, Pencil, Trash2, DoorOpen } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import {
   DropdownMenu,
@@ -32,100 +32,174 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-
-// Örnek şube verisi
-const DUMMY_BRANCHES = [
-  { id: 1, name: "Kadıköy Şubesi", activeAppointments: 3 },
-  { id: 2, name: "Beşiktaş Şubesi", activeAppointments: 5 },
-  { id: 3, name: "Şişli Şubesi", activeAppointments: 2 },
-  { id: 4, name: "Bakırköy Şubesi", activeAppointments: 4 },
-]
+import { Branch } from "@/lib/types"
+import { getAllBranches, createBranch, updateBranch, deleteBranch } from "@/lib/services/branch.service"
+import { useLocale } from "@/contexts/LocaleContext"
+import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase"
 
 export default function BranchesPage() {
+  const { t } = useLocale()
+  const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
-  const [isLoading, setIsLoading] = useState<number | null>(null)
-  const [branches, setBranches] = useState(DUMMY_BRANCHES)
-  const [branchToDelete, setBranchToDelete] = useState<{ id: number, name: string } | null>(null)
-  const [branchToEdit, setBranchToEdit] = useState<{ id: number, name: string } | null>(null)
+  const [branches, setBranches] = useState<Branch[]>([])
+  const [branchToDelete, setBranchToDelete] = useState<Branch | null>(null)
+  const [branchToEdit, setBranchToEdit] = useState<Branch | null>(null)
   const [editedName, setEditedName] = useState("")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [newBranchName, setNewBranchName] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   const filteredBranches = branches.filter(branch =>
     branch.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const handleBranchClick = async (branchId: number) => {
-    setIsLoading(branchId)
-    
-    for(let i = 0; i < 3; i++) {
-      await new Promise(resolve => setTimeout(resolve, 500))
-    }
-    
-    setIsLoading(null)
-  }
+  useEffect(() => {
+    const fetchBranches = async () => {
+      setIsLoading(true);
+      try {
+        const data = await getAllBranches();
+        setBranches(data);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const handleEditClick = (branch: { id: number, name: string }) => {
+    fetchBranches();
+  }, []);
+
+  const handleEditClick = (branch: Branch) => {
     setBranchToEdit(branch)
     setEditedName(branch.name)
   }
 
-  const handleConfirmEdit = () => {
+  const handleConfirmEdit = async () => {
     if (branchToEdit && editedName.trim()) {
-      setBranches(prev => prev.map(branch => 
-        branch.id === branchToEdit.id 
-          ? { ...branch, name: editedName.trim() }
-          : branch
-      ))
-      toast({
-        title: "Başarılı",
-        description: "Şube bilgileri güncellendi",
-        variant: "default"
-      })
-      setBranchToEdit(null)
+      setIsLoading(true);
+      try {
+        const success = await updateBranch(branchToEdit.id, editedName);
+        
+        if (!success) {
+          toast({
+            title: "Error",
+            description: "Failed to update branch",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        setBranches(prev => prev.map(branch => 
+          branch.id === branchToEdit.id 
+            ? { ...branch, name: editedName.trim() }
+            : branch
+        ));
+
+        toast({
+          title: "Success",
+          description: "Branch updated successfully",
+          variant: "default"
+        });
+        setBranchToEdit(null);
+      } finally {
+        setIsLoading(false);
+      }
     }
   }
 
-  const handleDeleteClick = (branch: { id: number, name: string }) => {
+  const handleDeleteClick = (branch: Branch) => {
     setBranchToDelete(branch)
   }
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (branchToDelete) {
-      setBranches(prev => prev.filter(branch => branch.id !== branchToDelete.id))
-      toast({
-        title: "Başarılı",
-        description: "Şube başarıyla silindi",
-        variant: "default"
-      })
-      setBranchToDelete(null)
+      setIsLoading(true);
+      try {
+        const success = await deleteBranch(branchToDelete.id);
+
+        if (!success) {
+          toast({
+            title: "Error",
+            description: "Failed to delete branch",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        setBranches(prev => prev.filter(branch => branch.id !== branchToDelete.id));
+        toast({
+          title: "Success",
+          description: "Branch deleted successfully",
+          variant: "default"
+        });
+        setBranchToDelete(null);
+      } finally {
+        setIsLoading(false);
+      }
     }
   }
 
-  const handleAddBranch = () => {
+  const handleAddBranch = async () => {
     if (!newBranchName.trim()) {
       toast({
-        title: "Hata",
-        description: "Şube adı boş olamaz",
+        title: "Error",
+        description: "Branch name cannot be empty",
         variant: "destructive"
-      })
-      return
+      });
+      return;
     }
 
-    const newBranch = {
-      id: Math.max(...branches.map(b => b.id)) + 1,
-      name: newBranchName.trim(),
-      activeAppointments: 0
-    }
+    setIsLoading(true);
+    try {
+      const newBranch = await createBranch(newBranchName);
 
-    setBranches(prev => [...prev, newBranch])
-    setNewBranchName("")
-    setIsAddDialogOpen(false)
-    toast({
-      title: "Başarılı",
-      description: "Yeni şube başarıyla eklendi",
-      variant: "default"
-    })
+      if (!newBranch) {
+        toast({
+          title: "Error",
+          description: "Failed to add branch",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setBranches(prev => [...prev, newBranch]);
+      setNewBranchName("");
+      setIsAddDialogOpen(false);
+      toast({
+        title: "Success",
+        description: "Branch added successfully",
+        variant: "default"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const handleBranchClick = async (branchId: number) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { selectedBranchId: branchId }
+      });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to select branch",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Branch selected successfully",
+        variant: "default"
+      });
+
+      router.push("/admin");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -133,20 +207,21 @@ export default function BranchesPage() {
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="container mx-auto p-4 space-y-8">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Şubeler</h1>
+            <h1 className="text-2xl font-bold">{t('branches.title')}</h1>
             <Button 
               className="transition-all hover:scale-105"
               onClick={() => setIsAddDialogOpen(true)}
+              disabled={isLoading}
             >
               <PlusCircle className="mr-2 h-4 w-4" />
-              Yeni Şube Ekle
+              {t('branches.addNew')}
             </Button>
           </div>
 
           <div className="relative max-w-sm">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Şube ara..."
+              placeholder={t('branches.search')}
               className="pl-8"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -174,16 +249,18 @@ export default function BranchesPage() {
                         <DropdownMenuItem 
                           onClick={() => handleEditClick(branch)}
                           className="cursor-pointer"
+                          disabled={isLoading}
                         >
                           <Pencil className="mr-2 h-4 w-4" />
-                          <span>Düzenle</span>
+                          <span>{t('common.edit')}</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => handleDeleteClick(branch)}
                           className="cursor-pointer text-destructive focus:text-destructive"
+                          disabled={isLoading}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
-                          <span>Sil</span>
+                          <span>{t('common.delete')}</span>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -193,26 +270,18 @@ export default function BranchesPage() {
                     <h3 className="text-xl font-semibold text-gray-600 group-hover:text-primary transition-colors">
                       {branch.name}
                     </h3>
-                    
-                    {branch.activeAppointments > 0 && (
-                      <div className="mt-4 text-sm flex items-center gap-1 text-green-500 animate-pulse">
-                        <span className="h-2 w-2 rounded-full bg-green-500" />
-                        <span>
-                          {branch.activeAppointments} yeni bildirim
-                        </span>
-                      </div>
-                    )}
                   </div>
-                  
+
                   <div className="absolute bottom-4 right-4">
                     <Button 
                       variant="ghost" 
                       size="sm"
                       onClick={() => handleBranchClick(branch.id)}
+                      disabled={isLoading}
                       className="opacity-70 group-hover:opacity-100 transition-opacity"
                     >
                       <span className="flex items-center gap-2">
-                        şubeye git
+                        {t('branches.goto')}
                         <DoorOpen className="h-4 w-4" />
                       </span>
                     </Button>
@@ -224,7 +293,7 @@ export default function BranchesPage() {
 
           {filteredBranches.length === 0 && (
             <div className="text-center text-muted-foreground py-10">
-              Aranan kriterlere uygun şube bulunamadı.
+              {t('branches.noResults')}
             </div>
           )}
         </div>
@@ -233,20 +302,21 @@ export default function BranchesPage() {
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Yeni Şube Ekle</DialogTitle>
+            <DialogTitle>{t('branches.addNewTitle')}</DialogTitle>
             <DialogDescription>
-              Yeni şube bilgilerini giriniz.
+              {t('branches.addNewDescription')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="newBranchName">Şube Adı</Label>
+              <Label htmlFor="newBranchName">{t('branches.name')}</Label>
               <Input
                 id="newBranchName"
                 value={newBranchName}
                 onChange={(e) => setNewBranchName(e.target.value)}
-                placeholder="Şube adını giriniz"
+                placeholder={t('branches.namePlaceholder')}
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -258,14 +328,15 @@ export default function BranchesPage() {
                 setIsAddDialogOpen(false)
                 setNewBranchName("")
               }}
+              disabled={isLoading}
             >
-              İptal
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleAddBranch}
-              disabled={!newBranchName.trim()}
+              disabled={!newBranchName.trim() || isLoading}
             >
-              Ekle
+              {t('common.add')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -274,20 +345,21 @@ export default function BranchesPage() {
       <Dialog open={!!branchToEdit} onOpenChange={() => setBranchToEdit(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Şube Düzenle</DialogTitle>
+            <DialogTitle>{t('branches.editTitle')}</DialogTitle>
             <DialogDescription>
-              Şube bilgilerini güncelleyebilirsiniz.
+              {t('branches.editDescription')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Şube Adı</Label>
+              <Label htmlFor="name">{t('branches.name')}</Label>
               <Input
                 id="name"
                 value={editedName}
                 onChange={(e) => setEditedName(e.target.value)}
-                placeholder="Şube adını giriniz"
+                placeholder={t('branches.namePlaceholder')}
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -296,14 +368,15 @@ export default function BranchesPage() {
             <Button
               variant="outline"
               onClick={() => setBranchToEdit(null)}
+              disabled={isLoading}
             >
-              İptal
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleConfirmEdit}
-              disabled={!editedName.trim() || editedName === branchToEdit?.name}
+              disabled={!editedName.trim() || editedName === branchToEdit?.name || isLoading}
             >
-              Kaydet
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -314,16 +387,17 @@ export default function BranchesPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>{branchToDelete?.name}</AlertDialogTitle>
             <AlertDialogDescription>
-              Bu şubeyi silmek istediğinizden emin misiniz? Silinen şubelerin dataları ve kullanıcıları da kalıcı olarak silinmektedir.
+              {t('branches.deleteConfirmation')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>İptal</AlertDialogCancel>
+            <AlertDialogCancel disabled={isLoading}>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleConfirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isLoading}
             >
-              Sil
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

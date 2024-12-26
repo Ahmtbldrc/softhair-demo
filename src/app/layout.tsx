@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LocaleProvider } from "@/contexts/LocaleContext";
+import { BranchProvider } from "@/contexts/BranchContext";
 
 export const metadata: Metadata = {
   title: "SoftHair",
@@ -22,7 +23,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <LocaleProvider>{children}</LocaleProvider>
+          <LocaleProvider>
+            <BranchProvider>
+              {children}
+            </BranchProvider>
+          </LocaleProvider>
         </ThemeProvider>
       </body>
     </html>
