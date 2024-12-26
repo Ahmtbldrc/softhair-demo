@@ -51,6 +51,7 @@ export default function BranchesPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [newBranchName, setNewBranchName] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null)
 
   const filteredBranches = branches.filter(branch =>
     branch.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -242,10 +243,12 @@ export default function BranchesPage() {
                 <Card className={`p-6 relative h-80 group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 ${
                   contextSelectedBranchId === branch.id.toString()
                     ? 'border-primary bg-primary/5' 
-                    : 'hover:border-primary/20'
+                    : openDropdownId === branch.id 
+                      ? 'border-primary/20 shadow-lg -translate-y-1'
+                      : 'hover:border-primary/20'
                 }`}>
                   <div className="absolute top-4 right-4">
-                    <DropdownMenu>
+                    <DropdownMenu onOpenChange={(open) => setOpenDropdownId(open ? branch.id : null)}>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreVertical className="h-4 w-4" />
@@ -276,7 +279,9 @@ export default function BranchesPage() {
                     <h3 className={`text-xl font-semibold ${
                       contextSelectedBranchId === branch.id.toString()
                         ? 'text-primary' 
-                        : 'text-gray-600 group-hover:text-primary'
+                        : openDropdownId === branch.id
+                          ? 'text-primary'
+                          : 'text-gray-600 group-hover:text-primary'
                     } transition-colors`}>
                       {branch.name}
                     </h3>
