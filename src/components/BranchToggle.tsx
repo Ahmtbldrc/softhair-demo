@@ -12,16 +12,19 @@ import { useLocale } from "@/contexts/LocaleContext";
 import { useRouter } from "next/navigation";
 import { Settings } from "lucide-react";
 import { useBranch } from "@/contexts/BranchContext";
+import { useState } from "react";
 
 export default function BranchToggle() {
   const { t } = useLocale();
   const router = useRouter();
   const { branches, selectedBranchId, isLoading, updateSelectedBranch } = useBranch();
+  const [open, setOpen] = useState(false);
 
   const selectedBranch = branches.find(b => b.id.toString() === selectedBranchId);
 
   const handleValueChange = async (value: string) => {
     if (value === "manage") {
+      setOpen(false);
       router.push("/admin/branches");
       return;
     }
@@ -34,6 +37,8 @@ export default function BranchToggle() {
       value={selectedBranchId} 
       onValueChange={handleValueChange}
       disabled={isLoading}
+      open={open}
+      onOpenChange={setOpen}
     >
       <SelectTrigger className="w-[140px]">
         <SelectValue>
@@ -49,7 +54,10 @@ export default function BranchToggle() {
         <SelectSeparator className="my-1" />
         <div
           className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-          onClick={() => router.push("/admin/branches")}
+          onClick={() => {
+            setOpen(false);
+            router.push("/admin/branches");
+          }}
         >
           <Settings className="mr-2 h-4 w-4" />
           {t("branches.manage")}

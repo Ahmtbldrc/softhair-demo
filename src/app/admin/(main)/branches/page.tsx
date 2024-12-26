@@ -37,10 +37,12 @@ import { getAllBranches, createBranch, updateBranch, deleteBranch } from "@/lib/
 import { useLocale } from "@/contexts/LocaleContext"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
+import { useBranch } from "@/contexts/BranchContext"
 
 export default function BranchesPage() {
   const { t } = useLocale()
   const router = useRouter()
+  const { selectedBranchId: contextSelectedBranchId } = useBranch()
   const [searchTerm, setSearchTerm] = useState("")
   const [branches, setBranches] = useState<Branch[]>([])
   const [branchToDelete, setBranchToDelete] = useState<Branch | null>(null)
@@ -237,7 +239,11 @@ export default function BranchesPage() {
                 transition={{ duration: 0.3 }}
                 className="w-full max-w-[300px] mx-auto"
               >
-                <Card className="p-6 relative h-80 group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 hover:border-primary/20">
+                <Card className={`p-6 relative h-80 group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 ${
+                  contextSelectedBranchId === branch.id.toString()
+                    ? 'border-primary bg-primary/5' 
+                    : 'hover:border-primary/20'
+                }`}>
                   <div className="absolute top-4 right-4">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -267,7 +273,11 @@ export default function BranchesPage() {
                   </div>
 
                   <div className="flex flex-col h-full">
-                    <h3 className="text-xl font-semibold text-gray-600 group-hover:text-primary transition-colors">
+                    <h3 className={`text-xl font-semibold ${
+                      contextSelectedBranchId === branch.id.toString()
+                        ? 'text-primary' 
+                        : 'text-gray-600 group-hover:text-primary'
+                    } transition-colors`}>
                       {branch.name}
                     </h3>
                   </div>
