@@ -58,12 +58,13 @@ export type Staff = {
   }[];
 }
 
-export type Service = {
+export interface Service {
   id: number;
   name: string;
   price: number;
   status: boolean;
   branchId: number;
+  created_at?: string;
 }
 
 export type Reservation = {
@@ -79,3 +80,11 @@ export type Reservation = {
     phone: string;
   };
 }
+
+export type Branch = {
+  id: number;
+  created_at: Date;
+  name: string;
+  status: boolean;
+}
+
