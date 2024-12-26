@@ -30,6 +30,7 @@ import { Roles } from "@/lib/types";
 import LocaleToggle from "@/components/LocalToggle";
 import { useLocale } from "@/contexts/LocaleContext";
 import Footer from "@/components/Footer";
+import BranchToggle from "@/components/BranchToggle";
 
 const NavLink = React.memo(
   ({
@@ -242,36 +243,39 @@ export default function AdminLayout({
           </SheetContent>
         </Sheet>
         <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-          <div className="ml-auto flex-1 sm:flex-initial">
-            <LocaleToggle />
+          <div className="ml-auto flex items-center gap-4 md:gap-2 lg:gap-4">
+            <div className="flex items-center gap-2">
+              <BranchToggle />
+              <LocaleToggle />
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="hidden md:inline-flex"
+                >
+                  <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                  <span className="sr-only">{t("theme.toggle")}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <ThemeDropdownContent />
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="rounded-full"
+                  aria-label="User menu"
+                >
+                  <CircleUser className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <UserDropdownContent user={user} />
+            </DropdownMenu>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="hidden md:inline-flex"
-              >
-                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                <span className="sr-only">{t("theme.toggle")}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <ThemeDropdownContent />
-          </DropdownMenu>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="secondary"
-                size="icon"
-                className="rounded-full"
-                aria-label="User menu"
-              >
-                <CircleUser className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <UserDropdownContent user={user} />
-          </DropdownMenu>
         </div>
       </header>
       <main className="flex min-h-screen w-full flex-col bg-background">

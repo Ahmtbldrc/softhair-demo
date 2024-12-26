@@ -26,7 +26,8 @@
     "language": "Language",
     "bookAppointment": "Book Appointment",
     "brand": "Royal Team",
-    "navigation": "Navigation Menu"
+    "navigation": "Navigation Menu",
+    "selectBranch": "Select Branch"
   },
   "auth": {
     "logout": "Logout",
@@ -423,5 +424,10 @@
       "fetchAppointments": "Failed to fetch existing appointments. Please try again.",
       "createReservation": "Failed to create reservation. Please try again."
     }
+  },
+  "branches": {
+    "main": "Main Branch",
+    "second": "Second Branch",
+    "manage": "Manage Branches"
   }
 }

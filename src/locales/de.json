@@ -26,7 +26,8 @@
     "language": "Sprache",
     "bookAppointment": "Termin buchen",
     "brand": "Royal Team",
-    "navigation": "Navigationsmenü"
+    "navigation": "Navigationsmenü",
+    "selectBranch": "Filiale auswählen"
   },
   "auth": {
     "logout": "Abmelden",
@@ -423,5 +424,10 @@
       "fetchAppointments": "Fehler beim Abrufen der bestehenden Termine. Bitte versuchen Sie es erneut.",
       "createReservation": "Fehler beim Erstellen der Reservierung. Bitte versuchen Sie es erneut."
     }
+  },
+  "branches": {
+    "main": "Hauptfiliale",
+    "second": "Zweite Filiale",
+    "manage": "Filialen verwalten"
   }
 }
