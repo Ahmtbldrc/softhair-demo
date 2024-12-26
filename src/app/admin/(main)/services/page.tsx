@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -12,473 +12,254 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
-import { Loader2, Pencil, Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import { useLocale } from "@/contexts/LocaleContext";
-import {
   Pagination,
   PaginationContent,
   PaginationItem,
 } from "@/components/ui/pagination";
+import { useLocale } from "@/contexts/LocaleContext";
+import { useBranch } from "@/contexts/BranchContext";
 import { Service } from "@/lib/types";
+import { getAllServices } from "@/lib/services/service.service";
+import { EditServiceDialog } from "@/components/services/EditServiceDialog";
+import { DeleteServiceDialog } from "@/components/services/DeleteServiceDialog";
+import { AddServiceDialog } from "@/components/services/AddServiceDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
-
-export default function Services() {
+export default function ServicesPage() {
   const { t } = useLocale();
+  const { selectedBranchId } = useBranch();
   const [services, setServices] = useState<Service[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-
-  const getServices = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    const selectedBranchId = user?.user_metadata?.selectedBranchId;
-
-    const { data } = await supabase
-      .from("services")
-      .select("*")
-      .eq('status', true)
-      .eq('branchId', selectedBranchId);
-    return data;
-  };
-
-  useEffect(() => {
-    getServices().then((data) => {
-      setServices(data as Service[]);
-      console.log(data);
-    });
-  }, []);
-
-  const [newService, setNewService] = useState<Omit<Service, "id">>({
-    name: "",
-    price: 0,
-    status: true,
-    branchId: 1,
-  });
-  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  const handleAddService = () => {
-    if (!newService.name || newService.price <= 0) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid name and price.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const fetchServices = async () => {
     setIsLoading(true);
-    setTimeout(async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      const selectedBranchId = user?.user_metadata?.selectedBranchId;
-
-      if (!selectedBranchId) {
-        toast({
-          title: "Error",
-          description: "Branch information not found",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      const { error } = await supabase
-        .from('services')
-        .insert({ 
-          price: newService.price, 
-          name: newService.name,
-          branchId: selectedBranchId,
-          status: true
-        });
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-    
-      setServices([
-        ...services,
-        {
-          ...newService,
-          id: Date.now(),
-          price: Number(newService.price.toFixed(2)),
-          branchId: selectedBranchId
-        },
-      ]);
-      setNewService({ name: "", price: 0, status: true, branchId: 1 });
-      setIsAddDialogOpen(false);
+    try {
+      const data = await getAllServices(selectedBranchId);
+      setServices(data);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    } finally {
       setIsLoading(false);
-      toast({
-        title: "Success",
-        description: "Service added successfully.",
-      });
-    }, 500);
-  };
-
-  const handleEditService = () => {
-    if (editingService && editingService.price > 0) {
-      setIsLoading(true);
-      setTimeout(async () => {
-        const { error } = await supabase
-          .from("services")
-          .update({ price: editingService.price })
-          .eq("id", editingService.id);
-        if (error) {
-          toast({
-            title: "Error",
-            description: error.message,
-            variant: "destructive",
-          });
-          return;
-        }
-        setServices(
-          services.map((service) =>
-            service.id === editingService.id
-              ? {
-                  ...editingService,
-                  price: Number(editingService.price.toFixed(2)),
-                }
-              : service
-          )
-        );
-        setEditingService(null);
-        setIsEditDialogOpen(false);
-        setIsLoading(false);
-        toast({
-          title: "Success",
-          description: "Service updated successfully.",
-        });
-      }, 500); // Simulating API call
-    } else {
-      toast({
-        title: "Error",
-        description: "Please enter a valid price.",
-        variant: "destructive",
-      });
     }
   };
 
-  const handleDeleteService = () => {
-    if (serviceToDelete) {
-      setIsLoading(true);
-      setTimeout(async () => {
-        const { error: updateError } = await supabase
-          .from("services")
-          .update({ status: false })
-          .eq("id", serviceToDelete.id);
+  useEffect(() => {
+    fetchServices();
+  }, [selectedBranchId]); // Re-fetch when selectedBranchId changes
 
-        if (updateError) {
-          toast({
-            title: "Error",
-            description: updateError.message,
-            variant: "destructive",
-          });
-          return;
-        }
+  const handleEditClick = (service: Service) => {
+    setSelectedService(service);
+    setIsEditDialogOpen(true);
+  };
 
-        setServices(services.filter((service) => service.id !== serviceToDelete.id));
-        setServiceToDelete(null);
-        setIsDeleteDialogOpen(false);
-        setIsLoading(false);
-        toast({
-          title: "Success",
-          description: "Service deleted successfully.",
-        });
-      }, 500);
-    }
+  const handleDeleteClick = (service: Service) => {
+    setSelectedService(service);
+    setIsDeleteDialogOpen(true);
   };
 
   // Calculate pagination
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentServices = services.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(services.length / itemsPerPage);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentServices = services.slice(startIndex, endIndex);
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <div className="container mx-auto p-4 space-y-8">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-primary">
-              {t("admin-services.servicesDescription")}
-            </h1>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" /> {t("admin-services.addService")}
+    <div className="container mx-auto py-6 px-4 sm:px-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6">
+        <h1 className="text-2xl font-bold">{t("services.title")}</h1>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          {t("services.addNew")}
+        </Button>
+      </div>
+
+      {/* Mobile View */}
+      <div className="block sm:hidden">
+        {isLoading ? (
+          // Loading skeletons for mobile
+          Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="mb-4 p-4 border rounded-lg">
+              <Skeleton className="h-6 w-3/4 mb-2" />
+              <Skeleton className="h-8 w-1/2 mb-4" />
+              <div className="flex justify-end gap-2">
+                <Skeleton className="h-9 w-9" />
+                <Skeleton className="h-9 w-9" />
+              </div>
+            </div>
+          ))
+        ) : currentServices.length > 0 ? (
+          currentServices.map((service) => (
+            <div key={service.id} className="mb-4 p-4 border rounded-lg">
+              <h3 className="font-medium text-lg">{service.name}</h3>
+              <p className="text-2xl font-bold my-2">{service.price.toFixed(2)} CHF</p>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9"
+                  onClick={() => handleEditClick(service)}
+                >
+                  <Pencil className="h-4 w-4" />
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>{t("admin-services.addNewService")}</DialogTitle>
-                  <DialogDescription>
-                    {t("admin-services.addNewServiceDescription")}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">
-                      {t("admin-services.name")}
-                    </Label>
-                    <Input
-                      id="name"
-                      value={newService.name}
-                      onChange={(e) =>
-                        setNewService({ ...newService, name: e.target.value })
-                      }
-                      className="col-span-3"
-                      required
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="price" className="text-right">
-                      {t("admin-services.price")}
-                    </Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder={t("admin-services.price")}
-                      onChange={(e) =>
-                        setNewService({
-                          ...newService,
-                          price: Number(e.target.value),
-                        })
-                      }
-                      className="col-span-3"
-                      required
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button onClick={handleAddService} disabled={isLoading}>
-                    {isLoading ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
-                    {t("admin-services.addService")}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9"
+                  onClick={() => handleDeleteClick(service)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            {t("services.noResults")}
           </div>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40%]">{t("admin-services.name")}</TableHead>
-                  <TableHead className="w-[30%]">{t("admin-services.price")}</TableHead>
-                  <TableHead className="w-[30%]">{t("admin-services.actions")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {currentServices.map((service) => (
-                  <TableRow
-                    key={service.id}
-                    className="hover:bg-muted/50 transition-colors"
-                  >
-                    <TableCell className="font-medium">
-                      {service.name}
-                    </TableCell>
+        )}
+      </div>
+
+      {/* Desktop View */}
+      <div className="hidden sm:block">
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("services.name")}</TableHead>
+                <TableHead>{t("services.price")}</TableHead>
+                <TableHead className="w-[100px]">{t("common.actions")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                // Loading skeletons for desktop
+                Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell><Skeleton className="h-6 w-[200px]" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-[100px]" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-[100px]" /></TableCell>
+                  </TableRow>
+                ))
+              ) : currentServices.length > 0 ? (
+                currentServices.map((service) => (
+                  <TableRow key={service.id}>
+                    <TableCell className="font-medium">{service.name}</TableCell>
                     <TableCell>{service.price.toFixed(2)} CHF</TableCell>
                     <TableCell>
-                      <div className="flex space-x-2">
-                        <Dialog
-                          open={isEditDialogOpen}
-                          onOpenChange={setIsEditDialogOpen}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleEditClick(service)}
                         >
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setEditingService(service)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                              <span className="sr-only">
-                                {t("admin-services.editService")} {service.name}
-                              </span>
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>{t("admin-services.editService")}</DialogTitle>
-                              <DialogDescription>
-                                {t("admin-services.editServiceDescription")}
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                              <div className="grid grid-cols-4 items-center gap-4">
-                                <Label
-                                  htmlFor="edit-name"
-                                  className="text-right"
-                                >
-                                  {t("admin-services.name")}
-                                </Label>
-                                <Input
-                                  id="edit-name"
-                                  value={editingService?.name}
-                                  className="col-span-3 bg-muted text-muted-foreground"
-                                  readOnly
-                                  disabled
-                                />
-                              </div>
-                              <div className="grid grid-cols-4 items-center gap-4">
-                                <Label
-                                  htmlFor="edit-price"
-                                  className="text-right"
-                                >
-                                  {t("admin-services.price")}
-                                </Label>
-                                <Input
-                                  id="edit-price"
-                                  type="number"
-                                  step="0.01"
-                                  min="0"
-                                  placeholder={t("admin-services.price")}
-                                  value={editingService?.price}
-                                  onChange={(e) =>
-                                    setEditingService(
-                                      editingService
-                                        ? {
-                                            ...editingService,
-                                            price: Number(e.target.value),
-                                          }
-                                        : null
-                                    )
-                                  }
-                                  className="col-span-3"
-                                  required
-                                />
-                              </div>
-                            </div>
-                            <DialogFooter>
-                              <Button
-                                onClick={handleEditService}
-                                disabled={isLoading}
-                              >
-                                {isLoading ? (
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : null}
-                                {t("admin-services.saveChanges")}
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                        <Dialog
-                          open={isDeleteDialogOpen}
-                          onOpenChange={setIsDeleteDialogOpen}
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleDeleteClick(service)}
                         >
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setServiceToDelete(service)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              <span className="sr-only">
-                                {t("admin-services.delete")} {service.name}
-                              </span>
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>{t("admin-services.confirmDeletion")}</DialogTitle>
-                              <DialogDescription>
-                                {t("admin-services.confirmDeletionDescription")} &quot;
-                                {serviceToDelete?.name}&quot;? {t("admin-services.confirmDeletionDescription-2")}
-                              </DialogDescription>
-                            </DialogHeader>
-                            <DialogFooter>
-                              <Button
-                                variant="outline"
-                                onClick={() => setIsDeleteDialogOpen(false)}
-                              >
-                                {t("admin-services.cancel")}
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                onClick={handleDeleteService}
-                                disabled={isLoading}
-                              >
-                                {isLoading ? (
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : null}
-                                {t("admin-services.delete")}
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-4 text-muted-foreground">
+                    {t("services.noResults")}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
 
-          {/* Add Pagination */}
+      {/* Pagination */}
+      {!isLoading && services.length > 0 && (
+        <div className="mt-4 flex justify-center">
           <Pagination>
-            <PaginationContent>
+            <PaginationContent className="flex flex-wrap justify-center gap-2">
               <PaginationItem>
                 <Button
                   variant="ghost"
                   className="gap-1 pl-2.5"
-                  onClick={() => handlePageChange(currentPage - 1)}
+                  onClick={() => setCurrentPage(currentPage - 1)}
                   disabled={currentPage === 1}
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  <span>Previous</span>
+                  <span className="hidden sm:inline">{t("common.previous")}</span>
                 </Button>
               </PaginationItem>
-              
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <PaginationItem key={page}>
-                  <Button
-                    variant={currentPage === page ? "outline" : "ghost"}
-                    onClick={() => handlePageChange(page)}
-                  >
-                    {page}
-                  </Button>
-                </PaginationItem>
-              ))}
+
+              <div className="hidden sm:flex">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <PaginationItem key={page}>
+                    <Button
+                      variant={currentPage === page ? "outline" : "ghost"}
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  </PaginationItem>
+                ))}
+              </div>
+
+              <div className="sm:hidden">
+                <span className="px-4 py-2">
+                  {currentPage} / {totalPages}
+                </span>
+              </div>
 
               <PaginationItem>
                 <Button
                   variant="ghost"
                   className="gap-1 pr-2.5"
-                  onClick={() => handlePageChange(currentPage + 1)}
+                  onClick={() => setCurrentPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
                 >
-                  <span>Next</span>
+                  <span className="hidden sm:inline">{t("common.next")}</span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </PaginationItem>
             </PaginationContent>
           </Pagination>
         </div>
-      </main>
+      )}
+
+      <AddServiceDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onServiceAdded={fetchServices}
+      />
+
+      {selectedService && (
+        <>
+          <EditServiceDialog
+            service={selectedService}
+            open={isEditDialogOpen}
+            onOpenChange={setIsEditDialogOpen}
+            onServiceUpdated={fetchServices}
+          />
+
+          <DeleteServiceDialog
+            service={selectedService}
+            open={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
+            onServiceDeleted={fetchServices}
+          />
+        </>
+      )}
     </div>
   );
 }
