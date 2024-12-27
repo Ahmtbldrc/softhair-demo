@@ -15,7 +15,13 @@ interface BranchContextType {
   refreshBranches: () => Promise<void>;
 }
 
-const BranchContext = createContext<BranchContextType | undefined>(undefined);
+export const BranchContext = createContext<BranchContextType>({
+  branches: [],
+  selectedBranchId: "",
+  isLoading: false,
+  updateSelectedBranch: async () => {},
+  refreshBranches: async () => {},
+});
 
 export function BranchProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();

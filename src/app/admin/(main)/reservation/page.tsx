@@ -43,10 +43,11 @@ import {
 } from '@/lib/email-templates'
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
-
+import { useBranch } from '@/contexts/BranchContext'
 
 export default function AppointmentCalendar() {
   const {t} = useLocale();
+  const { selectedBranchId } = useBranch();
   const [currentDate, setCurrentDate] = useState(new Date())
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [staffMembers, setStaffMembers] = useState<Staff[]>([])
@@ -77,9 +78,11 @@ export default function AppointmentCalendar() {
   const mail = useMail()
 
   useEffect(() => {
-    fetchStaff()
-    fetchServices()
-    fetchReservations()
+    if (selectedBranchId) {
+      fetchStaff()
+      fetchServices()
+      fetchReservations()
+    }
 
     const reservationsSubscription = supabase
       .channel('reservations')
@@ -95,12 +98,13 @@ export default function AppointmentCalendar() {
     return () => {
       supabase.removeChannel(reservationsSubscription)
     }
-  }, [currentDate])
+  }, [currentDate, selectedBranchId])
 
   const fetchStaff = async () => {
     const { data, error } = await supabase
       .from("staff")
       .select("*, services:staff_services(service:service_id(id, name))")
+      .eq('branchId', parseInt(selectedBranchId))
     if (error) {
       console.error('Error fetching staff:', error)
       toast({ title: 'Error', description: 'Failed to fetch staff members.', variant: 'destructive' })
@@ -110,7 +114,10 @@ export default function AppointmentCalendar() {
   }
 
   const fetchServices = async () => {
-    const { data, error } = await supabase.from('services').select('*')
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .eq('branchId', parseInt(selectedBranchId))
     if (error) {
       console.error('Error fetching services:', error)
       toast({ title: 'Error', description: 'Failed to fetch services.', variant: 'destructive' })
@@ -124,6 +131,7 @@ export default function AppointmentCalendar() {
       .from('reservations')
       .select('*')
       .eq('status', true)
+      .eq('branchId', parseInt(selectedBranchId))
       .gte('start', weekStart.toISOString())
       .lte('start', weekEnd.toISOString())
     if (error) {
@@ -310,6 +318,7 @@ export default function AppointmentCalendar() {
     const newReservationData = {
       serviceId: newReservation.serviceId,
       staffId: newReservation.staffId,
+      branchId: parseInt(selectedBranchId),
       start: newReservation.start,
       end: endTime,
       customer: {
