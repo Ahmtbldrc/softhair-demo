@@ -30,6 +30,7 @@ import { ServiceType, StaffType, TimeSlot, WeeklyHours } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useParams, useRouter } from 'next/navigation';
 import { useLocale } from '@/contexts/LocaleContext';
+import { useBranch } from "@/contexts/BranchContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -67,6 +68,7 @@ const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const
 
 export default function StaffManagement() {
   const { t } = useLocale();
+  const { selectedBranchId } = useBranch();
   const [staff, setStaff] = useState<StaffType>(staffData);
   const [staffImageName, setStaffImageName] = useState<string>("");
   const [staffImage, setStaffImage] = useState<File | null>(null);
@@ -250,9 +252,13 @@ export default function StaffManagement() {
   };
 
   useEffect(() => {
+    if (!selectedBranchId) return;
+
     supabase
       .from("services")
       .select("*")
+      .eq("branchId", parseInt(selectedBranchId))
+      .eq("status", true)
       .then(({ data, error }) => {
         if (error) {
           console.log("error", error);
@@ -276,7 +282,7 @@ export default function StaffManagement() {
           setSelectedServices(data?.services.map((s: ServiceType) => s.service.id));
         }
       });
-  }, [staffId]);
+  }, [staffId, selectedBranchId]);
 
   const handleDiscard = () => {
     setShowDiscardDialog(true);

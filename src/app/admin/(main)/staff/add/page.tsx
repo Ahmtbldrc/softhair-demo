@@ -61,6 +61,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import { useBranch } from "@/contexts/BranchContext";
 
 const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const;
 
@@ -88,6 +89,7 @@ const emptyStaffData: StaffType = {
 
 export default function AddStaff() {
   const { t } = useLocale();
+  const { selectedBranchId } = useBranch();
   const [staff, setStaff] = useState<StaffType>(emptyStaffData);
   const [services, setServices] = useState<{ id: number; name: string }[]>();
   const [staffImageName, setStaffImageName] = useState<string>("");
@@ -101,9 +103,13 @@ export default function AddStaff() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!selectedBranchId) return;
+
     supabase
       .from("services")
       .select("*")
+      .eq("branchId", parseInt(selectedBranchId))
+      .eq("status", true)
       .then(({ data, error }) => {
         if (error) {
           console.log("error", error);
@@ -111,7 +117,7 @@ export default function AddStaff() {
           setServices(data);
         }
       });
-  }, []);
+  }, [selectedBranchId]);
 
   const handleServiceChange = (service: { id: number; name: string }) => {
     const serviceIndex = staff.services.findIndex(
@@ -232,6 +238,15 @@ export default function AddStaff() {
       return;
     }
 
+    if (!selectedBranchId) {
+      toast({
+        title: "Error!",
+        description: "Please select a branch first",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     const { data: existUser } = await supabase
@@ -276,6 +291,7 @@ export default function AddStaff() {
         status: staff.status,
         image: staff.image,
         weeklyHours: staff.weeklyHours,
+        branchId: parseInt(selectedBranchId)
       })
       .select("id");
 

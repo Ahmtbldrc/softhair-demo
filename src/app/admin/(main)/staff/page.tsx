@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { PlusCircle } from "lucide-react";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useBranch } from "@/contexts/BranchContext";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +32,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function StaffPage() {
   const { t } = useLocale();
+  const { selectedBranchId } = useBranch();
   const [filter, setFilter] = useState<number>(0);
   const [staff, setStaff] = useState<StaffType[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -65,7 +67,7 @@ export default function StaffPage() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
-        if (!session) {
+        if (!session || !selectedBranchId) {
           return;
         }
 
@@ -85,6 +87,7 @@ export default function StaffPage() {
               )
             )
           `)
+          .eq("branchId", parseInt(selectedBranchId))
           .neq("userId", session.user.id)
           .order('status', { ascending: false })
           .order('firstName', { ascending: true });
@@ -109,7 +112,7 @@ export default function StaffPage() {
     };
 
     fetchStaff();
-  }, []);
+  }, [selectedBranchId]);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
