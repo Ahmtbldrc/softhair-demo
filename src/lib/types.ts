@@ -67,18 +67,20 @@ export interface Service {
   created_at?: string;
 }
 
-export type Reservation = {
+export interface Reservation {
   id: number;
   serviceId: number;
+  staffId: number;
+  branchId: number;
   start: Date;
   end: Date;
-  staffId: number;
   customer: {
     firstName: string;
     lastName: string;
     email: string;
     phone: string;
   };
+  status: boolean;
 }
 
 export type Branch = {
