@@ -1,92 +1,94 @@
-export type StaffType = {
-  id: number,
-  firstName: string,
-  lastName: string,
-  email: string,
-  username: string,
-  password: string,
-  userId: string,
-  image: string,
-  status: boolean,
-  services: ServiceType[],
-  weeklyHours: WeeklyHours
+import { StaffWithServices, ServiceWithBranch, ReservationWithDetails, UserRole, AnalyticPeriod } from './database.types'
+
+export type {
+  StaffWithServices as Staff,
+  ServiceWithBranch as Service,
+  ReservationWithDetails as Reservation
 }
 
-export type WeeklyHours = {
-  [key: string]: TimeSlot[];
+export {
+  UserRole,
+  AnalyticPeriod
 }
 
-export type TimeSlot = {
+// Helper Types
+export interface TimeSlot {
   start: string;
   end: string;
 }
 
-export type ServiceType = {
-  service: {
-    id: number,
-    name: string
-  }
+export interface WeeklyHours {
+  SUN: TimeSlot[];
+  MON: TimeSlot[];
+  TUE: TimeSlot[];
+  WED: TimeSlot[];
+  THU: TimeSlot[];
+  FRI: TimeSlot[];
+  SAT: TimeSlot[];
+}
+
+// Form Types
+export type CustomerFormData = {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+}
+
+export type ReservationFormData = {
+  serviceId: number
+  staffId: number
+  branchId: number
+  start: Date
+  end: Date
+  customer: CustomerFormData
+}
+
+// API Response Types
+export type ApiResponse<T> = {
+  data?: T
+  error?: string
+}
+
+// Chart Types
+export enum AnalyticType {
+  DAILY = "daily",
+  WEEKLY = "weekly",
+  MONTHLY = "monthly"
+}
+
+export type ChartData = {
+  name: string
+  value: number
+  color?: string
 }
 
 export enum Roles {
-  ADMIN = 'admin',
-  STAFF = 'staff',
-  USER = 'user'
+  ADMIN = "admin",
+  STAFF = "staff",
+  USER = "user"
 }
 
-export enum AnalyticType {
-  DAILY = 'daily',
-  WEEKLY = 'weekly',
-  MONTHLY = 'monthly'
+export interface ServiceType {
+  id: number;
+  name: string;
+  service: {
+    id: number;
+    name: string;
+  };
 }
 
-export type Staff = {
+export interface StaffType {
   id: number;
   firstName: string;
   lastName: string;
-  image: string;
   email: string;
-  status: boolean; // true: active, false: passive
-  weeklyHours: {
-    [key: string]: { start: string; end: string }[];
-  };
-  services: {
-    service: {
-      id: number;
-      name: string;
-    };
-  }[];
-}
-
-export interface Service {
-  id: number;
-  name: string;
-  price: number;
+  username: string;
+  password: string;
+  userId: string;
   status: boolean;
-  branchId: number;
-  created_at?: string;
-}
-
-export interface Reservation {
-  id: number;
-  serviceId: number;
-  staffId: number;
-  branchId: number;
-  start: Date;
-  end: Date;
-  customer: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-  };
-  status: boolean;
-}
-
-export type Branch = {
-  id: number;
-  created_at: Date;
-  name: string;
-  status: boolean;
+  image: string;
+  services: ServiceType[];
+  weeklyHours: WeeklyHours;
 }
 

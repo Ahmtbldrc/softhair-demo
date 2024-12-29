@@ -1,80 +1,88 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { Branch } from "@/lib/types";
+import { Branch } from "@/lib/database.types";
 import { getAllBranches } from "@/lib/services/branch.service";
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
 import { usePathname } from "next/navigation";
 
-interface BranchContextType {
+export interface BranchContextType {
   branches: Branch[];
-  selectedBranchId: string;
+  selectedBranchId: number;
   isLoading: boolean;
-  updateSelectedBranch: (branchId: string) => Promise<void>;
+  updateSelectedBranch: (branchId: number) => Promise<void>;
   refreshBranches: () => Promise<void>;
 }
 
-export const BranchContext = createContext<BranchContextType>({
-  branches: [],
-  selectedBranchId: "",
-  isLoading: false,
-  updateSelectedBranch: async () => {},
-  refreshBranches: async () => {},
-});
+const BranchContext = createContext<BranchContextType | undefined>(undefined);
 
-export function BranchProvider({ children }: { children: ReactNode }) {
+interface BranchProviderProps {
+  children: ReactNode;
+}
+
+export function BranchProvider({ children }: BranchProviderProps) {
   const pathname = usePathname();
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [selectedBranchId, setSelectedBranchId] = useState<string>("");
+  const [selectedBranchId, setSelectedBranchId] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
 
   const refreshBranches = async () => {
     try {
-      const [branchesData, { data: { user } }] = await Promise.all([
+      const [branchesResult, { data: { user } }] = await Promise.all([
         getAllBranches(),
         supabase.auth.getUser()
       ]);
       
-      setBranches(branchesData);
+      if (branchesResult.error) {
+        throw new Error(branchesResult.error);
+      }
+
+      setBranches(branchesResult.data ?? []);
+      
       if (user?.user_metadata?.selectedBranchId) {
-        setSelectedBranchId(user.user_metadata.selectedBranchId.toString());
+        setSelectedBranchId(user.user_metadata.selectedBranchId);
       }
     } catch (error) {
       console.error("Error fetching branch data:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to fetch branches",
+        variant: "destructive"
+      });
     }
   };
 
-  const updateSelectedBranch = async (branchId: string) => {
+  const updateSelectedBranch = async (branchId: number): Promise<void> => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        throw userError;
+      }
+
+      const { error: updateError } = await supabase.auth.updateUser({
         data: {
-          ...((await supabase.auth.getUser()).data.user?.user_metadata || {}),
-          selectedBranchId: parseInt(branchId)
+          ...(user?.user_metadata || {}),
+          selectedBranchId: branchId
         }
       });
 
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to update selected branch",
-          variant: "destructive"
-        });
-        return;
+      if (updateError) {
+        throw updateError;
       }
 
       setSelectedBranchId(branchId);
       toast({
         title: "Success",
-        description: "Branch selected successfully",
-        variant: "default"
+        description: "Branch selected successfully"
       });
     } catch (error) {
       console.error("Error updating selected branch:", error);
       toast({
         title: "Error",
-        description: "Failed to update selected branch",
+        description: error instanceof Error ? error.message : "Failed to update selected branch",
         variant: "destructive"
       });
     } finally {
@@ -93,7 +101,7 @@ export function BranchProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user?.user_metadata?.selectedBranchId) {
-        setSelectedBranchId(session.user.user_metadata.selectedBranchId.toString());
+        setSelectedBranchId(session.user.user_metadata.selectedBranchId);
       }
     });
 
@@ -102,25 +110,27 @@ export function BranchProvider({ children }: { children: ReactNode }) {
     };
   }, [pathname]); // Re-run when route changes
 
+  const value: BranchContextType = {
+    branches,
+    selectedBranchId,
+    isLoading,
+    updateSelectedBranch,
+    refreshBranches
+  };
+
   return (
-    <BranchContext.Provider 
-      value={{ 
-        branches, 
-        selectedBranchId, 
-        isLoading,
-        updateSelectedBranch,
-        refreshBranches
-      }}
-    >
+    <BranchContext.Provider value={value}>
       {children}
     </BranchContext.Provider>
   );
 }
 
-export function useBranch() {
+export function useBranch(): BranchContextType {
   const context = useContext(BranchContext);
+  
   if (context === undefined) {
     throw new Error("useBranch must be used within a BranchProvider");
   }
+  
   return context;
 } 
