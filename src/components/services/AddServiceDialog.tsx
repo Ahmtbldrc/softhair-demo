@@ -17,12 +17,18 @@ import { useLocale } from "@/contexts/LocaleContext";
 import { useBranch } from "@/contexts/BranchContext";
 import { createService } from "@/lib/services/service.service";
 import { toast } from "@/hooks/use-toast";
+import { serviceSchema } from "@/lib/validations";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 interface AddServiceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onServiceAdded: () => void;
 }
+
+type FormData = z.infer<typeof serviceSchema>;
 
 export function AddServiceDialog({
   open,
@@ -32,26 +38,34 @@ export function AddServiceDialog({
   const { t } = useLocale();
   const { selectedBranchId } = useBranch();
   const [isLoading, setIsLoading] = useState(false);
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !price || !selectedBranchId) return;
+  const form = useForm<FormData>({
+    resolver: zodResolver(serviceSchema),
+    defaultValues: {
+      name: "",
+      price: 0,
+      status: true,
+      branchId: selectedBranchId ? selectedBranchId : 0
+    }
+  });
+
+  const handleSubmit = async (data: FormData) => {
+    if (!selectedBranchId) return;
 
     setIsLoading(true);
     try {
-      await createService({
-        name,
-        price: Number(price),
-        status: true,
-        branchId: parseInt(selectedBranchId),
+      const result = await createService({
+        ...data,
+        branchId: selectedBranchId
       });
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
 
       onServiceAdded();
       onOpenChange(false);
-      setName("");
-      setPrice("");
+      form.reset();
       toast({
         title: t("services.addSuccess"),
         description: t("services.addSuccessDescription"),
@@ -60,7 +74,7 @@ export function AddServiceDialog({
       console.error("Error adding service:", error);
       toast({
         title: t("services.addError"),
-        description: t("services.addErrorDescription"),
+        description: error instanceof Error ? error.message : t("services.addErrorDescription"),
         variant: "destructive",
       });
     } finally {
@@ -77,7 +91,7 @@ export function AddServiceDialog({
             {t("services.addNewDescription")}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
           <div className="grid gap-4 py-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="name">
@@ -85,10 +99,14 @@ export function AddServiceDialog({
               </Label>
               <Input
                 id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
+                {...form.register("name")}
+                aria-invalid={!!form.formState.errors.name}
               />
+              {form.formState.errors.name && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.name.message}
+                </p>
+              )}
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="price">
@@ -99,14 +117,22 @@ export function AddServiceDialog({
                 type="number"
                 step="0.01"
                 min="0"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                required
+                {...form.register("price", { valueAsNumber: true })}
+                aria-invalid={!!form.formState.errors.price}
               />
+              {form.formState.errors.price && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.price.message}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
+            <Button 
+              type="submit" 
+              disabled={isLoading || !form.formState.isValid} 
+              className="w-full sm:w-auto"
+            >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {t("services.add")}
             </Button>

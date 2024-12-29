@@ -2,32 +2,33 @@
 
 import { useState } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Loader2 } from "lucide-react";
 import { useLocale } from "@/contexts/LocaleContext";
-import { Service } from "@/lib/types";
 import { deleteService } from "@/lib/services/service.service";
 import { toast } from "@/hooks/use-toast";
+import { Service } from "@/lib/database.types";
 
 interface DeleteServiceDialogProps {
-  service: Service;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onServiceDeleted: () => void;
+  service: Service;
 }
 
 export function DeleteServiceDialog({
-  service,
   open,
   onOpenChange,
   onServiceDeleted,
+  service,
 }: DeleteServiceDialogProps) {
   const { t } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +36,12 @@ export function DeleteServiceDialog({
   const handleDelete = async () => {
     setIsLoading(true);
     try {
-      await deleteService(service.id);
+      const result = await deleteService(service.id);
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
       onServiceDeleted();
       onOpenChange(false);
       toast({
@@ -46,7 +52,7 @@ export function DeleteServiceDialog({
       console.error("Error deleting service:", error);
       toast({
         title: t("services.deleteError"),
-        description: t("services.deleteErrorDescription"),
+        description: error instanceof Error ? error.message : t("services.deleteErrorDescription"),
         variant: "destructive",
       });
     } finally {
@@ -55,40 +61,28 @@ export function DeleteServiceDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{t("services.deleteTitle")}</DialogTitle>
-          <DialogDescription>
-            {t("services.deleteDescription")}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="py-4">
-          <p className="text-sm font-medium mb-1">{t("services.name")}</p>
-          <p className="text-base">{service.name}</p>
-          <p className="text-sm font-medium mt-4 mb-1">{t("services.price")}</p>
-          <p className="text-base">{service.price.toFixed(2)} CHF</p>
-        </div>
-        <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isLoading}
-            className="w-full sm:w-auto"
-          >
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t("services.deleteTitle")}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {t("services.deleteDescription", { name: service.name })}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isLoading}>
             {t("common.cancel")}
-          </Button>
-          <Button
-            variant="destructive"
+          </AlertDialogCancel>
+          <AlertDialogAction
             onClick={handleDelete}
             disabled={isLoading}
-            className="w-full sm:w-auto"
+            className="bg-destructive hover:bg-destructive/90"
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {t("common.delete")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            {t("services.delete")}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 } 

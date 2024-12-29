@@ -1,76 +1,73 @@
-import { supabase } from "@/lib/supabase";
-import { Service } from "@/lib/types";
+import { supabase } from "@/lib/supabase"
+import { Service } from "@/lib/database.types"
 
-export async function getAllServices(branchId: string) {
+export async function createService(service: Omit<Service, 'id' | 'created_at' | 'updated_at'>) {
   const { data, error } = await supabase
     .from("services")
-    .select("*")
-    .eq("branchId", parseInt(branchId))
-    .eq("status", true)
-    .order("name");
-
-  if (error) {
-    throw error;
-  }
-
-  return data as Service[];
-}
-
-export async function createService({
-  name,
-  price,
-  status,
-  branchId,
-}: {
-  name: string;
-  price: number;
-  status: boolean;
-  branchId: number;
-}) {
-  const { data, error } = await supabase
-    .from("services")
-    .insert([{ name, price, status, branchId }])
+    .insert([{ ...service, status: true }])
     .select()
-    .single();
+    .single()
 
   if (error) {
-    throw error;
+    return { error: error.message }
   }
 
-  return data;
+  return { data: data as Service }
 }
 
-export async function updateService(
-  id: number,
-  updates: {
-    name?: string;
-    price?: number;
-    status?: boolean;
-  }
-) {
+export async function updateService(id: number, updates: Partial<Omit<Service, 'id' | 'created_at' | 'updated_at'>>) {
   const { data, error } = await supabase
     .from("services")
     .update(updates)
     .eq("id", id)
     .select()
-    .single();
+    .single()
 
   if (error) {
-    throw error;
+    return { error: error.message }
   }
 
-  return data;
+  return { data: data as Service }
 }
 
 export async function deleteService(id: number) {
   const { error } = await supabase
     .from("services")
     .update({ status: false })
-    .eq("id", id);
+    .eq("id", id)
 
   if (error) {
-    throw error;
+    return { error: error.message }
   }
 
-  return true;
+  return { data: null }
+}
+
+export async function getActiveServices(branchId: number) {
+  const { data, error } = await supabase
+    .from("services")
+    .select("*")
+    .eq("branchId", branchId)
+    .eq("status", true)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { data: data as Service[] }
+}
+
+export async function getAllServices(branchId: number) {
+  const { data, error } = await supabase
+    .from("services")
+    .select("*")
+    .eq("branchId", branchId)
+    .eq("status", true)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return data as Service[]
 } 

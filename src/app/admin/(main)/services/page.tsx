@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -15,15 +15,19 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
+  PaginationPrevious,
+  PaginationLink,
+  PaginationNext,
 } from "@/components/ui/pagination";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useBranch } from "@/contexts/BranchContext";
 import { Service } from "@/lib/types";
-import { getAllServices } from "@/lib/services/service.service";
+import { getActiveServices } from "@/lib/services/service.service";
 import { EditServiceDialog } from "@/components/services/EditServiceDialog";
 import { DeleteServiceDialog } from "@/components/services/DeleteServiceDialog";
 import { AddServiceDialog } from "@/components/services/AddServiceDialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ServiceWithBranch } from "@/lib/database.types";
 
 export default function ServicesPage() {
   const { t } = useLocale();
@@ -40,8 +44,11 @@ export default function ServicesPage() {
   const fetchServices = async () => {
     setIsLoading(true);
     try {
-      const data = await getAllServices(selectedBranchId);
-      setServices(data);
+      const result = await getActiveServices(selectedBranchId);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      setServices(result.data as ServiceWithBranch[]);
     } catch (error) {
       console.error("Error fetching services:", error);
     } finally {
@@ -51,7 +58,7 @@ export default function ServicesPage() {
 
   useEffect(() => {
     fetchServices();
-  }, [selectedBranchId]); // Re-fetch when selectedBranchId changes
+  }, [selectedBranchId]);
 
   const handleEditClick = (service: Service) => {
     setSelectedService(service);
@@ -189,28 +196,23 @@ export default function ServicesPage() {
       {!isLoading && services.length > 0 && (
         <div className="mt-4 flex justify-center">
           <Pagination>
-            <PaginationContent className="flex flex-wrap justify-center gap-2">
+            <PaginationContent>
               <PaginationItem>
-                <Button
-                  variant="ghost"
-                  className="gap-1 pl-2.5"
+                <PaginationPrevious
                   onClick={() => setCurrentPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  <span className="hidden sm:inline">{t("common.previous")}</span>
-                </Button>
+                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                />
               </PaginationItem>
 
               <div className="hidden sm:flex">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <PaginationItem key={page}>
-                    <Button
-                      variant={currentPage === page ? "outline" : "ghost"}
+                    <PaginationLink
                       onClick={() => setCurrentPage(page)}
+                      isActive={currentPage === page}
                     >
                       {page}
-                    </Button>
+                    </PaginationLink>
                   </PaginationItem>
                 ))}
               </div>
@@ -222,15 +224,10 @@ export default function ServicesPage() {
               </div>
 
               <PaginationItem>
-                <Button
-                  variant="ghost"
-                  className="gap-1 pr-2.5"
+                <PaginationNext
                   onClick={() => setCurrentPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  <span className="hidden sm:inline">{t("common.next")}</span>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
