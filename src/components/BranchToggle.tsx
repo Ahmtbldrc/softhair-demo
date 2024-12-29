@@ -13,14 +13,17 @@ import { useRouter } from "next/navigation";
 import { Settings } from "lucide-react";
 import { useBranch } from "@/contexts/BranchContext";
 import { useState } from "react";
+import { Branch } from "@/lib/database.types";
 
-export default function BranchToggle() {
+interface BranchToggleProps {
+  className?: string;
+}
+
+export default function BranchToggle({ className }: BranchToggleProps) {
   const { t } = useLocale();
   const router = useRouter();
   const { branches, selectedBranchId, isLoading, updateSelectedBranch } = useBranch();
   const [open, setOpen] = useState(false);
-
-  const selectedBranch = branches.find(b => b.id.toString() === selectedBranchId);
 
   const handleValueChange = async (value: string) => {
     if (value === "manage") {
@@ -29,24 +32,28 @@ export default function BranchToggle() {
       return;
     }
 
-    await updateSelectedBranch(value);
+    await updateSelectedBranch(parseInt(value));
   };
+
+  const selectedBranchName = branches.find(
+    (b: Branch) => b.id === selectedBranchId
+  )?.name || t("common.selectBranch");
 
   return (
     <Select 
-      value={selectedBranchId} 
+      value={selectedBranchId.toString()} 
       onValueChange={handleValueChange}
       disabled={isLoading}
       open={open}
       onOpenChange={setOpen}
     >
-      <SelectTrigger className="w-[140px]">
-        <SelectValue>
-          {selectedBranch?.name || t("common.selectBranch")}
+      <SelectTrigger className={className ?? "w-[140px]"} >
+        <SelectValue placeholder={selectedBranchName}>
+          {selectedBranchName}
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
-        {branches.map((branch) => (
+        {branches.map((branch: Branch) => (
           <SelectItem key={branch.id} value={branch.id.toString()}>
             {branch.name}
           </SelectItem>

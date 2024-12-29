@@ -32,12 +32,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Branch } from "@/lib/types"
 import { getAllBranches, createBranch, updateBranch, deleteBranch } from "@/lib/services/branch.service"
 import { useLocale } from "@/contexts/LocaleContext"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { useBranch } from "@/contexts/BranchContext"
+import { Branch } from "@/lib/database.types"
 
 export default function BranchesPage() {
   const { t } = useLocale()
@@ -62,7 +62,7 @@ export default function BranchesPage() {
       setIsLoading(true);
       try {
         const data = await getAllBranches();
-        setBranches(data);
+        setBranches(data.data || []);
       } finally {
         setIsLoading(false);
       }
@@ -80,20 +80,28 @@ export default function BranchesPage() {
     if (branchToEdit && editedName.trim()) {
       setIsLoading(true);
       try {
-        const success = await updateBranch(branchToEdit.id, editedName);
+        const response = await updateBranch(branchToEdit.id, { name: editedName.trim() });
         
-        if (!success) {
+        if (response.error || !response.data) {
           toast({
             title: "Error",
-            description: "Failed to update branch",
+            description: response.error || "Failed to update branch",
             variant: "destructive"
           });
           return;
         }
 
+        const updatedBranch: Branch = {
+          id: response.data.id,
+          name: response.data.name,
+          status: response.data.status,
+          created_at: response.data.created_at,
+          updated_at: response.data.updated_at
+        };
+
         setBranches(prev => prev.map(branch => 
           branch.id === branchToEdit.id 
-            ? { ...branch, name: editedName.trim() }
+            ? updatedBranch
             : branch
         ));
 
@@ -117,12 +125,12 @@ export default function BranchesPage() {
     if (branchToDelete) {
       setIsLoading(true);
       try {
-        const success = await deleteBranch(branchToDelete.id);
+        const response = await deleteBranch(branchToDelete.id);
 
-        if (!success) {
+        if (response.error || !response.data) {
           toast({
             title: "Error",
-            description: "Failed to delete branch",
+            description: response.error || "Failed to delete branch",
             variant: "destructive"
           });
           return;
@@ -153,16 +161,24 @@ export default function BranchesPage() {
 
     setIsLoading(true);
     try {
-      const newBranch = await createBranch(newBranchName);
+      const response = await createBranch({ name: newBranchName, status: true });
 
-      if (!newBranch) {
+      if (response.error || !response.data) {
         toast({
           title: "Error",
-          description: "Failed to add branch",
+          description: response.error || "Failed to add branch",
           variant: "destructive"
         });
         return;
       }
+
+      const newBranch: Branch = {
+        id: response.data.id,
+        name: response.data.name,
+        status: response.data.status,
+        created_at: response.data.created_at,
+        updated_at: response.data.updated_at
+      };
 
       setBranches(prev => [...prev, newBranch]);
       setNewBranchName("");
@@ -241,7 +257,7 @@ export default function BranchesPage() {
                 className="w-full max-w-[300px] mx-auto"
               >
                 <Card className={`p-6 relative h-80 group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 ${
-                  contextSelectedBranchId === branch.id.toString()
+                  Number(contextSelectedBranchId) === branch.id
                     ? 'border-primary bg-primary/5' 
                     : openDropdownId === branch.id 
                       ? 'border-primary/20 shadow-lg -translate-y-1'
@@ -277,7 +293,7 @@ export default function BranchesPage() {
 
                   <div className="flex flex-col h-full">
                     <h3 className={`text-xl font-semibold ${
-                      contextSelectedBranchId === branch.id.toString()
+                      contextSelectedBranchId === branch.id
                         ? 'text-primary' 
                         : openDropdownId === branch.id
                           ? 'text-primary'

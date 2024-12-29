@@ -1,132 +1,149 @@
-import { supabase } from "../supabase";
-import { Branch } from "../types";
+import { supabase } from '../supabase'
+import { Branch } from '../database.types'
+import { ApiResponse } from '../types'
 
-export const getBranchById = async (branchId: number): Promise<Branch | null> => {
-  const { data, error } = await supabase
-    .from("branches")
-    .select("*")
-    .eq("id", branchId)
-    .eq("status", true)
-    .single();
+export async function getBranchById(id: number): Promise<ApiResponse<Branch>> {
+  try {
+    const { data, error } = await supabase
+      .from('branches')
+      .select('*')
+      .eq('id', id)
+      .eq('status', true)
+      .single()
 
-  if (error) {
-    console.error("Error fetching branch:", error);
-    return null;
-  }
-
-  return data;
-};
-
-export const getCurrentUserBranch = async (): Promise<Branch | null> => {
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  
-  if (userError || !user?.user_metadata?.selectedBranchId) {
-    console.error("Error getting user or selectedBranchId not found");
-    return null;
-  }
-
-  return getBranchById(user.user_metadata.selectedBranchId);
-};
-
-export const getAllBranches = async (): Promise<Branch[]> => {
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  
-  if (userError) {
-    console.error("Error getting user:", userError);
-    return [];
-  }
-
-  const branchIds = user?.user_metadata?.branchIds as number[] | undefined;
-  
-  if (!branchIds || branchIds.length === 0) {
-    console.error("No branch IDs found in user metadata");
-    return [];
-  }
-
-  const { data, error } = await supabase
-    .from("branches")
-    .select("*")
-    .eq("status", true)
-    .in("id", branchIds)
-    .order("name", { ascending: true });
-
-  if (error) {
-    console.error("Error fetching branches:", error);
-    return [];
-  }
-
-  return data;
-};
-
-export const createBranch = async (name: string): Promise<Branch | null> => {
-  const { data, error } = await supabase
-    .from('branches')
-    .insert({ 
-      name: name.trim(),
-      status: true 
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error("Error creating branch:", error);
-    return null;
-  }
-
-  // Get current user and metadata
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  
-  if (userError) {
-    console.error("Error getting user:", userError);
-    return data;
-  }
-
-  // Get current branchIds from metadata
-  const currentBranchIds = user?.user_metadata?.branchIds as number[] || [];
-  
-  // Add new branch ID to the list
-  const updatedBranchIds = [...currentBranchIds, data.id];
-
-  // Update user metadata with new branchIds while preserving other metadata
-  const { error: updateError } = await supabase.auth.updateUser({
-    data: {
-      ...user?.user_metadata,
-      branchIds: updatedBranchIds
+    if (error) {
+      throw error
     }
-  });
 
-  if (updateError) {
-    console.error("Error updating user metadata:", updateError);
+    return {
+      data: data
+    }
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : 'An error occurred while fetching branch'
+    }
   }
+}
 
-  return data;
-};
+export async function getCurrentUserBranch(): Promise<ApiResponse<Branch>> {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user?.user_metadata?.selectedBranchId) {
+      throw new Error('Error getting user or selectedBranchId not found')
+    }
 
-export const updateBranch = async (id: number, name: string): Promise<boolean> => {
-  const { error } = await supabase
-    .from('branches')
-    .update({ name: name.trim() })
-    .eq('id', id);
-
-  if (error) {
-    console.error("Error updating branch:", error);
-    return false;
+    return getBranchById(user.user_metadata.selectedBranchId)
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : 'An error occurred while fetching current user branch'
+    }
   }
+}
 
-  return true;
-};
+export async function getAllBranches(): Promise<ApiResponse<Branch[]>> {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError) {
+      throw new Error('Error getting user')
+    }
 
-export const deleteBranch = async (id: number): Promise<boolean> => {
-  const { error } = await supabase
-    .from('branches')
-    .update({ status: false })
-    .eq('id', id);
+    const branchIds = user?.user_metadata?.branchIds as number[] | undefined
+    
+    if (!branchIds || branchIds.length === 0) {
+      throw new Error('No branch IDs found in user metadata')
+    }
 
-  if (error) {
-    console.error("Error deleting branch:", error);
-    return false;
+    const { data, error } = await supabase
+      .from('branches')
+      .select('*')
+      .eq('status', true)
+      .in('id', branchIds)
+      .order('name')
+
+    if (error) {
+      throw error
+    }
+
+    return {
+      data: data
+    }
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : 'An error occurred while fetching branches'
+    }
   }
+}
 
-  return true;
-};
+export async function createBranch(
+  branch: Omit<Branch, 'id' | 'created_at' | 'updated_at'>
+): Promise<ApiResponse<Branch>> {
+  try {
+    const { data, error } = await supabase
+      .from('branches')
+      .insert([branch])
+      .select()
+      .single()
+
+    if (error) {
+      throw error
+    }
+
+    return {
+      data: data
+    }
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : 'An error occurred while creating branch'
+    }
+  }
+}
+
+export async function updateBranch(
+  id: number,
+  updates: Partial<Omit<Branch, 'id' | 'created_at' | 'updated_at'>>
+): Promise<ApiResponse<Branch>> {
+  try {
+    const { data, error } = await supabase
+      .from('branches')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      throw error
+    }
+
+    return {
+      data: data
+    }
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : 'An error occurred while updating branch'
+    }
+  }
+}
+
+export async function deleteBranch(id: number): Promise<ApiResponse<boolean>> {
+  try {
+    const { error } = await supabase
+      .from('branches')
+      .update({ status: false, updated_at: new Date().toISOString() })
+      .eq('id', id)
+
+    if (error) {
+      throw error
+    }
+
+    return {
+      data: true
+    }
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : 'An error occurred while deleting branch'
+    }
+  }
+}
 
