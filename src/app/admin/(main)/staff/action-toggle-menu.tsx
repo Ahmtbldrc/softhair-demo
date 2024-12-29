@@ -20,11 +20,11 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { StaffType } from "@/lib/types";
+import { StaffWithServices } from "@/lib/database.types";
 import { useLocale } from "@/contexts/LocaleContext";
 
 type Props = {
-  staff: StaffType,
+  staff: StaffWithServices,
   handleDelete: () => Promise<void>;
 };
 
@@ -42,10 +42,12 @@ function ActionToggleMenu({ staff,  handleDelete }: Props) {
     if (error)
       console.log(error);
 
-    const {error: storageError} = await supabase.storage.from("staff").remove([staff.image])
-    
-    if (storageError)
-      console.log(storageError);
+    if (staff.image) {
+      const {error: storageError} = await supabase.storage.from("staff").remove([staff.image])
+      
+      if (storageError)
+        console.log(storageError);
+    }
       
     setIsDeleting(false);
     setIsDeleteDialogOpen(false);

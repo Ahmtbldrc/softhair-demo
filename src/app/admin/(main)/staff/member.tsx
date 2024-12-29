@@ -2,13 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
 import React from "react";
 import ActionToggleMenu from "./action-toggle-menu";
-import { StaffType } from "@/lib/types";
+import { StaffWithServices } from "@/lib/database.types";
 import Image from "next/image";
 import { useLocale } from "@/contexts/LocaleContext";
 
 
 type Props = {
-  member: StaffType;
+  member: StaffWithServices;
   handleDelete: () => Promise<void>;
 };
 
