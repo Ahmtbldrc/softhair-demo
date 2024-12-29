@@ -187,7 +187,7 @@ export default function ReservationPage() {
     return () => {
       supabase.removeChannel(reservationsSubscription);
     };
-  }, [currentDate, user]);
+  }, [currentDate]);
 
   const fetchServices = async () => {
     const { data: { user } } = await supabase.auth.getUser();

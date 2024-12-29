@@ -20,7 +20,7 @@ import {
 import { toast } from '@/hooks/use-toast'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
-import { StaffType, TimeSlot } from '@/lib/types'
+import { StaffType, TimeSlot, WeeklyHours } from '@/lib/types'
 import { useRouter } from 'next/navigation'
 import useMail from '@/hooks/use-mail'
 import { useLocale } from '@/contexts/LocaleContext' // Add this import
@@ -126,12 +126,12 @@ export default function NewReservation() {
 
   useEffect(() => {
     fetchAppointments()
-  }, [currentDate])
+  }, [currentDate, fetchAppointments])
 
   useEffect(() => {
     fetchServices()
     fetchStaff()
-  }, [selectedService])  
+  }, [fetchServices, fetchStaff, selectedService])  
 
   const handlePrevWeek = () => {
     const prevWeekStart = addDays(currentDate, -7)
@@ -151,14 +151,14 @@ export default function NewReservation() {
     const staffMember = staff.find(s => s.id === staffId)
     if (!staffMember) return false
     const dayName = format(day, 'EEE').toUpperCase()
-    return staffMember.weeklyHours && staffMember.weeklyHours[dayName] && staffMember.weeklyHours[dayName].length > 0
+    return staffMember.weeklyHours && staffMember.weeklyHours[dayName as keyof WeeklyHours] && staffMember.weeklyHours[dayName as keyof WeeklyHours].length > 0
   }
 
   const getStaffWorkingHours = (staffId: number, day: Date): TimeSlot[] | null => {
     const staffMember = staff.find(s => s.id === staffId)
     if (!staffMember || !staffMember.weeklyHours) return null
     const dayName = format(day, 'EEE').toUpperCase()
-    return staffMember.weeklyHours[dayName] || null
+    return staffMember.weeklyHours[dayName as keyof WeeklyHours] || null
   }
 
   const getAvailableTimesForDay = (day: Date) => {
