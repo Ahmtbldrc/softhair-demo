@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -5,7 +8,10 @@ import {
   Users,
   CreditCard,
   Activity,
+  Loader2,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +31,51 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Roles } from "@/lib/types";
+
+async function checkUserRole() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return session?.user?.user_metadata.role;
+}
+
 export default function StaffHome() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [shouldRender, setShouldRender] = useState(false);
+
+  useEffect(() => {
+    const checkAccess = async () => {
+      try {
+        const userRole = await checkUserRole();
+        if (userRole === Roles.STAFF) {
+          router.push("/staff/reservation");
+          return;
+        }
+        setShouldRender(true);
+      } catch (error) {
+        console.error("Error checking user role:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAccess();
+  }, [router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!shouldRender) {
+    return null;
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">

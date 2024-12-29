@@ -26,11 +26,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { logout } from "@/lib/auth";
-import { Roles } from "@/lib/types";
 import LocaleToggle from "@/components/LocalToggle";
 import { useLocale } from "@/contexts/LocaleContext";
 import Footer from "@/components/Footer";
 import BranchToggle from "@/components/BranchToggle";
+import { Roles } from "@/lib/types";
 
 const NavLink = React.memo(
   ({
