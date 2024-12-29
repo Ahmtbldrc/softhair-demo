@@ -30,6 +30,7 @@ import { ServiceType, StaffType, TimeSlot, WeeklyHours } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useLocale } from '@/contexts/LocaleContext';
+import { useBranch } from '@/contexts/BranchContext';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,6 +41,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { getActiveServices } from "@/lib/services/service.service";
 
 const staffData: StaffType = {
   id: 0,
@@ -67,10 +69,11 @@ const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const
 
 export default function MyAccount() {
   const { t } = useLocale();
+  const { selectedBranchId } = useBranch();
   const [staff, setStaff] = useState<StaffType>(staffData);
   const [staffImageName, setStaffImageName] = useState<string>("");
   const [staffImage, setStaffImage] = useState<File | null>(null);
-  const [services, setServices] = useState<{ id: number; name: string }[]>();
+  const [services, setServices] = useState<{ id: number; name: string; status: boolean }[]>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [currentUsername, setCurrentUsername] = useState<string>("");
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
@@ -92,11 +95,11 @@ export default function MyAccount() {
   };
 
   const handleWeeklyHoursChange = (day: keyof WeeklyHours, index: number, field: keyof TimeSlot, value: string) => {
-    setStaff(prev => ({
+    setStaff((prev: StaffType) => ({
       ...prev,
       weeklyHours: {
         ...prev.weeklyHours,
-        [day]: prev.weeklyHours[day].map((slot, i) => 
+        [day]: prev.weeklyHours[day].map((slot: TimeSlot, i: number) => 
           i === index ? { ...slot, [field]: value } : slot
         )
       }
@@ -104,7 +107,7 @@ export default function MyAccount() {
   }
 
   const addTimeSlot = (day: keyof WeeklyHours) => {
-    setStaff(prev => ({
+    setStaff((prev: StaffType) => ({
       ...prev,
       weeklyHours: {
         ...prev.weeklyHours,
@@ -114,11 +117,11 @@ export default function MyAccount() {
   }
 
   const removeTimeSlot = (day: keyof WeeklyHours, index: number) => {
-    setStaff(prev => ({
+    setStaff((prev: StaffType) => ({
       ...prev,
       weeklyHours: {
         ...prev.weeklyHours,
-        [day]: prev.weeklyHours[day].filter((_, i) => i !== index)
+        [day]: prev.weeklyHours[day].filter((_: TimeSlot, i: number) => i !== index)
       }
     }))
   }
@@ -337,19 +340,18 @@ export default function MyAccount() {
       setOldPassword(staffData?.password);
     };
 
-    supabase
-      .from("services")
-      .select("*")
+
+    getActiveServices(selectedBranchId)
       .then(({ data, error }) => {
         if (error) {
-          console.log("error", error);
+          console.error("Error fetching services:", error);
         } else {
           setServices(data);
         }
       });
 
     getCurrentUserAndStaff();
-  }, [router]);
+  }, [router, selectedBranchId]);
 
   const handleDiscard = () => {
     setShowDiscardDialog(true);
@@ -507,7 +509,7 @@ export default function MyAccount() {
                                   </span>
                                 ) : (
                                   <div className="flex flex-col space-y-2">
-                                    {staff.weeklyHours[day].map((slot, index) => (
+                                    {staff.weeklyHours[day].map((slot: TimeSlot, index: number) => (
                                       <div
                                         key={index}
                                         className="flex items-center space-x-2"
@@ -588,7 +590,7 @@ export default function MyAccount() {
                           </PopoverTrigger>
                           <PopoverContent className="w-80">
                             <div className="space-y-2">
-                              {staff.weeklyHours[day].map((slot, index) => (
+                              {staff.weeklyHours[day].map((slot: TimeSlot, index: number) => (
                                 <div key={index} className="flex items-center space-x-2">
                                   <Input
                                     type="time"

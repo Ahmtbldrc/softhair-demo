@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -43,19 +42,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ServiceType, StaffType } from "@/lib/types";
+import { StaffWithServices, TimeSlot, WeeklyHours } from "@/lib/database.types";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useLocale } from "@/contexts/LocaleContext";
 
-const staffData: StaffType = {
+const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const
+
+const staffData: StaffWithServices = {
   id: 0,
   firstName: "",
   lastName: "",
   email: "",
   username: "",
-  password: "********",
+  password: "",
   userId: "",
+  branchId: 0,
   status: true,
   image: "",
   services: [],
@@ -68,17 +70,16 @@ const staffData: StaffType = {
     FRI: [],
     SAT: [],
   },
+  created_at: "",
+  updated_at: null
 };
-
-const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const;
 
 export default function MyAccount() {
   const { t } = useLocale();
-  const [staff, setStaff] = useState<StaffType>(staffData);
-  const [services, setServices] = useState<{ id: number; name: string }[]>();
+  const [staff, setStaff] = useState<StaffWithServices>(staffData);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [selectedServices, setSelectedServices] = useState<number[]>([]);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>("");
 
   const router = useRouter();
 
@@ -93,7 +94,7 @@ export default function MyAccount() {
     const { error } = await supabase
       .from("staff")
       .update({
-        password: staff.password,
+        password: password,
       })
       .eq("id", staff.id);
 
@@ -109,7 +110,7 @@ export default function MyAccount() {
     const { error: authError } = await supabase.auth.admin.updateUserById(
       staff.userId,
       {
-        password: staff.password,
+        password: password,
       }
     );
 
@@ -117,7 +118,7 @@ export default function MyAccount() {
       console.error(authError);
     }
 
-    router.push("/staff");
+      router.push("/staff");
 
     toast({
       title: "Success",
@@ -127,61 +128,89 @@ export default function MyAccount() {
     setIsSubmitting(false);
   };
 
+  const fetchStaff = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "User not found",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data: staffData, error } = await supabase
+        .from("staff")
+        .select(`
+          *,
+          services:staff_services(
+            service:services(
+              id,
+              name
+            )
+          )
+        `)
+        .eq("userId", user.id)
+        .single();
+
+      if (error) {
+        console.error(error);
+        toast({
+          title: "Error",
+          description: "Error fetching staff data",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (staffData) {
+        const formattedStaff = {
+          ...staffData,
+          services: staffData.services?.map((s: { service: { id: number; name: string } }) => s.service) || [],
+          weeklyHours: staffData.weeklyHours || {
+            SUN: [],
+            MON: [],
+            TUE: [],
+            WED: [],
+            THU: [],
+            FRI: [],
+            SAT: [],
+          }
+        };
+        
+        setStaff(formattedStaff);
+        setPassword(formattedStaff.password || "");
+      }
+    } catch (error) {
+      console.error("Error in fetchStaff:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
-    fetchServices();
     fetchStaff();
   }, []);
 
-  const fetchServices = async () => {
-    await supabase
-      .from("services")
-      .select("*")
-      .then(({ data, error }) => {
-        if (error) {
-          console.log("error", error);
-        } else {
-          setServices(data);
-        }
-      });
-  };
 
-  const fetchStaff = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    await supabase
-      .from("staff")
-      .select("*, services:staff_services(service:service_id(id, name))")
-      .eq("id", session?.user.user_metadata.staffId)
-      .single()
-      .then(({ data, error }) => {
-        if (error) {
-          console.error(error);
-        } else {
-          setStaff(data);
-          setSelectedServices(
-            data?.services.map((s: ServiceType) => s.service.id)
-          );
-        }
-      });
-  };
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <div className="flex items-center gap-4">
-        </div>
-        <div className="mx-auto grid max-w-[59rem] min-[640px]:flex-1 auto-rows-max gap-4 max-[640px]:p-2">
+        <div className="mx-auto grid max-w-[59rem] flex-1 auto-rows-max gap-4">
           <div className="flex items-center gap-4">
-            <Link href="/staff/my-account">
+            <Link href="/staff">
               <Button variant="outline" size="icon" className="h-7 w-7">
                 <ChevronLeft className="h-4 w-4" />
-                <span className="sr-only">{t('staff-my-account.back')}</span>
+                <span className="sr-only">{t("common.back")}</span>
               </Button>
             </Link>
             <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-              {`${staff.firstName} ${staff.lastName}`}
+              {t("staff-my-account.myAccount")}
             </h1>
           </div>
           <form onSubmit={handleSubmit}>
@@ -189,85 +218,76 @@ export default function MyAccount() {
               <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
                 <Card>
                   <CardHeader>
-                    <CardTitle>{t('staff-my-account.staffDetails')}</CardTitle>
+                    <CardTitle>{t("staff-my-account.staffDetails")}</CardTitle>
                     <CardDescription>
-                      {t('staff-my-account.viewStaffPersonalInformation')}
+                      {t("staff-my-account.viewStaffPersonalInformation")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-6">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
-                          <Label htmlFor="firstName">{t('staff-my-account.firstName')}</Label>
+                          <Label htmlFor="firstName">{t("staff-my-account.firstName")}</Label>
                           <Input
                             id="firstName"
                             type="text"
-                            className="w-full text-muted-foreground"
-                            value={staff.firstName}
+                            className="w-full"
+                            value={staff.firstName || ""}
                             readOnly
                           />
                         </div>
                         <div>
-                          <Label htmlFor="lastName">{t('staff-my-account.lastName')}</Label>
+                          <Label htmlFor="lastName">{t("staff-my-account.lastName")}</Label>
                           <Input
                             id="lastName"
                             type="text"
-                            className="w-full text-muted-foreground"
-                            value={staff.lastName}
+                            className="w-full"
+                            value={staff.lastName || ""}
                             readOnly
                           />
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="email">{t('staff-my-account.email')}</Label>
+                        <Label htmlFor="email">{t("staff-my-account.email")}</Label>
                         <Input
                           id="email"
                           type="email"
-                          className="w-full text-muted-foreground"
-                          value={staff.email}
+                          className="w-full"
+                          value={staff.email || ""}
                           readOnly
                         />
                       </div>
                       <div>
-                        <Label htmlFor="username">{t('staff-my-account.username')}</Label>
+                        <Label htmlFor="username">{t("staff-my-account.username")}</Label>
                         <Input
                           id="username"
                           type="text"
-                          className="w-full text-muted-foreground"
-                          value={staff.username}
+                          className="w-full"
+                          value={staff.username || ""}
                           readOnly
                         />
                       </div>
                       <div>
-                        <Label htmlFor="password">{t('staff-my-account.password')}</Label>
+                        <Label htmlFor="password">{t("staff-my-account.password")}</Label>
                         <div className="relative">
                           <Input
                             id="password"
                             type={showPassword ? "text" : "password"}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             className="w-full pr-10"
-                            value={staff.password}
-                            onChange={(e) =>
-                              setStaff({ ...staff, password: e.target.value })
-                            }
-                            minLength={6}
-                            required
                           />
-                          <Button
+                          <button
                             type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="absolute right-0 top-0 h-full"
                             onClick={togglePasswordVisibility}
+                            className="absolute right-3 top-1/2 -translate-y-1/2"
                           >
                             {showPassword ? (
-                              <EyeOff className="h-4 w-4" />
+                              <EyeOff className="h-4 w-4 text-gray-500" />
                             ) : (
-                              <Eye className="h-4 w-4" />
+                              <Eye className="h-4 w-4 text-gray-500" />
                             )}
-                            <span className="sr-only">
-                              {showPassword ? "Hide password" : "Show password"}
-                            </span>
-                          </Button>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -275,9 +295,9 @@ export default function MyAccount() {
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>{t('staff-my-account.weeklyHours')}</CardTitle>
+                    <CardTitle>{t("staff-my-account.weeklyHours")}</CardTitle>
                     <CardDescription>
-                      {t('staff-my-account.weeklyHoursDescription')}
+                      {t("staff-my-account.weeklyHoursDescription")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -285,45 +305,34 @@ export default function MyAccount() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="w-[100px]">{t('staff-my-account.day')}</TableHead>
-                            <TableHead>{t('staff-my-account.hours')}</TableHead>
+                            <TableHead className="w-[100px]">{t("staff-my-account.day")}</TableHead>
+                            <TableHead>{t("staff-my-account.hours")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {daysOfWeek.map((day) => (
                             <TableRow key={day}>
-                              <TableCell className="font-medium">
-                                {day}
-                              </TableCell>
+                              <TableCell className="font-medium">{day}</TableCell>
                               <TableCell>
-                                {staff.weeklyHours[day].length === 0 ? (
+                                {staff.weeklyHours[day as keyof WeeklyHours].length === 0 ? (
                                   <span className="text-muted-foreground">
-                                    {t('staff-my-account.notAvailable')}
+                                    {t("staff-my-account.notAvailable")}
                                   </span>
                                 ) : (
                                   <div className="flex flex-col space-y-2">
-                                    {staff.weeklyHours[day].map(
-                                      (slot, index) => (
-                                        <div
-                                          key={index}
-                                          className="flex items-center space-x-2"
-                                        >
-                                          <Input
-                                            type="time"
-                                            value={slot.start}
-                                            className="w-24"
-                                            readOnly
-                                          />
-                                          <span>-</span>
-                                          <Input
-                                            type="time"
-                                            value={slot.end}
-                                            className="w-24"
-                                            readOnly
-                                          />
+                                    {staff.weeklyHours[day as keyof WeeklyHours].map((slot: TimeSlot, index: number) => (
+                                      <div
+                                        key={index}
+                                        className="flex items-center gap-2"
+                                      >
+                                        <div className="flex items-center gap-2">
+                                          <Clock className="h-4 w-4 text-muted-foreground" />
+                                          <span>
+                                            {slot.start} - {slot.end}
+                                          </span>
                                         </div>
-                                      )
-                                    )}
+                                      </div>
+                                    ))}
                                   </div>
                                 )}
                               </TableCell>
@@ -338,37 +347,29 @@ export default function MyAccount() {
                           <PopoverTrigger asChild>
                             <Button
                               variant="outline"
-                              className="w-full justify-start mb-2"
+                              className="mb-2 flex w-full justify-between"
                             >
-                              <Clock className="mr-2 h-4 w-4" />
                               {day}
                               <span className="ml-auto">
-                                {staff.weeklyHours[day].length === 0
-                                  ? t('staff-my-account.notAvailable')
-                                  : `${staff.weeklyHours[day].length} slot(s)`}
+                                {staff.weeklyHours[day as keyof WeeklyHours].length === 0
+                                  ? t("staff-my-account.notAvailable")
+                                  : `${staff.weeklyHours[day as keyof WeeklyHours].length} slot(s)`}
                               </span>
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-80">
                             <div className="space-y-2">
-                              {staff.weeklyHours[day].map((slot, index) => (
+                              {staff.weeklyHours[day as keyof WeeklyHours].map((slot: TimeSlot, index: number) => (
                                 <div
                                   key={index}
-                                  className="flex items-center space-x-2"
+                                  className="flex items-center gap-2"
                                 >
-                                  <Input
-                                    type="time"
-                                    value={slot.start}
-                                    className="w-24"
-                                    readOnly
-                                  />
-                                  <span>-</span>
-                                  <Input
-                                    type="time"
-                                    value={slot.end}
-                                    className="w-24"
-                                    readOnly
-                                  />
+                                  <div className="flex items-center gap-2">
+                                    <Clock className="h-4 w-4 text-muted-foreground" />
+                                    <span>
+                                      {slot.start} - {slot.end}
+                                    </span>
+                                  </div>
                                 </div>
                               ))}
                             </div>
@@ -382,7 +383,7 @@ export default function MyAccount() {
               <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
                 <Card>
                   <CardHeader>
-                    <CardTitle>{t('staff-my-account.staffStatus')}</CardTitle>
+                    <CardTitle>{t("staff-my-account.staffStatus")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Select value={staff.status ? "true" : "false"} disabled>
@@ -390,17 +391,17 @@ export default function MyAccount() {
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="true">{t('staff-my-account.active')}</SelectItem>
-                        <SelectItem value="false">{t('staff-my-account.passive')}</SelectItem>
+                        <SelectItem value="true">{t("staff-my-account.active")}</SelectItem>
+                        <SelectItem value="false">{t("staff-my-account.passive")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </CardContent>
                 </Card>
                 <Card className="overflow-hidden">
                   <CardHeader>
-                    <CardTitle>{t('staff-my-account.staffImage')}</CardTitle>
+                    <CardTitle>{t("staff-my-account.staffImage")}</CardTitle>
                     <CardDescription>
-                      {t('staff-my-account.uploadImageDescription')}
+                      {t("staff-my-account.uploadImageDescription")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -424,48 +425,16 @@ export default function MyAccount() {
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{t('staff-my-account.staffServices')}</CardTitle>
-                    <CardDescription>
-                      {t('staff-my-account.staffServicesDescription')}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid gap-4">
-                      {services?.map((service) => (
-                        <div
-                          key={service.id}
-                          className="flex items-center space-x-2"
-                        >
-                          <Checkbox
-                            id={service.id.toString()}
-                            checked={selectedServices.includes(service.id)}
-                            disabled
-                          />
-                          <label
-                            htmlFor={service.id.toString()}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {service.name}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
               </div>
-            </div>
-            <div className="flex items-center justify-end gap-2 mt-4">
-              <Button type="button" variant="outline">
-                {t('staff-my-account.cancel')}
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : null}
-                {t('staff-my-account.updatePassword')}
-              </Button>
+              <div className="lg:col-span-3 flex justify-end gap-4">
+                <Button type="button" variant="outline">
+                  {t("staff-my-account.cancel")}
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {t("staff-my-account.updatePassword")}
+                </Button>
+              </div>
             </div>
           </form>
         </div>
