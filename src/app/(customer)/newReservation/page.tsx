@@ -27,12 +27,20 @@ import { useLocale } from '@/contexts/LocaleContext' // Add this import
 import { getReservationConfirmationTemplate } from '@/lib/email-templates/reservation-confirmation'
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
+import { getActiveStaff } from "@/lib/services/staff.service"
+import { StaffWithServices } from "@/lib/database.types"
+
+interface Branch {
+  id: number;
+  name: string;
+}
 
 interface Service {
   id: number;
   name: string;
   price: number;
   duration: number;
+  branchId: number;
 }
 
 type Appointment = {
@@ -70,8 +78,33 @@ export default function NewReservation() {
   const mail = useMail();
   const { t } = useLocale()
 
+  const [branches, setBranches] = useState<Branch[]>([])
+  const [selectedBranch, setSelectedBranch] = useState<number | null>(null)
+  const [isClient, setIsClient] = useState(false)
+  const [staffMembers, setStaffMembers] = useState<StaffWithServices[]>([])
+
+  const fetchBranches = async () => {
+    const { data, error } = await supabase.from("branches").select("*")
+    if (error) {
+      console.error("Error fetching branches:", error)
+      toast({
+        title: "Error",
+        description: t("newReservation.errors.fetchBranches"),
+        variant: "destructive",
+      })
+    } else {
+      setBranches(data as Branch[])
+    }
+  }
+
   const fetchServices = async () => {
-    const { data, error } = await supabase.from("services").select("*")
+    if (!selectedBranch) return;
+    
+    const { data, error } = await supabase
+      .from("services")
+      .select("*")
+      .eq('branchId', selectedBranch)
+    
     if (error) {
       console.error("Error fetching services:", error)
       toast({
@@ -124,14 +157,52 @@ export default function NewReservation() {
     }
   }
 
+  const fetchStaffForService = async (serviceId: number) => {
+    try {
+      if (!selectedBranch) return;
+      
+      const { data: staffData, error } = await getActiveStaff(selectedBranch)
+      
+      if (error) {
+        toast({
+          title: t("newReservation.errors.fetchStaff"),
+          variant: "destructive",
+        })
+        return
+      }
+
+      const filteredStaff = staffData?.filter(staff => 
+        staff.services.some(s => s.service.id === serviceId)
+      ) || []
+
+      setStaffMembers(filteredStaff)
+    } catch (error) {
+      console.error("Error fetching staff:", error)
+      toast({
+        title: t("newReservation.errors.fetchStaff"),
+        variant: "destructive",
+      })
+    }
+  }
+
   useEffect(() => {
     fetchAppointments()
   }, [currentDate, fetchAppointments])
 
   useEffect(() => {
-    fetchServices()
-    fetchStaff()
-  }, [fetchServices, fetchStaff, selectedService])  
+    fetchBranches()
+  }, [])
+
+  useEffect(() => {
+    if (selectedBranch) {
+      fetchServices()
+      setSelectedService(null)
+    }
+  }, [selectedBranch])
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const handlePrevWeek = () => {
     const prevWeekStart = addDays(currentDate, -7)
@@ -148,14 +219,14 @@ export default function NewReservation() {
   }
 
   const isStaffWorkingOnDay = (staffId: number, day: Date) => {
-    const staffMember = staff.find(s => s.id === staffId)
+    const staffMember = staffMembers.find(s => s.id === staffId)
     if (!staffMember) return false
     const dayName = format(day, 'EEE').toUpperCase()
     return staffMember.weeklyHours && staffMember.weeklyHours[dayName as keyof WeeklyHours] && staffMember.weeklyHours[dayName as keyof WeeklyHours].length > 0
   }
 
   const getStaffWorkingHours = (staffId: number, day: Date): TimeSlot[] | null => {
-    const staffMember = staff.find(s => s.id === staffId)
+    const staffMember = staffMembers.find(s => s.id === staffId)
     if (!staffMember || !staffMember.weeklyHours) return null
     const dayName = format(day, 'EEE').toUpperCase()
     return staffMember.weeklyHours[dayName as keyof WeeklyHours] || null
@@ -201,7 +272,7 @@ export default function NewReservation() {
   }
 
   const handleReservation = async () => {
-    if (!selectedService || !selectedStaff || !selectedTime) {
+    if (!selectedService || !selectedStaff || !selectedTime || !selectedBranch) {
       toast({
         title: "Error",
         description: t("newReservation.errors.selectAll"),
@@ -228,6 +299,7 @@ export default function NewReservation() {
     const newReservation = {
       serviceId: selectedService,
       staffId: selectedStaff,
+      branchId: selectedBranch,
       start: selectedTime,
       end: endTime,
       customer: {
@@ -252,18 +324,6 @@ export default function NewReservation() {
     } else {
       setIsSuccessDialogOpen(true)
     }
-
-   // <p>Hi ${customerInfo.firstName},</p>
-   //   <p>Your appointment has been successfully booked for ${format(selectedTime, 'MMMM d, yyyy HH:mm')}.</p>
-   // <p>Service: ${service.name}</p>
-   // <p>Staff: ${staff.find(s => s.id === selectedStaff)?.firstName} ${staff.find(s => s.id === selectedStaff)?.lastName}</p>
-   // <p>Price: ${service.price} CHF</p>
-   // <p>Duration: ${service.duration} minutes</p>
-   // <p>Email:
-   //<a href="mailto:${staff.find(s => s.id === selectedStaff)?.email}">
-   //${staff.find(s => s.id === selectedStaff)?.email}
-   //</a>
-   //</p>
 
     mail.sendMail({
       to: customerInfo.email,
@@ -291,6 +351,21 @@ export default function NewReservation() {
       phone: "",
     })
     setCurrentDate(new Date())
+  }
+
+  const handleServiceChange = (serviceId: number) => {
+    setSelectedService(serviceId)
+    setSelectedStaff(null)
+    fetchStaffForService(serviceId)
+  }
+
+  // Sayfa yüklenene kadar loading göster
+  if (!isClient) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        <p>{t("common.loading")}</p>
+      </div>
+    )
   }
 
   return (
@@ -363,35 +438,52 @@ export default function NewReservation() {
               </div>
             </div>
             <div>
-              <Label htmlFor="service">{t("newReservation.selectService")}</Label>
+              <Label htmlFor="branch">{t("newReservation.selectBranch")}</Label>
               <Select 
                 onValueChange={(value) => {
-                  setSelectedService(Number(value))
+                  setSelectedBranch(Number(value))
+                  setSelectedService(null)
                   setSelectedStaff(null)
                   setSelectedTime(null)
                 }}
               >
-                <SelectTrigger id="service">
-                  <SelectValue placeholder={t("newReservation.chooseService")} />
+                <SelectTrigger id="branch">
+                  <SelectValue placeholder={t("newReservation.chooseBranch")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {services.map((service) => (
-                    <SelectItem key={service.id} value={service.id.toString()}>
-                      {service.name} ({service.price} CHF)
+                  {branches.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.id.toString()}>
+                      {branch.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+            {selectedBranch && (
+              <div>
+                <Label htmlFor="service">{t("newReservation.selectService")}</Label>
+                <Select 
+                  value={selectedService?.toString()}
+                  onValueChange={(value) => handleServiceChange(Number(value))}
+                >
+                  <SelectTrigger id="service">
+                    <SelectValue placeholder={t("newReservation.chooseService")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {services.map((service) => (
+                      <SelectItem key={service.id} value={service.id.toString()}>
+                        {service.name} ({service.price} CHF)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             {selectedService && (
               <div>
                 <Label>{t("newReservation.selectStaff")}</Label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-2">
-                  {staff
-                    .filter(staffMember => 
-                      staffMember.services.some(s => s.service.id === selectedService)
-                    )
-                    .map((staffMember) => (
+                  {staffMembers.map((staffMember) => (
                       <Card 
                         key={staffMember.id} 
                         className={`cursor-pointer transition-all ${selectedStaff === staffMember.id ? 'ring-2 ring-primary' : ''}`}

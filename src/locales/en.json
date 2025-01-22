@@ -564,13 +564,16 @@
     "successTitle": "Reservation Completed",
     "successDescription": "Your reservation has been successfully made. Please check your email for confirmation.",
     "returnToMain": "Return to Main Page",
+    "selectBranch": "Select Branch",
+    "chooseBranch": "Choose a branch",
     "errors": {
       "selectAll": "Please select a service, staff, and time.",
       "serviceNotFound": "Selected service not found.",
       "fetchServices": "Failed to fetch services. Please try again.",
       "fetchStaff": "Failed to fetch staff. Please try again.",
       "fetchAppointments": "Failed to fetch existing appointments. Please try again.",
-      "createReservation": "Failed to create reservation. Please try again."
+      "createReservation": "Failed to create reservation. Please try again.",
+      "fetchBranches": "Error fetching branches"
     }
   },
   "branches": {

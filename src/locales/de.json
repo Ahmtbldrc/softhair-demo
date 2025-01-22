@@ -493,13 +493,16 @@
     "successTitle": "Termin abgeschlossen",
     "successDescription": "Ihr Termin wurde erfolgreich gebucht. Bitte überprüfen Sie Ihre E-Mail für die Bestätigung.",
     "returnToMain": "Zurück zur Hauptseite",
+    "selectBranch": "Filiale auswählen",
+    "chooseBranch": "Wählen Sie eine Filiale",
     "errors": {
       "selectAll": "Bitte wählen Sie eine Dienstleistung, Personal und Zeit aus.",
       "serviceNotFound": "Ausgewählte Dienstleistung nicht gefunden.",
       "fetchServices": "Fehler beim Abrufen der Dienstleistungen. Bitte versuchen Sie es erneut.",
       "fetchStaff": "Fehler beim Abrufen des Personals. Bitte versuchen Sie es erneut.",
       "fetchAppointments": "Fehler beim Abrufen der bestehenden Termine. Bitte versuchen Sie es erneut.",
-      "createReservation": "Fehler beim Erstellen des Termins. Bitte versuchen Sie es erneut."
+      "createReservation": "Fehler beim Erstellen des Termins. Bitte versuchen Sie es erneut.",
+      "fetchBranches": "Fehler beim Abrufen der Filialen"
     }
   },
   "branches": {
