@@ -7,6 +7,8 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Card, CardContent } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
+import { Badge } from "@/components/ui/badge"
+import { LANGUAGES } from "@/lib/constants"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -16,6 +18,7 @@ interface StaffMember {
   lastName: string
   image: string
   status: boolean
+  languages: string[]
 }
 
 // Gravatar default image URL'ini tanımlayalım
@@ -204,6 +207,31 @@ export default function Team() {
                       target.src = DEFAULT_AVATAR
                     }}
                   />
+                  <div className="absolute top-3 right-3 flex flex-wrap gap-0 z-10">
+                    {member.languages?.map((langId, index) => {
+                      const language = LANGUAGES.find(l => l.id === langId)
+                      if (!language) return null
+                      
+                      return (
+                        <Badge
+                          key={langId}
+                          variant="secondary"
+                          className={`rounded-full p-0 w-10 h-10 overflow-hidden bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow ring-1 ring-white/20 ${
+                            index !== 0 ? '-ml-4' : ''
+                          } hover:translate-x-1 hover:-translate-y-1 transition-all duration-200`}
+                          title={language.name}
+                        >
+                          <Image
+                            src={`https://flagcdn.com/${language.countryCode.toLowerCase()}.svg`}
+                            alt={language.name}
+                            width={40}
+                            height={40}
+                            className="w-full h-full object-cover drop-shadow-md"
+                          />
+                        </Badge>
+                      )
+                    })}
+                  </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent">
                     <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                       <h3 className="text-xl font-bold metal-text drop-shadow-sm">
