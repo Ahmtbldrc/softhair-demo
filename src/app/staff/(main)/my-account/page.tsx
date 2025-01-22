@@ -46,6 +46,9 @@ import { StaffWithServices, TimeSlot, WeeklyHours } from "@/lib/database.types";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useLocale } from "@/contexts/LocaleContext";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { LANGUAGES } from "@/lib/constants";
 
 const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const
 
@@ -71,7 +74,8 @@ const staffData: StaffWithServices = {
     SAT: [],
   },
   created_at: "",
-  updated_at: null
+  updated_at: null,
+  languages: []
 };
 
 export default function MyAccount() {
@@ -144,8 +148,8 @@ export default function MyAccount() {
         .from("staff")
         .select(`
           *,
-          services:staff_services(
-            service:services(
+          services:staff_services (
+            service:services (
               id,
               name
             )
@@ -167,7 +171,12 @@ export default function MyAccount() {
       if (staffData) {
         const formattedStaff = {
           ...staffData,
-          services: staffData.services?.map((s: { service: { id: number; name: string } }) => s.service) || [],
+          services: staffData.services?.map((s: any) => ({
+            service: {
+              id: s.service.id,
+              name: s.service.name
+            }
+          })) || [],
           weeklyHours: staffData.weeklyHours || {
             SUN: [],
             MON: [],
@@ -176,7 +185,8 @@ export default function MyAccount() {
             THU: [],
             FRI: [],
             SAT: [],
-          }
+          },
+          languages: staffData.languages || []
         };
         
         setStaff(formattedStaff);
@@ -397,6 +407,32 @@ export default function MyAccount() {
                     </Select>
                   </CardContent>
                 </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t("admin-staff.languages")}</CardTitle>
+                    <CardDescription>
+                      {t("admin-staff.languagesDescription")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {(staff.languages || []).map((langId) => (
+                        <Badge
+                          key={langId}
+                          variant={(staff.languages || []).includes(langId) ? "default" : "outline"}
+                          className="cursor-pointer hover:opacity-80"
+                        >
+                          {LANGUAGES.find(l => l.id === langId)?.name}
+                        </Badge>
+                      ))}
+                      {(staff.languages || []).length === 0 && (
+                        <div className="text-sm text-muted-foreground">
+                          {t("admin-staff.noLanguagesSpecified")}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
                 <Card className="overflow-hidden">
                   <CardHeader>
                     <CardTitle>{t("staff-my-account.staffImage")}</CardTitle>
@@ -422,6 +458,41 @@ export default function MyAccount() {
                           </div>
                         )}
                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t("staff-my-account.staffServices")}</CardTitle>
+                    <CardDescription>
+                      {t("staff-my-account.viewStaffServices")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-4">
+                      {staff.services?.map((service) => (
+                        <div
+                          key={service.service.id}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            id={service.service.id.toString()}
+                            checked={true}
+                            disabled
+                          />
+                          <label
+                            htmlFor={service.service.id.toString()}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {service.service.name}
+                          </label>
+                        </div>
+                      ))}
+                      {staff.services?.length === 0 && (
+                        <div className="text-sm text-muted-foreground">
+                          {t("staff-my-account.noServicesAssigned")}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

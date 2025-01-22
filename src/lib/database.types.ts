@@ -224,6 +224,7 @@ export interface StaffWithServices extends Staff {
   weeklyHours: WeeklyHours
   created_at: string
   updated_at: string | null
+  languages: string[]
 }
 
 export interface StaffFormData extends Omit<Staff, 'id' | 'userId' | 'created_at' | 'updated_at'> {
