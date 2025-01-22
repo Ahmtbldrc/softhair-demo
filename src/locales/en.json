@@ -574,7 +574,11 @@
       "fetchAppointments": "Failed to fetch existing appointments. Please try again.",
       "createReservation": "Failed to create reservation. Please try again.",
       "fetchBranches": "Error fetching branches"
-    }
+    },
+    "kvkkConsent": "I have read and accept the Personal Data Protection Law (KVKK) terms.",
+    "kvkkTitle": "Personal Data Protection Law",
+    "kvkkText": "In accordance with the Personal Data Protection Law No. 6698, your personal data...\n\nDetailed text about KVKK terms and conditions...",
+    "kvkkAccept": "I have read and accept"
   },
   "branches": {
     "main": "Main Branch",

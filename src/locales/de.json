@@ -503,7 +503,11 @@
       "fetchAppointments": "Fehler beim Abrufen der bestehenden Termine. Bitte versuchen Sie es erneut.",
       "createReservation": "Fehler beim Erstellen des Termins. Bitte versuchen Sie es erneut.",
       "fetchBranches": "Fehler beim Abrufen der Filialen"
-    }
+    },
+    "kvkkConsent": "Ich habe die Datenschutzbestimmungen (KVKK) gelesen und akzeptiere sie.",
+    "kvkkTitle": "Datenschutzgesetz",
+    "kvkkText": "Gemäß dem Datenschutzgesetz Nr. 6698 werden Ihre personenbezogenen Daten...\n\nAusführlicher Text zu den KVKK-Bedingungen...",
+    "kvkkAccept": "Ich habe gelesen und akzeptiere"
   },
   "branches": {
     "main": "Hauptfiliale",

@@ -29,6 +29,7 @@ import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { getActiveStaff } from "@/lib/services/staff.service"
 import { StaffWithServices } from "@/lib/database.types"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface Branch {
   id: number;
@@ -82,6 +83,9 @@ export default function NewReservation() {
   const [selectedBranch, setSelectedBranch] = useState<number | null>(null)
   const [isClient, setIsClient] = useState(false)
   const [staffMembers, setStaffMembers] = useState<StaffWithServices[]>([])
+
+  const [isKvkkDialogOpen, setIsKvkkDialogOpen] = useState(false)
+  const [isKvkkAccepted, setIsKvkkAccepted] = useState(false)
 
   const fetchBranches = async () => {
     const { data, error } = await supabase.from("branches").select("*")
@@ -434,6 +438,27 @@ export default function NewReservation() {
                     }}
                   />
                 </div>
+                <div className="md:col-span-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="kvkk"
+                      checked={isKvkkAccepted}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setIsKvkkDialogOpen(true)
+                        } else {
+                          setIsKvkkAccepted(false)
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="kvkk"
+                      className="text-sm text-muted-foreground cursor-pointer"
+                    >
+                      {t("newReservation.kvkkConsent")}
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
             <div>
@@ -570,7 +595,7 @@ export default function NewReservation() {
             <DialogTrigger asChild>
               <Button 
                 className="w-full" 
-                disabled={!selectedTime || !customerInfo.firstName || !customerInfo.lastName || !customerInfo.email}
+                disabled={!selectedTime || !customerInfo.firstName || !customerInfo.lastName || !customerInfo.email || !isKvkkAccepted}
               >
                 {t("newReservation.bookAppointment")}
               </Button>
@@ -616,6 +641,32 @@ export default function NewReservation() {
               router.push('/')
             }}>
               {t("newReservation.returnToMain")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isKvkkDialogOpen} onOpenChange={setIsKvkkDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t("newReservation.kvkkTitle")}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground whitespace-pre-line">
+              {t("newReservation.kvkkText")}
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsKvkkDialogOpen(false)}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={() => {
+                setIsKvkkAccepted(true)
+                setIsKvkkDialogOpen(false)
+              }}
+            >
+              {t("newReservation.kvkkAccept")}
             </Button>
           </DialogFooter>
         </DialogContent>
