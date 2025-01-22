@@ -9,8 +9,15 @@ import { Card, CardContent } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
 import { Badge } from "@/components/ui/badge"
 import { LANGUAGES } from "@/lib/constants"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useLocale } from "@/contexts/LocaleContext"
 
 gsap.registerPlugin(ScrollTrigger)
+
+interface Branch {
+  id: number
+  name: string
+}
 
 interface StaffMember {
   id: number
@@ -19,6 +26,14 @@ interface StaffMember {
   image: string
   status: boolean
   languages: string[]
+  branchId: number
+}
+
+interface StaffByBranch {
+  [branchId: number]: {
+    branchName: string
+    staff: StaffMember[]
+  }
 }
 
 // Gravatar default image URL'ini tanımlayalım
@@ -33,29 +48,45 @@ const getImageUrl = (image: string | null) => {
 }
 
 export default function Team() {
+  const { t } = useLocale()
   const teamRef = useRef(null)
   const aboutRef = useRef(null)
   const teamTextRef = useRef(null)
+  const [selectedBranch, setSelectedBranch] = useState<number | null>(null)
   const [teamMembers, setTeamMembers] = useState<StaffMember[]>([])
+  const [branches, setBranches] = useState<Branch[]>([])
   const [loading, setLoading] = useState(true)
+
+  const fetchBranches = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('branches')
+        .select('*')
+        .eq('status', true)
+        .order('name', { ascending: true })
+
+      if (error) throw error
+      if (data) setBranches(data)
+    } catch (error) {
+      console.error('Error fetching branches:', error)
+    }
+  }
 
   const fetchStaff = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('staff')
         .select('*')
         .eq('status', true)
         .order('firstName', { ascending: true })
 
-        console.log(data)
-      
-      if (error) {
-        throw error
+      if (selectedBranch) {
+        query = query.eq('branchId', selectedBranch)
       }
 
-      if (data) {
-        setTeamMembers(data)
-      }
+      const { data, error } = await query
+      if (error) throw error
+      if (data) setTeamMembers(data)
     } catch (error) {
       console.error('Error fetching staff:', error)
     } finally {
@@ -64,8 +95,12 @@ export default function Team() {
   }
 
   useEffect(() => {
-    fetchStaff()
+    fetchBranches()
   }, [])
+
+  useEffect(() => {
+    fetchStaff()
+  }, [selectedBranch])
 
   useEffect(() => {
     if (!loading) {
@@ -185,15 +220,37 @@ export default function Team() {
     <div className="bg-black text-white">
       <section className="min-h-screen flex items-start pt-16 px-4">
         <div className="container mx-auto">
-          <h1 className="text-4xl font-bold mb-8 metal-text">Unser Team</h1>
-          <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-8 metal-text">{t("team.title")}</h1>
+          
+          <div className="mb-8 flex items-center gap-4">
             <Link href="/" className="text-gray-400 hover:text-white transition-colors">
-              Startseite
-            </Link>{' '}
-            &gt; Team
+              {t("team.breadcrumb.home")}
+            </Link>
+            &gt; {t("team.breadcrumb.team")}
+            
+            <div className="ml-auto w-[200px]">
+              <Select
+                value={selectedBranch?.toString() || "all"}
+                onValueChange={(value) => setSelectedBranch(value === "all" ? null : Number(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t("team.selectBranch")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("team.allBranches")}</SelectItem>
+                  {branches.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.id.toString()}>
+                      {branch.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div ref={teamRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mt-24">
-            {teamMembers.map((member) => (
+
+          {/* Personel kartları */}
+          <div ref={teamRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mt-8">
+            {teamMembers.map((member: StaffMember) => (
               <Card key={member.id} className="team-card neon-card overflow-hidden relative group">
                 <CardContent className="p-0 relative aspect-square">
                   <Image 

@@ -533,5 +533,14 @@
     "of": "von",
     "previous": "Vorherige Seite",
     "next": "Nächste Seite"
+  },
+  "team": {
+    "title": "Unser Team",
+    "allBranches": "Alle Filialen",
+    "selectBranch": "Filiale auswählen",
+    "breadcrumb": {
+      "home": "Startseite",
+      "team": "Team"
+    }
   }
 }

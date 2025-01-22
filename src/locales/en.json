@@ -604,5 +604,14 @@
     "of": "of",
     "previous": "Previous page",
     "next": "Next page"
+  },
+  "team": {
+    "title": "Our Team",
+    "allBranches": "All Branches",
+    "selectBranch": "Select Branch",
+    "breadcrumb": {
+      "home": "Home",
+      "team": "Team"
+    }
   }
 }
