@@ -42,6 +42,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { getActiveServices } from "@/lib/services/service.service";
+import { LANGUAGES } from "@/lib/constants"
+import { Badge } from "@/components/ui/badge"
 
 const staffData: StaffType = {
   id: 0,
@@ -62,7 +64,8 @@ const staffData: StaffType = {
     THU: [],
     FRI: [],
     SAT: [],
-  }
+  },
+  languages: []
 }
 
 const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const
@@ -241,6 +244,7 @@ export default function MyAccount() {
           status: staff.status,
           image: staff.image,
           weeklyHours: staff.weeklyHours,
+          languages: staff.languages,
         })
         .eq("id", staff.id);
     
@@ -668,6 +672,40 @@ export default function MyAccount() {
                         <SelectItem value="false">{t("admin-staff-edit.passive")}</SelectItem>
                       </SelectContent>
                     </Select>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t("admin-staff.languages")}</CardTitle>
+                    <CardDescription>
+                      {t("admin-staff.languagesDescription")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto p-1">
+                      {LANGUAGES.map((language) => (
+                        <Badge
+                          key={language.id}
+                          variant={(staff.languages || []).includes(language.id) ? "default" : "outline"}
+                          className="cursor-pointer hover:opacity-80 text-sm md:text-base py-1.5 px-3"
+                          onClick={() => {
+                            const currentLanguages = staff.languages || [];
+                            const updatedLanguages = currentLanguages.includes(language.id)
+                              ? currentLanguages.filter(id => id !== language.id)
+                              : [...currentLanguages, language.id];
+                            setStaff(prev => ({
+                              ...prev,
+                              languages: updatedLanguages
+                            }));
+                          }}
+                        >
+                          {language.name}
+                          {(staff.languages || []).includes(language.id) && (
+                            <X className="ml-1.5 h-3 w-3" />
+                          )}
+                        </Badge>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card className="overflow-hidden">

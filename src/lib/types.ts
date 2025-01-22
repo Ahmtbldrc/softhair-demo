@@ -90,5 +90,6 @@ export interface StaffType {
   image: string;
   services: ServiceType[];
   weeklyHours: WeeklyHours;
+  languages: string[]
 }
 
