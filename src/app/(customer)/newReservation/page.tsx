@@ -30,6 +30,8 @@ import 'react-phone-input-2/lib/style.css'
 import { getActiveStaff } from "@/lib/services/staff.service"
 import { StaffWithServices } from "@/lib/database.types"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
+import { LANGUAGES } from "@/lib/constants"
 
 interface Branch {
   id: number;
@@ -508,27 +510,52 @@ export default function NewReservation() {
                 <Label>{t("newReservation.selectStaff")}</Label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-2">
                   {staffMembers.map((staffMember) => (
-                      <Card 
-                        key={staffMember.id} 
-                        className={`cursor-pointer transition-all ${selectedStaff === staffMember.id ? 'ring-2 ring-primary' : ''}`}
-                        onClick={() => {
-                          setSelectedStaff(staffMember.id)
-                          setSelectedTime(null)
-                        }}
-                      >
-                        <CardContent className="flex flex-col items-center p-4">
-                          <Image
-                            src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staffMember.image}`}
-                            alt={`${staffMember.firstName} ${staffMember.lastName}`}
-                            width={100}
-                            height={100}
-                            className="rounded-md mb-2"
-                            unoptimized
-                          />
-                          <p className="text-center text-sm">{`${staffMember.firstName} ${staffMember.lastName}`}</p>
-                        </CardContent>
-                      </Card>
-                    ))}
+                    <Card 
+                      key={staffMember.id} 
+                      className={`cursor-pointer transition-all ${selectedStaff === staffMember.id ? 'ring-2 ring-primary' : ''}`}
+                      onClick={() => {
+                        setSelectedStaff(staffMember.id)
+                        setSelectedTime(null)
+                      }}
+                    >
+                      <CardContent className="flex flex-col items-center p-4">
+                        <Image
+                          src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staffMember.image}`}
+                          alt={`${staffMember.firstName} ${staffMember.lastName}`}
+                          width={100}
+                          height={100}
+                          className="rounded-md mb-2"
+                          unoptimized
+                        />
+                        <p className="text-center text-sm font-medium mb-2">{`${staffMember.firstName} ${staffMember.lastName}`}</p>
+                        
+                        {/* Dil badge'leri */}
+                        <div className="flex flex-wrap gap-2 justify-center">
+                          {staffMember.languages?.map((langId) => {
+                            const language = LANGUAGES.find(l => l.id === langId)
+                            if (!language) return null
+                            
+                            return (
+                              <Badge
+                                key={langId}
+                                variant="secondary"
+                                className="rounded-full p-0 w-8 h-8 overflow-hidden"
+                                title={language.name}
+                              >
+                                <Image
+                                  src={`https://flagcdn.com/${language.countryCode.toLowerCase()}.svg`}
+                                  alt={language.name}
+                                  width={32}
+                                  height={32}
+                                  className="w-full h-full object-cover"
+                                />
+                              </Badge>
+                            )
+                          })}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               </div>
             )}

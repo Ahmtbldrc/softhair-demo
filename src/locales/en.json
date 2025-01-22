@@ -578,7 +578,8 @@
     "kvkkConsent": "I have read and accept the Personal Data Protection Law (KVKK) terms.",
     "kvkkTitle": "Personal Data Protection Law",
     "kvkkText": "In accordance with the Personal Data Protection Law No. 6698, your personal data...\n\nDetailed text about KVKK terms and conditions...",
-    "kvkkAccept": "I have read and accept"
+    "kvkkAccept": "I have read and accept",
+    "staffLanguages": "Languages spoken"
   },
   "branches": {
     "main": "Main Branch",

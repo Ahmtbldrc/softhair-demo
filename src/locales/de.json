@@ -507,7 +507,8 @@
     "kvkkConsent": "Ich habe die Datenschutzbestimmungen (KVKK) gelesen und akzeptiere sie.",
     "kvkkTitle": "Datenschutzgesetz",
     "kvkkText": "Gemäß dem Datenschutzgesetz Nr. 6698 werden Ihre personenbezogenen Daten...\n\nAusführlicher Text zu den KVKK-Bedingungen...",
-    "kvkkAccept": "Ich habe gelesen und akzeptiere"
+    "kvkkAccept": "Ich habe gelesen und akzeptiere",
+    "staffLanguages": "Gesprochene Sprachen"
   },
   "branches": {
     "main": "Hauptfiliale",
