@@ -29,15 +29,7 @@ export async function validateStaffForm(
   }
 
   if (!data.email?.trim()) {
-    errors.push({
-      field: "email",
-      message: t("admin-staff.emailRequired")
-    })
-  } else if (!isValidEmail(data.email)) {
-    errors.push({
-      field: "email",
-      message: t("admin-staff.invalidEmail")
-    })
+    // Email artık zorunlu değil, bu yüzden bu kontrolü kaldırıyoruz
   } else {
     const { error, exists } = await checkEmailExists(data.email, excludeId)
     if (error) {

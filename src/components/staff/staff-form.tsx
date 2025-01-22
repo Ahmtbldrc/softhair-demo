@@ -122,22 +122,16 @@ export function StaffForm({ branchId, staffId, t }: StaffFormProps) {
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="email">{t("admin-staff.email")}</Label>
+                        <Label htmlFor="email">{t("admin-staff.email")} ({t("common.optional")})</Label>
                         <Input
                           id="email"
                           type="email"
-                          className={cn("w-full", errors.some(e => e.field === "email") && "border-red-500")}
+                          className="w-full"
                           value={staff.email}
                           onChange={(e) =>
                             setStaff({ ...staff, email: e.target.value })
                           }
-                          required
                         />
-                        {errors.some(e => e.field === "email") && (
-                          <p className="mt-1 text-sm text-red-500">
-                            {errors.find(e => e.field === "email")?.message}
-                          </p>
-                        )}
                       </div>
                       <div>
                         <Label htmlFor="username">{t("admin-staff.username")}</Label>

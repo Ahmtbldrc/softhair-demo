@@ -42,7 +42,8 @@
     "discardChangesWarning": "Möchten Sie die Änderungen wirklich verwerfen? Alle nicht gespeicherten Änderungen gehen verloren.",
     "back": "Zurück",
     "showPassword": "Passwort anzeigen",
-    "hidePassword": "Passwort verbergen"
+    "hidePassword": "Passwort verbergen",
+    "optional": "optional"
   },
   "auth": {
     "logout": "Abmelden",
@@ -130,7 +131,7 @@
     "email": "E-Mail",
     "username": "Benutzername",
     "password": "Passwort",
-    "invalidPassword": "Das Passwort muss mindestens 6 Zeichen lang sein",
+    "invalidPassword": "Das Passwort muss mindestens 8 Zeichen lang sein",
     "weeklyHours": "Wöchentliche Arbeitszeiten",
     "weeklyHoursDescription": "Legen Sie die wöchentlichen Arbeitszeiten des Mitarbeiters fest",
     "day": "Tag",
@@ -187,7 +188,9 @@
     "createSuccess": "Personal erfolgreich erstellt",
     "createSuccessDescription": "Der Mitarbeiter wurde erfolgreich erstellt.",
     "deleteSuccess": "Personal erfolgreich gelöscht",
-    "deleteSuccessDescription": "Der Mitarbeiter wurde erfolgreich gelöscht."
+    "deleteSuccessDescription": "Der Mitarbeiter wurde erfolgreich gelöscht.",
+    "updateSuccess": "Mitarbeiter Aktualisiert",
+    "updateSuccessDescription": "Mitarbeiter wurde erfolgreich aktualisiert"
   },
   "admin-services": {
     "servicesDescription": "Dienstleistungsverwaltung",

@@ -42,7 +42,8 @@
     "discardChangesWarning": "Do you want to discard changes? All unsaved changes will be lost.",
     "back": "Back",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "optional": "optional"
   },
   "auth": {
     "logout": "Logout",
@@ -130,7 +131,7 @@
     "email": "Email",
     "username": "Username",
     "password": "Password",
-    "invalidPassword": "Password must be at least 6 characters long",
+    "invalidPassword": "Password must be at least 8 characters long",
     "weeklyHours": "Weekly Hours",
     "weeklyHoursDescription": "Set the staff member's weekly working hours",
     "day": "Day",
@@ -187,7 +188,9 @@
     "createSuccess": "Staff Created Successfully",
     "createSuccessDescription": "The staff member has been created successfully.",
     "deleteSuccess": "Staff Deleted Successfully",
-    "deleteSuccessDescription": "The staff member has been deleted successfully."
+    "deleteSuccessDescription": "The staff member has been deleted successfully.",
+    "updateSuccess": "Staff Updated",
+    "updateSuccessDescription": "Staff member has been successfully updated"
   },
   "admin-staff-edit":{
     "back": "Back",
