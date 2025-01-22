@@ -6,7 +6,7 @@ import {
   eachDayOfInterval
 } from "date-fns"
 import { createReservation, deleteReservation, getReservations } from "@/lib/services/reservation.service"
-import { getActiveStaff } from "@/lib/services/staff.service"
+import { getAllStaff } from "@/lib/services/staff.service"
 import { getActiveServices } from "@/lib/services/service.service"
 import { ReservationWithDetails, Service, StaffWithServices } from "@/lib/database.types"
 import { useReservationForm, ReservationFormData } from "./use-reservation-form"
@@ -50,7 +50,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
 
   const fetchStaff = async () => {
     try {
-      const result = await getActiveStaff(branchId)
+      const result = await getAllStaff(branchId)
       
       if (result.error) {
         throw new Error(result.error)
