@@ -47,7 +47,7 @@ function BarberChair() {
     <group ref={meshRef}>
       <primitive 
         object={scene} 
-        scale={0.005} 
+        scale={0.005}
         position={[0, -1, 0]} 
         rotation={[0, Math.PI, 0]} 
       />
@@ -95,7 +95,6 @@ export default function Home() {
   useEffect(() => {
     if (!mounted) return
 
-    // GSAP animasyonları
     const ctx = gsap.context(() => {
       // Service cards animasyonu
       const serviceCards = gsap.utils.toArray<HTMLElement>('.service-card')
@@ -151,7 +150,7 @@ export default function Home() {
             duration: 1.2,
             ease: "power4.out",
           },
-          index * 0.15 // Her harf 0.15 saniye arayla gelecek
+          index * 0.15
         )
       })
 
@@ -313,13 +312,32 @@ export default function Home() {
           }
         }
       )
+
+      // About section için 3D model animasyonu
+      gsap.fromTo('.about-model',
+        {
+          opacity: 0,
+          x: -100,
+          scale: 0.8,
+        },
+        {
+          opacity: 1,
+          x: 0,
+          scale: 1,
+          duration: 1.2,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: aboutRef.current,
+            start: "top center",
+            end: "top 25%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      )
     })
 
-    // Cleanup function
-    return () => {
-      ctx.revert() // Tüm GSAP animasyonlarını temizle
-    }
-  }, [mounted]) // mounted'i dependency olarak ekledik
+    return () => ctx.revert()
+  }, [mounted])
 
   const services = [
     { icon: Scissors, key: 'haircut' },
@@ -338,8 +356,7 @@ export default function Home() {
     <div className="bg-black text-white">
       <section ref={heroRef} className="min-h-screen relative flex items-center pt-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-center justify-center gap-16">
-            <div className="hero-content w-full lg:w-1/2 text-center lg:text-left mb-8 lg:mb-0 lg:pl-32">
+          <div className="hero-content w-full text-center lg:text-left mb-8 lg:mb-0">
               <motion.h1
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -371,30 +388,6 @@ export default function Home() {
                   </Link>
                 </Button>
               </motion.div>
-            </div>
-
-            <div className="w-full lg:w-1/2 h-[400px] sm:h-[500px] lg:h-[600px] relative">
-              <Canvas camera={{ position: [0, 0, 12], fov: 40 }}>
-                <ambientLight intensity={0.5} />
-                <pointLight position={[10, 10, 10]} intensity={1} />
-                <spotLight
-                  position={[5, 5, 5]}
-                  angle={0.3}
-                  penumbra={1}
-                  intensity={1}
-                  castShadow
-                />
-                <Environment preset="studio" />
-                <BarberChair />
-                <OrbitControls 
-                  enableZoom={false}
-                  enablePan={false}
-                  enableRotate={true}
-                  minPolarAngle={Math.PI / 3}
-                  maxPolarAngle={Math.PI / 2}
-                />
-              </Canvas>
-            </div>
           </div>
         </div>
       </section>
@@ -420,9 +413,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section ref={aboutRef} className="min-h-screen flex items-center justify-center px-4 py-4">
-        <div className="about-text text-center" style={{ perspective: '1000px' }}>
-          <h2 className="about-title text-7xl sm:text-8xl lg:text-9xl font-bold mb-10 text-transparent" 
+      <section ref={aboutRef} className="min-h-screen flex flex-col items-center justify-center px-4 py-4">
+        <div className="container mx-auto">
+          <h2 className="about-title text-7xl sm:text-8xl lg:text-9xl font-bold mb-20 text-center text-transparent" 
               style={{ 
                 WebkitTextStroke: '2px white',
                 transform: 'preserve-3d'
@@ -441,20 +434,51 @@ export default function Home() {
               </span>
             ))}
           </h2>
-          <div className="about-content text-2xl sm:text-3xl max-w-4xl mx-auto leading-relaxed">
-            <span>{t('about.content.intro')}</span>{' '}
-            <span className="gradient-text">{t('about.content.trustedPartner')}</span>{' '}
-            <span>{t('about.content.for')}</span>{' '}
-            <span className="gradient-text">{t('about.content.experience')}</span>{' '}
-            <span>{t('about.content.and')}</span>{' '}
-            <span className="gradient-text">{t('about.content.passion')}</span>{' '}
-            <span>{t('about.content.commitment')}</span>{' '}
-            <span className="gradient-text">{t('about.content.confident')}</span>{' '}
-            <span>{t('about.content.feel')}</span>{' '}
-            <span className="gradient-text">{t('about.content.naturalBeauty')}</span>{' '}
-            <span>{t('about.content.enhance')}</span>{' '}
-            <span className="gradient-text">{t('about.content.smile')}</span>{' '}
-            <span>{t('about.content.create')}</span>
+          
+          <div className="flex flex-col lg:flex-row items-start justify-between gap-16">
+            <div className="w-full lg:w-1/2 h-[500px] sm:h-[600px] lg:h-[800px] relative about-model pt-16">
+              <Canvas 
+                camera={{ position: [0, 0, 12], fov: 40 }}
+                style={{ marginTop: '2rem' }}
+              >
+                <ambientLight intensity={0.5} />
+                <pointLight position={[10, 10, 10]} intensity={1} />
+                <spotLight
+                  position={[5, 5, 5]}
+                  angle={0.3}
+                  penumbra={1}
+                  intensity={1}
+                  castShadow
+                />
+                <Environment preset="studio" />
+                <BarberChair />
+                <OrbitControls 
+                  enableZoom={false}
+                  enablePan={false}
+                  enableRotate={true}
+                  minPolarAngle={Math.PI / 3}
+                  maxPolarAngle={Math.PI / 2}
+                />
+              </Canvas>
+            </div>
+
+            <div className="about-text w-full lg:w-1/2 pt-32">
+              <div className="about-content text-2xl sm:text-3xl lg:text-4xl max-w-2xl leading-relaxed mt-8">
+                <span>{t('about.content.intro')}</span>{' '}
+                <span className="gradient-text">{t('about.content.trustedPartner')}</span>{' '}
+                <span>{t('about.content.for')}</span>{' '}
+                <span className="gradient-text">{t('about.content.experience')}</span>{' '}
+                <span>{t('about.content.and')}</span>{' '}
+                <span className="gradient-text">{t('about.content.passion')}</span>{' '}
+                <span>{t('about.content.commitment')}</span>{' '}
+                <span className="gradient-text">{t('about.content.confident')}</span>{' '}
+                <span>{t('about.content.feel')}</span>{' '}
+                <span className="gradient-text">{t('about.content.naturalBeauty')}</span>{' '}
+                <span>{t('about.content.enhance')}</span>{' '}
+                <span className="gradient-text">{t('about.content.smile')}</span>{' '}
+                <span>{t('about.content.create')}</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
