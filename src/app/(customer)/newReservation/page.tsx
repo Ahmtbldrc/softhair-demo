@@ -422,7 +422,6 @@ export default function NewReservation() {
                     enableSearch={true}
                     inputProps={{
                       id: 'phone',
-                      required: true,
                     }}
                     inputStyle={{
                       width: '100%',
@@ -569,7 +568,10 @@ export default function NewReservation() {
         <CardFooter>
           <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="w-full" disabled={!selectedTime || !customerInfo.firstName || !customerInfo.lastName || !customerInfo.email || !customerInfo.phone}>
+              <Button 
+                className="w-full" 
+                disabled={!selectedTime || !customerInfo.firstName || !customerInfo.lastName || !customerInfo.email}
+              >
                 {t("newReservation.bookAppointment")}
               </Button>
             </DialogTrigger>
