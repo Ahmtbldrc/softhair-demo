@@ -190,7 +190,13 @@
     "deleteSuccess": "Staff Deleted Successfully",
     "deleteSuccessDescription": "The staff member has been deleted successfully.",
     "updateSuccess": "Staff Updated",
-    "updateSuccessDescription": "Staff member has been successfully updated"
+    "updateSuccessDescription": "Staff member has been successfully updated",
+    "languages": "Languages",
+    "languagesDescription": "Select the languages that the staff member can speak",
+    "selectLanguages": "Select languages",
+    "languagesSelected": "languages selected",
+    "searchLanguages": "Search languages...",
+    "noLanguageFound": "No language found"
   },
   "admin-staff-edit":{
     "back": "Back",

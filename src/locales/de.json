@@ -190,7 +190,13 @@
     "deleteSuccess": "Personal erfolgreich gelöscht",
     "deleteSuccessDescription": "Der Mitarbeiter wurde erfolgreich gelöscht.",
     "updateSuccess": "Mitarbeiter Aktualisiert",
-    "updateSuccessDescription": "Mitarbeiter wurde erfolgreich aktualisiert"
+    "updateSuccessDescription": "Mitarbeiter wurde erfolgreich aktualisiert",
+    "languages": "Sprachen",
+    "languagesDescription": "Wählen Sie die Sprachen aus, die der Mitarbeiter spricht",
+    "selectLanguages": "Sprachen auswählen",
+    "languagesSelected": "Sprachen ausgewählt",
+    "searchLanguages": "Sprachen suchen...",
+    "noLanguageFound": "Keine Sprache gefunden"
   },
   "admin-services": {
     "servicesDescription": "Dienstleistungsverwaltung",

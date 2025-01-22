@@ -31,6 +31,7 @@ interface StaffWithServices {
     FRI: Array<{ start: string; end: string }>
     SAT: Array<{ start: string; end: string }>
   }
+  languages: string[]
 }
 
 export async function getActiveStaff(branchId: number) {

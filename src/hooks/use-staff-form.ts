@@ -27,6 +27,7 @@ export interface StaffFormState {
   branchId: number
   services: number[]
   weeklyHours: WeeklyHours
+  languages: string[]
 }
 
 interface UseStaffFormProps {
@@ -55,7 +56,8 @@ const emptyStaffData: StaffFormState = {
   image: "",
   branchId: 0,
   services: [],
-  weeklyHours: defaultWeeklyHours
+  weeklyHours: defaultWeeklyHours,
+  languages: [],
 }
 
 export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
@@ -98,6 +100,7 @@ export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
     staff.status,
     staff.image,
     staff.weeklyHours,
+    staff.languages,
     selectedServices
   ])
 
@@ -136,7 +139,8 @@ export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
         branchId: staffData.branchId,
         services: staffData.services.map((s: StaffService) => s.service.id),
         weeklyHours: staffData.weeklyHours || defaultWeeklyHours,
-        userId: staffData.userId
+        userId: staffData.userId,
+        languages: staffData.languages || [],
       }
       setStaff(formData)
       setOriginalStaff(formData)
@@ -255,7 +259,8 @@ export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
             status: staffData.status,
             image: staffData.image,
             branchId: staffData.branchId,
-            weeklyHours: staffData.weeklyHours
+            weeklyHours: staffData.weeklyHours,
+            languages: staffData.languages || []
           })
           .eq("id", parseInt(staffId))
 
@@ -339,7 +344,8 @@ export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
               username: staffData.username,
               email: staffData.email,
               role: Roles.STAFF,
-              branchIds: [selectedBranchId]
+              branchIds: [selectedBranchId],
+              languages: staffData.languages
             }
           })
 
@@ -360,7 +366,8 @@ export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
               image: staffData.image,
               branchId,
               weeklyHours: staffData.weeklyHours,
-              userId: authData.user.id
+              userId: authData.user.id,
+              languages: staffData.languages || []
             })
             .select()
             .single()
@@ -378,7 +385,8 @@ export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
                 username: staffData.username,
                 email: staffData.email,
                 role: Roles.STAFF,
-                staffId: newStaff.id
+                staffId: newStaff.id,
+                languages: staffData.languages || []
               }
             }
           )
