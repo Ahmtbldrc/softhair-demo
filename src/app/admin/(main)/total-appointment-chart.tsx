@@ -22,15 +22,15 @@ import { useLocale } from "@/contexts/LocaleContext";
 
 // define ChartDataType from chartData object
 type ChartDataType = {
-  daily: { period: AnalyticType, active: number, passive: number }[],
-  weekly: { period: AnalyticType, active: number, passive: number }[],
-  monthly: { period: AnalyticType, active: number, passive: number }[]
+  daily: { period: AnalyticType, active: number, passive: number, empty: number }[],
+  weekly: { period: AnalyticType, active: number, passive: number, empty: number }[],
+  monthly: { period: AnalyticType, active: number, passive: number, empty: number }[]
 }
 
 const initialChartData: ChartDataType = {
-  daily: [{ period: AnalyticType.DAILY, active: 0, passive: 0 }],
-  weekly: [{ period: AnalyticType.WEEKLY, active: 0, passive: 0 }],
-  monthly: [{ period: AnalyticType.MONTHLY, active: 0, passive: 0 }],
+  daily: [{ period: AnalyticType.DAILY, active: 0, passive: 0, empty: 100 }],
+  weekly: [{ period: AnalyticType.WEEKLY, active: 0, passive: 0, empty: 100 }],
+  monthly: [{ period: AnalyticType.MONTHLY, active: 0, passive: 0, empty: 100 }],
 }
 
 const chartConfig = {
@@ -41,6 +41,10 @@ const chartConfig = {
   passive: {
     label: "canceled",
     color: "hsl(var(--chart-5))",
+  },
+  empty: {
+    label: "",
+    color: "hsl(var(--muted))",
   },
 } satisfies ChartConfig
 
@@ -70,9 +74,24 @@ export function TotalAppointmentChart() {
       const monthlyData = await getReservationCount(monthlyStartDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
 
       setChartData({
-        daily: [{ period: AnalyticType.DAILY, active: dailyData.active, passive: dailyData.passive }],
-        weekly: [{ period: AnalyticType.WEEKLY, active: weeklyData.active, passive: weeklyData.passive }],
-        monthly: [{ period: AnalyticType.MONTHLY, active: monthlyData.active, passive: monthlyData.passive }]
+        daily: [{ 
+          period: AnalyticType.DAILY, 
+          active: dailyData.active, 
+          passive: dailyData.passive,
+          empty: dailyData.active + dailyData.passive === 0 ? 100 : 0 
+        }],
+        weekly: [{ 
+          period: AnalyticType.WEEKLY, 
+          active: weeklyData.active, 
+          passive: weeklyData.passive,
+          empty: weeklyData.active + weeklyData.passive === 0 ? 100 : 0 
+        }],
+        monthly: [{ 
+          period: AnalyticType.MONTHLY, 
+          active: monthlyData.active, 
+          passive: monthlyData.passive,
+          empty: monthlyData.active + monthlyData.passive === 0 ? 100 : 0 
+        }]
       });
     }
     fetchReservationCount();
@@ -145,6 +164,15 @@ export function TotalAppointmentChart() {
                     stackId="a"
                     cornerRadius={5}
                     className="stroke-transparent stroke-2"
+                  />
+                  <RadialBar
+                    dataKey="empty"
+                    fill="var(--color-empty)"
+                    stackId="a"
+                    cornerRadius={5}
+                    className="stroke-transparent stroke-2"
+                    isAnimationActive={false}
+                    name=""
                   />
                 </RadialBarChart>
               </ChartContainer>
