@@ -93,3 +93,12 @@ export interface StaffType {
   languages: string[]
 }
 
+export interface ServiceDetails {
+  id: number;
+  name: string;
+  price: number;
+  status: boolean;
+  branchId: number;
+  duration?: number;
+}
+

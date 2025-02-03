@@ -43,7 +43,8 @@
     "back": "Back",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
-    "optional": "optional"
+    "optional": "optional",
+    "bookNow": "Book Now"
   },
   "auth": {
     "logout": "Logout",
@@ -485,7 +486,8 @@
     "mensHaircut": "Men's Haircut",
     "coloring": "Coloring",
     "highlights": "Highlights",
-    "updo": "Updo"
+    "updo": "Updo",
+    "duration": "Duration"
   },
   "about": {
     "title": "About Us",

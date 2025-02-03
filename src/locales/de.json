@@ -43,7 +43,8 @@
     "back": "Zurück",
     "showPassword": "Passwort anzeigen",
     "hidePassword": "Passwort verbergen",
-    "optional": "optional"
+    "optional": "optional",
+    "bookNow": "Jetzt Buchen"
   },
   "auth": {
     "logout": "Abmelden",
@@ -414,7 +415,8 @@
     "mensHaircut": "Herrenhaarschnitt",
     "coloring": "Färben",
     "highlights": "Strähnchen",
-    "updo": "Hochsteckfrisur"
+    "updo": "Hochsteckfrisur",
+    "duration": "Dauer"
   },
   "about": {
     "title": "Über uns",

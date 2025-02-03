@@ -12,7 +12,7 @@ import * as THREE from 'three'
 import React from 'react'
 import { useLocale } from '@/contexts/LocaleContext'
 import Link from 'next/link'
-import { Service } from '@/lib/types'
+import { ServiceDetails } from '@/lib/types'
 import { supabase } from '@/lib/supabase'
 import { Scissors, Palette, Brush, Sparkles, Heart } from 'lucide-react'
 
@@ -65,7 +65,7 @@ export default function Home() {
   const priceRef = useRef(null)
   const contactRef = useRef(null)
   const [mounted, setMounted] = useState(false)
-  const [prices, setPrices] = useState<Service[]>([])
+  const [prices, setPrices] = useState<ServiceDetails[]>([])
 
   // Servisleri getir
   useEffect(() => {
@@ -354,9 +354,10 @@ export default function Home() {
 
   return (
     <div className="bg-black text-white">
-      <section ref={heroRef} className="min-h-screen relative flex items-center pt-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="hero-content w-full text-center lg:text-left mb-8 lg:mb-0">
+      <section ref={heroRef} className="min-h-screen relative flex items-center pt-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-32">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div className="hero-content w-full text-center lg:text-left mb-8 lg:mb-0">
               <motion.h1
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -388,11 +389,29 @@ export default function Home() {
                   </Link>
                 </Button>
               </motion.div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1, delay: 0.5 }}
+              className="relative w-full h-[500px] rounded-lg overflow-hidden"
+            >
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover rounded-lg"
+              >
+                <source src="/image/video.mp4" type="video/mp4" />
+              </video>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      <section ref={servicesRef} className="min-h-screen flex items-center justify-center px-8 py-16">
+      {/* <section ref={servicesRef} className="min-h-screen flex items-center justify-center px-8 py-16">
         <div className="w-full max-w-screen-xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {services.map((service, index) => (
@@ -411,9 +430,9 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
-      <section ref={aboutRef} className="min-h-screen flex flex-col items-center justify-center px-4 py-4">
+      <section ref={aboutRef} className="min-h-screen flex flex-col items-center justify-center px-4 py-4 mt-64">
         <div className="container mx-auto">
           <h2 className="about-title text-7xl sm:text-8xl lg:text-9xl font-bold mb-20 text-center text-transparent" 
               style={{ 
@@ -484,35 +503,122 @@ export default function Home() {
       </section>
 
       <section ref={priceRef} className="min-h-screen flex items-center justify-center px-4 py-16">
-        <div className="price-container bg-black p-8 rounded-lg neon-card w-full max-w-2xl">
-          <h2 className="text-4xl font-bold mb-8 text-center metal-text">{t('prices.title')}</h2>
-          <ul className="space-y-4">
-            {prices.map((price) => (
-              <li key={price.id} className="price-item flex justify-between items-center border-b border-gray-800 pb-2">
-                <span>{price.name}</span>
-                <span className="font-bold metal-text">{price.price}</span>
-              </li>
+        <div className="price-container w-full max-w-4xl">
+          <h2 className="text-5xl font-bold mb-12 text-center metal-text">
+            {t('prices.title')}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {prices.map((price, index) => (
+              <div 
+                key={price.id} 
+                className={`price-item group relative overflow-hidden rounded-xl bg-gradient-to-br from-zinc-900 to-black p-0.5 transition-all hover:scale-[1.01] ${
+                  prices.length % 2 !== 0 && index === prices.length - 1 ? 'md:col-start-1 md:col-end-3 md:w-1/2 md:mx-auto' : ''
+                }`}
+              >
+                <div className="relative flex flex-col h-full bg-black rounded-xl p-6 transition-all">
+                  <div className="absolute inset-0 bg-gradient-to-br from-zinc-800/20 to-transparent rounded-xl" />
+                  <div className="relative flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-semibold text-white/90 group-hover:text-white transition-colors">
+                      {price.name}
+                    </h3>
+                    <span className="text-2xl font-bold metal-text">
+                      {price.price}€
+                    </span>
+                  </div>
+                  <div className="relative mt-auto">
+                    <div className="h-px w-full bg-gradient-to-r from-transparent via-zinc-500/50 to-transparent" />
+                    <div className="flex justify-between items-center mt-4">
+                      <span className="text-sm text-zinc-400">
+                        {t('prices.duration')}: ~{price.duration || 30} min
+                      </span>
+                      <Button variant="ghost" size="sm" className="hover:bg-zinc-800">
+                        {t('common.bookNow')}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       </section>
 
       <section ref={contactRef} className="min-h-screen flex items-center justify-center px-4 py-16 overflow-x-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mx-auto">
-          <div className="contact-info space-y-4">
-            <h2 className="contact-title text-4xl font-bold mb-8 metal-text">{t('contact.title')}</h2>
-            <p className="contact-detail">
-              <strong className="metal-text">{t('contact.phone')}:</strong> +49 123 456789
-            </p>
-            <p className="contact-detail">
-              <strong className="metal-text">{t('contact.email')}:</strong> info@royalteam.de
-            </p>
-            <p className="contact-detail">
-              <strong className="metal-text">{t('contact.address')}:</strong> Hauptstraße 123, 10115 Berlin
-            </p>
-          </div>
-          <div className="contact-map w-full">
-            <div className="relative w-full h-[300px]">
+        <div className="w-full max-w-6xl mx-auto">
+          <h2 className="contact-title text-5xl md:text-6xl font-bold text-center mb-16 metal-text">
+            {t('contact.title')}
+          </h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="contact-info bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-800">
+              <div className="space-y-8">
+                <div className="contact-detail group">
+                  <div className="flex items-center space-x-4 p-4 rounded-xl transition-all duration-300 hover:bg-zinc-800/50">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-zinc-400">{t('contact.phone')}</p>
+                      <p className="text-lg font-semibold metal-text">+49 123 456789</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="contact-detail group">
+                  <div className="flex items-center space-x-4 p-4 rounded-xl transition-all duration-300 hover:bg-zinc-800/50">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-zinc-400">{t('contact.email')}</p>
+                      <p className="text-lg font-semibold metal-text">info@royalteam.de</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="contact-detail group">
+                  <div className="flex items-center space-x-4 p-4 rounded-xl transition-all duration-300 hover:bg-zinc-800/50">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-zinc-400">{t('contact.address')}</p>
+                      <p className="text-lg font-semibold metal-text">Hauptstraße 123, 10115 Berlin</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="contact-detail mt-8">
+                  <h3 className="text-xl font-semibold mb-4 metal-text">{t('contact.hours')}</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl bg-zinc-800/30">
+                      <p className="text-sm text-zinc-400">Mon - Fri</p>
+                      <p className="font-medium">09:00 - 20:00</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-zinc-800/30">
+                      <p className="text-sm text-zinc-400">Sat - Sun</p>
+                      <p className="font-medium">10:00 - 18:00</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="contact-map w-full h-[500px] rounded-2xl overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent z-10 pointer-events-none"></div>
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2428.409722750949!2d13.394913776680424!3d52.52000687210677!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a851c655f20989%3A0x26bbfb4e84674c63!2sHauptstra%C3%9Fe%2C%20Berlin%2C%20Germany!5e0!3m2!1sen!2sus!4v1701745391689!5m2!1sen!2sus"
                 className="absolute inset-0 w-full h-full"
