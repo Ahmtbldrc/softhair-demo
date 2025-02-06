@@ -482,6 +482,7 @@
   },
   "prices": {
     "title": "Our Prices",
+    "subtitle": "Professional Services Tailored to Your Style",
     "womensHaircut": "Women's Haircut",
     "mensHaircut": "Men's Haircut",
     "coloring": "Coloring",
@@ -491,6 +492,7 @@
   },
   "about": {
     "title": "About Us",
+    "subtitle": "Experience the Art of Professional Haircare",
     "content": {
       "intro": "Royal Team is your",
       "trustedPartner": "trusted partner",
@@ -509,6 +511,7 @@
   },
   "contact": {
     "title": "Contact",
+    "subtitle": "Contact Us for Perfect Styling",
     "phone": "Phone",
     "email": "Email",
     "address": "Address"
@@ -614,6 +617,35 @@
     "breadcrumb": {
       "home": "Home",
       "team": "Team"
+    }
+  },
+  "gallery": {
+    "title": "Our Gallery",
+    "items": {
+      "1": {
+        "title": "Modern Styling",
+        "description": "Contemporary hair styling techniques for a fresh look"
+      },
+      "2": {
+        "title": "Classic Cuts",
+        "description": "Timeless haircuts that never go out of style"
+      },
+      "3": {
+        "title": "Color Expertise",
+        "description": "Professional coloring services for vibrant results"
+      },
+      "4": {
+        "title": "Luxury Treatment",
+        "description": "Premium hair care treatments for ultimate pampering"
+      },
+      "5": {
+        "title": "Trending Styles",
+        "description": "Latest fashion trends in hair styling"
+      },
+      "6": {
+        "title": "Expert Care",
+        "description": "Professional care for healthy, beautiful hair"
+      }
     }
   }
 }

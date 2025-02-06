@@ -411,6 +411,7 @@
   },
   "prices": {
     "title": "Unsere Preise",
+    "subtitle": "Professionelle Dienstleistungen für Ihren Stil",
     "womensHaircut": "Damenhaarschnitt",
     "mensHaircut": "Herrenhaarschnitt",
     "coloring": "Färben",
@@ -420,6 +421,7 @@
   },
   "about": {
     "title": "Über uns",
+    "subtitle": "Erleben Sie die Kunst der professionellen Haarpflege",
     "content": {
       "intro": "Royal Team ist Ihr",
       "trustedPartner": "vertrauenswürdiger Partner",
@@ -438,6 +440,7 @@
   },
   "contact": {
     "title": "Kontakt",
+    "subtitle": "Kontaktieren Sie uns für perfektes Styling",
     "phone": "Telefon",
     "email": "E-Mail",
     "address": "Adresse"
