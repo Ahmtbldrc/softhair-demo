@@ -302,30 +302,45 @@ export default function Team() {
           </div>
         </div>
       </section>
-      <section ref={aboutRef} className="min-h-screen flex items-center px-4">
+      <section ref={aboutRef} className="min-h-screen flex flex-col items-center justify-center px-4 py-4 mb-16">
         <div className="container mx-auto">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
             <div className="w-full lg:w-1/2 space-y-6">
-              <div className="relative">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold metal-text">Über unser</h2>
-                <div 
-                  ref={teamTextRef}
-                  className="absolute opacity-0 z-50"
-                  style={{ width: 'auto', whiteSpace: 'nowrap' }}
-                >
-                  <span className="inline-block border border-white/40 rounded-lg px-3 py-1 text-base md:text-lg metal-text">
-                    Team
+              <div className="relative mb-20">
+                <h2 className="text-6xl sm:text-7xl font-bold text-left about-section-title">
+                  <span className="inline-block relative">
+                    {/* Arka plan gölgesi */}
+                    <span className="absolute -inset-2 blur-xl bg-gradient-to-r from-zinc-500/20 via-zinc-300/20 to-zinc-500/20 rounded-lg"></span>
+                    
+                    {/* Ana başlık */}
+                    <span className="relative">
+                      <span className="relative inline-block metal-text">
+                        {/* Üst katman - parlak efekt */}
+                        <span className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent bg-clip-text">
+                          {t("team.about.title")}
+                        </span>
+                        
+                        {/* Ana metin */}
+                        <span className="relative bg-gradient-to-b from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent filter drop-shadow-[0_5px_15px_rgba(255,255,255,0.15)]">
+                          {t("team.about.title")}
+                        </span>
+                      </span>
+                    </span>
                   </span>
+                </h2>
+                
+                {/* Ayraç çizgisi */}
+                <div className="absolute left-0 -bottom-6 w-96 h-0.5 about-section-divider">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-400 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent blur-sm"></div>
                 </div>
               </div>
+
               <p className="text-base md:text-lg leading-relaxed">
-                Unser <span className="metal-text">erfahrenes Team</span> von Stylisten und Coloristen ist darauf spezialisiert,
-                Ihnen den <span className="metal-text">perfekten Look</span> zu verleihen. Mit jahrelanger Erfahrung und
-                ständiger Weiterbildung sind wir immer auf dem neuesten Stand der <span className="metal-text">Frisurentrends</span>.
+                {t("team.about.description1")}
               </p>
               <p className="text-base md:text-lg leading-relaxed">
-                Wir legen großen Wert auf <span className="metal-text">individuelle Beratung</span> und gehen auf Ihre persönlichen
-                Wünsche ein, um sicherzustellen, dass Sie unser Salon mit einem <span className="metal-text">strahlenden Lächeln</span> verlassen.
+                {t("team.about.description2")}
               </p>
             </div>
             <div className="w-full lg:w-1/2">

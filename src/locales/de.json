@@ -546,6 +546,11 @@
     "breadcrumb": {
       "home": "Startseite",
       "team": "Team"
+    },
+    "about": {
+      "title": "Über unser",
+      "description1": "Unser erfahrenes Team von Stylisten und Coloristen ist darauf spezialisiert, Ihnen den perfekten Look zu verleihen. Mit jahrelanger Erfahrung und ständiger Weiterbildung sind wir immer auf dem neuesten Stand der Frisurentrends.",
+      "description2": "Wir legen grossen Wert auf individuelle Beratung und gehen auf Ihre persönlichen Wünsche ein, um sicherzustellen, dass Sie unser Salon mit einem strahlenden Lächeln verlassen."
     }
   }
 }
