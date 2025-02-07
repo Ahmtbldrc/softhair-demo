@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { 
   addDays, 
   startOfWeek, 
   endOfWeek, 
-  eachDayOfInterval
+  eachDayOfInterval,
+  startOfDay,
+  endOfDay
 } from "date-fns"
 import { createReservation, deleteReservation, getReservations } from "@/lib/services/reservation.service"
 import { getAllStaff } from "@/lib/services/staff.service"
 import { getActiveServices } from "@/lib/services/service.service"
-import { ReservationWithDetails, Service, StaffWithServices } from "@/lib/database.types"
+import { ReservationWithDetails, Reservation, Service, StaffWithServices } from "@/lib/database.types"
 import { useReservationForm, ReservationFormData } from "./use-reservation-form"
 import useMail from "./use-mail"
 import { getReservationConfirmationTemplate, getReservationCancellationTemplate } from "@/lib/email-templates"
@@ -19,6 +21,7 @@ import {
   validateReservationCancellation
 } from "@/lib/utils/reservation"
 import { handleError, handleSuccess } from "@/lib/utils/error-handler"
+import { supabase } from "@/lib/supabase"
 
 export function useReservationCalendar(branchId: number, t: (key: string, params?: Record<string, string | number>) => string) {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -32,6 +35,9 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [isMobile, setIsMobile] = useState(false)
+  const [filteredDailyReservations, setFilteredDailyReservations] = useState<Reservation[]>([])
 
   const form = useReservationForm()
   const mail = useMail()
@@ -39,6 +45,40 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
   const weekStart = startOfWeek(currentDate)
   const weekEnd = endOfWeek(currentDate)
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd })
+
+
+  const fetchDailyReservations = useCallback(async (date: Date) => {
+    if (!branchId) return;
+    
+    const dayStart = startOfDay(date);
+    const dayEnd = endOfDay(date);
+    
+    try {
+      const result = await getReservations({
+        branchId: Number(branchId),
+        startDate: dayStart.toISOString(),
+        endDate: dayEnd.toISOString(),
+        status: true
+      })
+
+      if (result.error) {
+        throw new Error(result.error)
+      }
+
+      setReservations(result.data ?? [])
+    } catch (error) {
+      handleError(error, {
+        title: t("admin-reservation.fetchReservationsError"),
+        defaultMessage: t("admin-reservation.fetchReservationsErrorDescription")
+      })
+    }
+  }, [branchId]);
+
+  useEffect(() => {
+    if (isMobile) {
+      fetchDailyReservations(selectedDate);
+    }
+  }, [isMobile, selectedDate, fetchDailyReservations]);
 
   useEffect(() => {
     if (branchId) {
@@ -48,9 +88,20 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
     }
   }, [currentDate, branchId])
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768) // md breakpoint
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   const fetchStaff = async () => {
     try {
-      const result = await getAllStaff(branchId)
+      const result = await getAllStaff(Number(branchId))
       
       if (result.error) {
         throw new Error(result.error)
@@ -67,7 +118,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
 
   const fetchServices = async () => {
     try {
-      const result = await getActiveServices(branchId)
+      const result = await getActiveServices(Number(branchId))
       
       if (result.error) {
         throw new Error(result.error)
@@ -85,7 +136,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
   const fetchReservations = async () => {
     try {
       const result = await getReservations({
-        branchId: branchId,
+        branchId: Number(branchId),
         startDate: weekStart.toISOString(),
         endDate: weekEnd.toISOString(),
         status: true
@@ -176,7 +227,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
   const handleNewReservation = async (data: ReservationFormData) => {
     setIsSubmitting(true)
 
-    const service = services.find(s => s.id === data.serviceId)
+    const service = services.find(s => s.id === Number(data.serviceId))
     if (!service) {
       handleError(new Error(t("admin-reservation.serviceNotFound")), {
         title: t("admin-reservation.error"),
@@ -188,9 +239,9 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
 
     try {
       const result = await createReservation({
-        serviceId: data.serviceId,
-        staffId: data.staffId,
-        branchId: branchId,
+        serviceId: Number(data.serviceId),
+        staffId: Number(data.staffId),
+        branchId: Number(branchId),
         start: data.start,
         end: data.start,
         customer: data.customer,
@@ -204,7 +255,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
       setIsSuccessDialogOpen(true)
       fetchReservations()
 
-      const staffMember = staffMembers.find(s => s.id === data.staffId)
+      const staffMember = staffMembers.find(s => s.id === Number(data.staffId))
 
       await mail.sendMail({
         to: data.customer.email,
@@ -231,8 +282,20 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
     }
   }
 
-  const filteredReservations = filterReservationsByStaff(reservations, selectedStaff)
+  const filteredReservations = filterReservationsByStaff(reservations, selectedStaff ? Number(selectedStaff) : null)
   const sortedReservations = sortReservationsByDate(filteredReservations)
+
+  const memoizedDailyReservations = useMemo(() => {
+    if (!isMobile) return reservations
+    return reservations.filter(reservation => {
+      const reservationDate = new Date(reservation.start)
+      return (
+        reservationDate.getDate() === selectedDate.getDate() &&
+        reservationDate.getMonth() === selectedDate.getMonth() &&
+        reservationDate.getFullYear() === selectedDate.getFullYear()
+      )
+    })
+  }, [reservations, selectedDate, isMobile])
 
   return {
     currentDate,
@@ -260,6 +323,10 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
     handleReservationClick,
     handleCancelReservation,
     handleNewReservation,
-    groupReservationsByTime
+    groupReservationsByTime,
+    selectedDate,
+    setSelectedDate,
+    isMobile,
+    dailyReservations: memoizedDailyReservations,
   }
 } 

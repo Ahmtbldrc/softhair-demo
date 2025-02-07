@@ -61,6 +61,7 @@ export interface Database {
           id: number
           name: string
           price: number
+          duration: number
           status: boolean
           branchId: number
           created_at: string
@@ -70,6 +71,7 @@ export interface Database {
           id?: number
           name: string
           price: number
+          duration: number
           status?: boolean
           branchId: number
           created_at?: string
@@ -79,6 +81,7 @@ export interface Database {
           id?: number
           name?: string
           price?: number
+          duration?: number
           status?: boolean
           branchId?: number
           created_at?: string

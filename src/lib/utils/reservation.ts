@@ -1,14 +1,12 @@
 import { format, compareAsc } from "date-fns"
 import { ReservationWithDetails } from "@/lib/database.types"
 
-export function filterReservationsByStaff(
-  reservations: ReservationWithDetails[],
-  selectedStaff: string | null
-): ReservationWithDetails[] {
-  if (!selectedStaff || selectedStaff === "all") {
-    return reservations
-  }
-  return reservations.filter(res => res.staffId === Number(selectedStaff))
+export const filterReservationsByStaff = (
+  reservations: ReservationWithDetails[], 
+  staffId: number | null
+): ReservationWithDetails[] => {
+  if (!staffId) return reservations
+  return reservations.filter(r => r.staffId === staffId)
 }
 
 export function sortReservationsByDate(reservations: ReservationWithDetails[]): ReservationWithDetails[] {

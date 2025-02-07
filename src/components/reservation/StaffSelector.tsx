@@ -8,19 +8,21 @@ import { StaffWithServices } from "@/lib/database.types"
 interface StaffSelectorProps {
   staffMembers: StaffWithServices[]
   selectedStaff: string | null
-  setSelectedStaff: (value: string) => void
+  setSelectedStaff: (staffId: string) => void
   t: (key: string, params?: Record<string, string | number>) => string
+  isMobile?: boolean
 }
 
 export function StaffSelector({
   staffMembers,
   selectedStaff,
   setSelectedStaff,
-  t
+  t,
+  isMobile = false
 }: StaffSelectorProps) {
   return (
     <div className="mb-4">
-      <h3 className="text-lg font-semibold mb-2">{t("admin-reservation.selectStaff")}</h3>
+      {!isMobile && <h3 className="mb-2 font-medium">{t("admin-reservation.selectStaff")}</h3>}
       <Select
         value={selectedStaff || ""}
         onValueChange={setSelectedStaff}

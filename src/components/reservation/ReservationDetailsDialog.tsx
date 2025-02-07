@@ -26,6 +26,7 @@ interface ReservationDetailsDialogProps {
   staffMembers: StaffWithServices[]
   handleCancelReservation: (reservationId: number) => Promise<void>
   t: (key: string, params?: Record<string, string | number>) => string
+  className?: string
 }
 
 export function ReservationDetailsDialog({
