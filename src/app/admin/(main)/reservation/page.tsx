@@ -20,10 +20,9 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { isSameDay } from "date-fns"
 import { ReservationWithDetails } from "@/lib/database.types"
 
-const DailyNavigation = ({ selectedDate, setSelectedDate, t }: { 
+const DailyNavigation = ({ selectedDate, setSelectedDate }: { 
   selectedDate: Date
   setSelectedDate: (date: Date) => void
-  t: (key: string, params?: Record<string, string | number>) => string 
 }) => {
   const handlePrevDay = () => {
     const newDate = new Date(selectedDate)
@@ -54,7 +53,7 @@ const DailyNavigation = ({ selectedDate, setSelectedDate, t }: {
 
 export default function AppointmentCalendar() {
   const { t } = useLocale()
-  const { selectedBranchId } = useBranch()
+  const { selectedBranchId, branches } = useBranch()
   const tWithParams = t as (key: string, params?: Record<string, string | number>) => string
 
   const {
@@ -86,8 +85,18 @@ export default function AppointmentCalendar() {
     selectedDate,
     setSelectedDate,
     isMobile,
-    dailyReservations,
   } = useReservationCalendar(selectedBranchId, tWithParams)
+
+  // Get the current branch information
+  const currentBranch = branches.find(branch => branch.id === selectedBranchId)
+
+  if (!currentBranch) {
+    return (
+      <div className="flex min-h-screen w-full flex-col bg-background items-center justify-center">
+        <p className="text-lg text-muted-foreground">{t("admin-reservation.selectBranch")}</p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -98,7 +107,6 @@ export default function AppointmentCalendar() {
               <DailyNavigation 
                 selectedDate={selectedDate}
                 setSelectedDate={setSelectedDate}
-                t={tWithParams}
               />
               <StaffSelector 
                 staffMembers={staffMembers}
@@ -126,7 +134,9 @@ export default function AppointmentCalendar() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle>{tWithParams("admin-reservation.reservationCalendar")}</CardTitle>
-                  <CardDescription>{tWithParams("admin-reservation.reservationCalendarDescription")}</CardDescription>
+                  <CardDescription>
+                    {tWithParams("admin-reservation.reservationCalendarDescription")} - {currentBranch.name}
+                  </CardDescription>
                 </div>
                 <Dialog open={isNewReservationDialogOpen} onOpenChange={setIsNewReservationDialogOpen}>
                   <DialogTrigger asChild>
@@ -134,7 +144,9 @@ export default function AppointmentCalendar() {
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col overflow-hidden">
                     <DialogHeader>
-                      <DialogTitle>{tWithParams("admin-reservation.newReservation")}</DialogTitle>
+                      <DialogTitle>
+                        {tWithParams("admin-reservation.newReservation")} - {currentBranch.name}
+                      </DialogTitle>
                     </DialogHeader>
                     
                     <ScrollArea className="flex-1 px-4">
@@ -228,7 +240,9 @@ export default function AppointmentCalendar() {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col overflow-hidden">
               <DialogHeader>
-                <DialogTitle>{tWithParams("admin-reservation.newReservation")}</DialogTitle>
+                <DialogTitle>
+                  {t("admin-reservation.newReservation")}
+                </DialogTitle>
               </DialogHeader>
               <ScrollArea className="flex-1 px-4">
                 <NewReservationForm 
@@ -247,7 +261,7 @@ export default function AppointmentCalendar() {
               </ScrollArea>
               <DialogFooter className="mt-4 px-4 py-2">
                 <Button onClick={() => setIsConfirmDialogOpen(true)}>
-                  {tWithParams("admin-reservation.bookAppointment")}
+                  {t("admin-reservation.bookAppointment")}
                 </Button>
               </DialogFooter>
             </DialogContent>

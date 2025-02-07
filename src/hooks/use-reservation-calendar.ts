@@ -10,7 +10,7 @@ import {
 import { createReservation, deleteReservation, getReservations } from "@/lib/services/reservation.service"
 import { getAllStaff } from "@/lib/services/staff.service"
 import { getActiveServices } from "@/lib/services/service.service"
-import { ReservationWithDetails, Reservation, Service, StaffWithServices } from "@/lib/database.types"
+import { ReservationWithDetails, Service, StaffWithServices } from "@/lib/database.types"
 import { useReservationForm, ReservationFormData } from "./use-reservation-form"
 import useMail from "./use-mail"
 import { getReservationConfirmationTemplate, getReservationCancellationTemplate } from "@/lib/email-templates"
@@ -22,6 +22,14 @@ import {
 } from "@/lib/utils/reservation"
 import { handleError, handleSuccess } from "@/lib/utils/error-handler"
 import { supabase } from "@/lib/supabase"
+
+interface ReservationParams {
+  branchId: number;
+  startDate: string;
+  endDate: string;
+  staffId?: number;
+  status?: boolean;
+}
 
 export function useReservationCalendar(branchId: number, t: (key: string, params?: Record<string, string | number>) => string) {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -37,7 +45,6 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [isMobile, setIsMobile] = useState(false)
-  const [filteredDailyReservations, setFilteredDailyReservations] = useState<Reservation[]>([])
 
   const form = useReservationForm()
   const mail = useMail()
@@ -81,6 +88,8 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
   }, [isMobile, selectedDate, fetchDailyReservations]);
 
   useEffect(() => {
+    console.log("fetching reservations")
+    console.log(branchId)
     if (branchId) {
       fetchStaff()
       fetchServices()
@@ -135,12 +144,22 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
 
   const fetchReservations = async () => {
     try {
-      const result = await getReservations({
+      const { data: { user } } = await supabase.auth.getUser()
+      const userRole = user?.user_metadata?.role
+      const staffId = user?.user_metadata?.staffId
+
+      const params: ReservationParams = {
         branchId: Number(branchId),
         startDate: weekStart.toISOString(),
         endDate: weekEnd.toISOString(),
         status: true
-      })
+      }
+
+      if (userRole === 'staff' && staffId) {
+        params.staffId = Number(staffId)
+      }
+
+      const result = await getReservations(params)
 
       if (result.error) {
         throw new Error(result.error)
@@ -171,10 +190,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
   const handleCancelReservation = async (reservationId: number) => {
     const reservation = reservations.find(res => res.id === reservationId)
     const validation = validateReservationCancellation(reservation, t)
-    console.log(validation, reservation)
-    debugger
     if (!validation.isValid || !reservation) {
-      console.log("test", validation)
       handleError(new Error(validation.error?.description ?? "Unknown error"), {
         title: validation.error?.title ?? t("admin-reservation.cancelError"),
         defaultMessage: t("admin-reservation.unknownError")

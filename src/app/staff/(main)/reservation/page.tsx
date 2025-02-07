@@ -4,14 +4,12 @@ import React, { useEffect, useState } from "react";
 import {
   addDays,
   format,
-  startOfWeek,
-  endOfWeek,
-  eachDayOfInterval,
   isSameDay,
   compareAsc,
   addMinutes,
   parse,
   subMinutes,
+  startOfWeek,
 } from "date-fns";
 import {
   Card,
@@ -55,68 +53,43 @@ import {
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
 import { User } from "@supabase/supabase-js";
-import { deleteReservation } from "@/lib/services/reservation.service";
-import useMail from "@/hooks/use-mail";
 import { useLocale } from "@/contexts/LocaleContext";
-import { 
-  getReservationConfirmationTemplate, 
-  getReservationCancellationTemplate,
-  getAdminReservationConfirmationTemplate,
-  getAdminReservationCancellationTemplate
-} from '@/lib/email-templates'
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
-
-type Staff = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  image: string;
-  email: string;
-  weeklyHours: {
-    [key: string]: { start: string; end: string }[];
-  };
-  services: {
-    service: {
-      id: number;
-      name: string;
-    };
-  }[];
-};
-
-type Service = {
-  id: number;
-  name: string;
-  price: number;
-  duration: number;
-};
-
-type Reservation = {
-  id: number;
-  serviceId: number;
-  start: Date;
-  end: Date;
-  staffId: number;
-  customer: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-  };
-};
+import { useBranch } from "@/contexts/BranchContext";
+import { useReservationCalendar } from "@/hooks/use-reservation-calendar";
 
 export default function ReservationPage() {
   const { t } = useLocale();
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [selectedReservation, setSelectedReservation] =
-    useState<Reservation | null>(null);
-  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const { selectedBranchId } = useBranch();
+  console.log(selectedBranchId)
+  const {
+    currentDate,
+    weekStart,
+    weekEnd,
+    days,
+    reservations: calendarReservations,
+    staffMembers: calendarStaffMembers,
+    services: calendarServices,
+    selectedReservation,
+    isDetailsDialogOpen,
+    isNewReservationDialogOpen,
+    isConfirmDialogOpen,
+    isSuccessDialogOpen,
+    isSubmitting,
+    setIsDetailsDialogOpen,
+    setIsNewReservationDialogOpen,
+    setIsConfirmDialogOpen,
+    setIsSuccessDialogOpen,
+    handlePrevWeek,
+    handleNextWeek,
+    handleReservationClick: handleCalendarReservationClick,
+    handleCancelReservation: handleCalendarCancelReservation,
+    handleNewReservation: handleCalendarNewReservation,
+    groupReservationsByTime,
+  } = useReservationCalendar(selectedBranchId, t as (key: string, params?: Record<string, string | number>) => string);
+
   const [user, setUser] = useState<User | null>();
-  const [staffMembers, setStaffMembers] = useState<Staff[]>([]);
-  const [isNewReservationDialogOpen, setIsNewReservationDialogOpen] =
-    useState(false);
   const [newReservation, setNewReservation] = useState({
     serviceId: null as number | null,
     staffId: null as number | null,
@@ -128,26 +101,6 @@ export default function ReservationPage() {
       phone: "",
     },
   });
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const weekStart = startOfWeek(currentDate);
-  const weekEnd = endOfWeek(currentDate);
-  const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
-
-  const mail = useMail();
-
-  const fetchAdminUsers = async () => {
-    const { data, error } = await supabase.from("admin_emails").select("*");
-
-    if (error) {
-      console.error("Error fetching admin users:", error);
-      return [];
-    }
-    console.log(data);
-    return data.map((user) => user.email);
-  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -157,231 +110,51 @@ export default function ReservationPage() {
         staffId: session?.user.user_metadata.staffId as number | null,
       }));
     });
-    fetchServices();
-    fetchStaff();
   }, []);
 
-  useEffect(() => {
-    fetchReservations();
-
-    const reservationsSubscription = supabase
-      .channel("reservations")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "reservations" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setReservations((prev) => [
-              ...prev,
-              parseReservation(payload.new as Reservation),
-            ]);
-          } else if (payload.eventType === "DELETE") {
-            setReservations((prev) =>
-              prev.filter((res) => res.id !== payload.old.id)
-            );
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(reservationsSubscription);
-    };
-  }, [currentDate]);
-
-  const fetchServices = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    const selectedBranchId = user?.user_metadata?.selectedBranchId;
-
-    const { data, error } = await supabase
-      .from("services")
-      .select("*")
-      .eq('status', true)
-      .eq('branchId', selectedBranchId);
-
-    if (error) {
-      console.error("Error fetching services:", error);
+  const handleNewReservationSubmit = async () => {
+    if (!newReservation.serviceId || !newReservation.staffId || !newReservation.start) {
       toast({
         title: "Error",
-        description: "Failed to fetch services.",
+        description: "Please select a service and time.",
         variant: "destructive",
       });
-    } else {
-      setServices(data);
+      return;
     }
+
+    await handleCalendarNewReservation({
+      serviceId: newReservation.serviceId,
+      staffId: newReservation.staffId,
+      start: newReservation.start,
+      customer: newReservation.customer
+    });
+
+    setNewReservation({
+      serviceId: null,
+      staffId: user?.user_metadata?.staffId as number | null,
+      start: null,
+      customer: {
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+      },
+    });
   };
 
-  const fetchReservations = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    const { data, error } = await supabase
-      .from("reservations")
-      .select("*")
-      .eq("staffId", session?.user.user_metadata.staffId)
-      .eq("status", true)
-      .gte("start", weekStart.toISOString())
-      .lte("start", weekEnd.toISOString());
-    if (error) {
-      console.error("Error fetching reservations:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch reservations.",
-        variant: "destructive",
-      });
-    } else {
-      setReservations(data.map(parseReservation));
-    }
-  };
-
-  const parseReservation = (res: Reservation): Reservation => {
-    return {
-      ...res,
-      start: new Date(res.start),
-      end: new Date(res.end),
-      customer:
-        typeof res.customer === "string"
-          ? JSON.parse(res.customer)
-          : res.customer,
-    };
-  };
-
-  const fetchStaff = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    const staffId = session?.user.user_metadata.staffId;
-
-    const { data, error } = await supabase
-      .from("staff")
-      .select("*, services:staff_services(service:service_id(id, name))")
-      .eq("id", staffId)
-      .single();
-
-    if (error) {
-      console.error("Error fetching staff:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch staff member.",
-        variant: "destructive",
-      });
-    } else {
-      setStaffMembers([data] as Staff[]);
-    }
-  };
-
-  const sortedReservations = reservations.sort((a, b) =>
-    compareAsc(a.start, b.start)
+  const sortedReservations = calendarReservations.sort((a, b) =>
+    compareAsc(new Date(a.start), new Date(b.start))
   );
 
-  const groupReservationsByTime = (reservations: Reservation[]) => {
-    const grouped: { [key: string]: Reservation[] } = {};
-    reservations.forEach((res) => {
-      const timeKey = format(res.start, "HH:mm");
-      if (!grouped[timeKey]) {
-        grouped[timeKey] = [];
-      }
-      grouped[timeKey].push(res);
-    });
-    return grouped;
-  };
-
-  const handlePrevWeek = () => {
-    const prevWeekStart = addDays(currentDate, -7);
-    if (prevWeekStart >= startOfWeek(new Date())) {
-      setCurrentDate(prevWeekStart);
-    }
-  };
-
-  const handleNextWeek = () => {
-    const nextWeekStart = addDays(currentDate, 7);
-    if (nextWeekStart <= addDays(new Date(), 14)) {
-      setCurrentDate(nextWeekStart);
-    }
-  };
-
-  const handleReservationClick = (reservation: Reservation) => {
-    setSelectedReservation(reservation);
-    setIsDetailsDialogOpen(true);
-  };
-
-  const handleCancelReservation = async (reservationId: number) => {
-    const error = await deleteReservation(reservationId);
-
-    if (error) {
-      console.error("Error cancelling reservation:", error);
-      toast({
-        title: "Error",
-        description: "Failed to cancel reservation.",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Success",
-        description: "Reservation cancelled successfully.",
-      });
-      setReservations((prev) => prev.filter((res) => res.id !== reservationId));
-      setIsDetailsDialogOpen(false);
-
-      const cancelledReservation = reservations.find(
-        (res) => res.id === reservationId
-      );
-      
-      if (cancelledReservation) {
-        const service = services.find(
-          (s) => s.id === cancelledReservation.serviceId
-        );
-        const staffMember = staffMembers.find(
-          (s) => s.id === cancelledReservation.staffId
-        );
-
-        // Send email to customer
-        mail.sendMail({
-          to: cancelledReservation.customer.email,
-          subject: `${cancelledReservation.customer.firstName} ${cancelledReservation.customer.lastName} your appointment has been canceled`,
-          html: getReservationCancellationTemplate(
-            cancelledReservation.start,
-            service?.name || '',
-            service?.price || 0,
-            staffMember?.firstName || '',
-            staffMember?.lastName || ''
-          ),
-        });
-
-        // Send email to admins
-        const adminEmails = await fetchAdminUsers();
-        if (adminEmails.length > 0) {
-          mail.sendMail({
-            to: adminEmails.join(", "),
-            subject: `${staffMember?.firstName} ${staffMember?.lastName} has cancelled an appointment`,
-            html: getAdminReservationCancellationTemplate(
-              `${cancelledReservation.customer.firstName} ${cancelledReservation.customer.lastName}`,
-              cancelledReservation.start,
-              service?.name || '',
-              service?.price || 0,
-              staffMember?.firstName || '',
-              staffMember?.lastName || ''
-            )
-          });
-        }
-      }
-    }
-  };
-
   const isStaffWorkingOnDay = (staffId: number, day: Date) => {
-    const staffMember = staffMembers.find((s) => s.id === staffId);
+    const staffMember = calendarStaffMembers.find((s) => s.id === staffId);
     if (!staffMember) return false;
     const dayName = format(day, "EEE").toUpperCase();
-    return (
-      staffMember.weeklyHours &&
-      staffMember.weeklyHours[dayName] &&
-      staffMember.weeklyHours[dayName].length > 0
-    );
+    return staffMember.weeklyHours && staffMember.weeklyHours[dayName]?.length > 0;
   };
 
   const getStaffWorkingHours = (staffId: number, day: Date) => {
-    const staffMember = staffMembers.find((s) => s.id === staffId);
+    const staffMember = calendarStaffMembers.find((s) => s.id === staffId);
     if (!staffMember || !staffMember.weeklyHours) return null;
     const dayName = format(day, "EEE").toUpperCase();
     return staffMember.weeklyHours[dayName] || null;
@@ -397,21 +170,17 @@ export default function ReservationPage() {
     const now = new Date();
     const twoWeeksFromNow = addDays(now, 14);
 
-    workingHours.forEach((slot) => {
+    workingHours.forEach((slot: { start: string; end: string }) => {
       let currentTime = parse(slot.start, "HH:mm", day);
       const endTime = parse(slot.end, "HH:mm", day);
 
-      // Saatlik slotlar oluştur
       while (currentTime <= subMinutes(endTime, 60)) {
-        
-        // Sadece tam olarak bu slot saatinde rezervasyon var mı kontrol et
-        const hasConflict = reservations.some((res) =>
+        const hasConflict = calendarReservations.some((res) =>
           res.staffId === newReservation.staffId &&
-          isSameDay(res.start, day) &&
+          isSameDay(new Date(res.start), day) &&
           format(currentTime, "HH:mm") === format(new Date(res.start), "HH:mm")
         );
 
-        // Geçmiş tarih/saat ve gelecek tarih kontrolü
         const isPastDateTime = currentTime < now;
         const isFutureDateTime = currentTime > twoWeeksFromNow;
 
@@ -420,117 +189,11 @@ export default function ReservationPage() {
           available: !hasConflict && !isPastDateTime && !isFutureDateTime
         });
 
-        // Bir sonraki saate geç
         currentTime = addMinutes(currentTime, 60);
       }
     });
 
     return availableTimes;
-  };
-
-  // Güncellenen handleNewReservation fonksiyonu
-  const handleNewReservation = async () => {
-    if (!newReservation.serviceId || !newReservation.staffId || !newReservation.start) {
-      toast({
-        title: "Error",
-        description: "Please select a service and time.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    const service = services.find(s => s.id === newReservation.serviceId);
-    if (!service) {
-      toast({
-        title: "Error",
-        description: "Selected service not found.",
-        variant: "destructive",
-      });
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Bitiş zamanını 59 dakika sonrası olarak ayarla
-    const endTime = addMinutes(newReservation.start, 59);
-
-    const newReservationData = {
-      serviceId: newReservation.serviceId,
-      staffId: newReservation.staffId,
-      start: newReservation.start,
-      end: endTime,
-      customer: {
-        firstName: newReservation.customer.firstName,
-        lastName: newReservation.customer.lastName,
-        email: newReservation.customer.email,
-        phone: newReservation.customer.phone,
-      }
-    };
-
-    const { error } = await supabase
-      .from('reservations')
-      .insert([newReservationData]);
-
-    if (error) {
-      console.error("Error creating reservation:", error);
-      toast({
-        title: "Error",
-        description: "Failed to create reservation. Please try again.",
-        variant: "destructive",
-      });
-    } else {
-      setIsSuccessDialogOpen(true);
-      fetchReservations();
-
-      const staffMember = staffMembers.find(s => s.id === newReservation.staffId);
-
-      // Müşteriye e-posta gönder
-      mail.sendMail({
-        to: newReservation.customer.email,
-        subject: `${newReservation.customer.firstName} Appointment Confirmation`,
-       html: getReservationConfirmationTemplate(
-        newReservation.start!,
-        service?.name || '',
-        service?.price || 0,
-        staffMember?.firstName || '',
-        staffMember?.lastName || ''
-      )
-      });
-
-      // Admin kullanıcılara e-posta gönder
-      const adminEmails = await fetchAdminUsers();
-      if (adminEmails.length > 0) {
-        mail.sendMail({
-          to: adminEmails.join(", "),
-          subject: `${staffMember?.firstName} ${staffMember?.lastName} has a new appointment`,
-          html:getAdminReservationConfirmationTemplate(
-            newReservation.start!,
-            service?.name || '',
-            service?.price || 0,
-            staffMember?.firstName || '',
-            staffMember?.lastName || '')
-        });
-      }
-    }
-
-    setIsSubmitting(false);
-    setIsConfirmDialogOpen(false);
-  };
-
-  const resetForm = () => {
-    setNewReservation({
-      serviceId: null,
-      staffId: user?.user_metadata?.staffId as number | null,
-      start: null,
-      customer: {
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-      },
-    });
-    setCurrentDate(new Date());
   };
 
   if (!user) {
@@ -672,7 +335,7 @@ export default function ReservationPage() {
                         <SelectValue placeholder={t("staff-reservation.selectService")} />
                       </SelectTrigger>
                       <SelectContent>
-                        {services.map((service) => (
+                        {calendarServices.map((service) => (
                           <SelectItem
                             key={service.id}
                             value={service.id.toString()}
@@ -826,10 +489,10 @@ export default function ReservationPage() {
                             <div
                               key={res.id}
                               className="text-xs mb-1 p-1 bg-primary text-primary-foreground rounded cursor-pointer"
-                              onClick={() => handleReservationClick(res)}
+                              onClick={() => handleCalendarReservationClick(res)}
                             >
                               {
-                                services.find((s) => s.id === res.serviceId)
+                                calendarServices.find((s) => s.id === res.serviceId)
                                   ?.name
                               }
                             </div>
@@ -858,7 +521,7 @@ export default function ReservationPage() {
                       <CardHeader className="px-0 pt-0">
                         <CardTitle className="text-base sm:text-lg">
                           {
-                            services.find(
+                            calendarServices.find(
                               (s) => s.id === selectedReservation.serviceId
                             )?.name
                           }
@@ -877,7 +540,7 @@ export default function ReservationPage() {
                           <h3 className="font-semibold">{t("staff-reservation.service")}</h3>
                           <p>
                             {
-                              services.find(
+                              calendarServices.find(
                                 (s) => s.id === selectedReservation.serviceId
                               )?.name
                             }
@@ -887,7 +550,7 @@ export default function ReservationPage() {
                           <h3 className="font-semibold">{t("staff-reservation.price")}</h3>
                           <p>
                             {
-                              services.find(
+                              calendarServices.find(
                                 (s) => s.id === selectedReservation.serviceId
                               )?.price
                             }{" "}
@@ -935,7 +598,7 @@ export default function ReservationPage() {
                               </AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() =>
-                                  handleCancelReservation(
+                                  handleCalendarCancelReservation(
                                     selectedReservation.id
                                   )
                                 }
@@ -969,18 +632,18 @@ export default function ReservationPage() {
                   <p>
                     <strong>{t("staff-reservation.service")}:</strong>{" "}
                     {
-                      services.find((s) => s.id === newReservation.serviceId)
+                      calendarServices.find((s) => s.id === newReservation.serviceId)
                         ?.name
                     }
                   </p>
                   <p>
                     <strong>{t("staff-reservation.staff")}:</strong>{" "}
                     {
-                      staffMembers.find((s) => s.id === newReservation.staffId)
+                      calendarStaffMembers.find((s) => s.id === newReservation.staffId)
                         ?.firstName
                     }{" "}
                     {
-                      staffMembers.find((s) => s.id === newReservation.staffId)
+                      calendarStaffMembers.find((s) => s.id === newReservation.staffId)
                         ?.lastName
                     }
                   </p>
@@ -1011,7 +674,7 @@ export default function ReservationPage() {
                     {t("staff-reservation.edit")}
                   </Button>
                   <Button
-                    onClick={handleNewReservation}
+                    onClick={handleNewReservationSubmit}
                     disabled={isSubmitting}
                   >
                     {isSubmitting
@@ -1046,7 +709,7 @@ export default function ReservationPage() {
                     onClick={() => {
                       setIsSuccessDialogOpen(false);
                       setIsNewReservationDialogOpen(false);
-                      resetForm();
+                      setIsDetailsDialogOpen(false);
                     }}
                   >
                     {t("staff-reservation.close")}
