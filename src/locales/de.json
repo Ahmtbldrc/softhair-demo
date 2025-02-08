@@ -466,12 +466,13 @@
     "followFacebook": "Folgen Sie uns auf Facebook",
     "followInstagram": "Folgen Sie uns auf Instagram",
     "followTwitter": "Folgen Sie uns auf Twitter",
-    "phone": "+49 123 456 789",
-    "email": "info@royalteam.de",
-    "addressOneLine": "Musterstraße 123, 12345 Berlin, Deutschland",
-    "street": "Musterstraße 123",
-    "city": "12345 Berlin",
-    "country": "Deutschland"
+    "phone": "081 558 84 56",
+    "email": "info@royalcoiffeur.ch",
+    "addressOneLine": "Bahnhofstrasse 21A, 9470 Buchs, Schweiz",
+    "street": "Bahnhofstrasse 21A",
+    "city": "9470 Buchs",
+    "country": "Schweiz"
+
   },
   "newReservation": {
     "title": "Neuer Termin",

@@ -29,21 +29,15 @@ const Footer = () => {
   const socialLinks = [
     { 
       key: 'facebook', 
-      href: 'https://facebook.com/royalteam',
+      href: 'https://www.facebook.com/share/1BmxbrLzw8/?mibextid=wwXIfr',
       icon: Facebook,
       ariaLabel: 'footer.followFacebook'
     },
     { 
       key: 'instagram', 
-      href: 'https://instagram.com/royalteam',
+      href: 'https://www.instagram.com/royalteam_buchs?igsh=bTNhZG1sanU4emJq',
       icon: Instagram,
       ariaLabel: 'footer.followInstagram'
-    },
-    { 
-      key: 'twitter', 
-      href: 'https://twitter.com/royalteam',
-      icon: Twitter,
-      ariaLabel: 'footer.followTwitter'
     }
   ]
 
