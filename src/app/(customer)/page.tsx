@@ -832,7 +832,7 @@ export default function Home() {
                       {price.name}
                     </h3>
                     <span className="price-value text-2xl font-bold metal-text">
-                      {price.price}€
+                      CHF {price.price}
                     </span>
                   </div>
                   <div className="relative mt-auto">
