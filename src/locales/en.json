@@ -409,7 +409,8 @@
     "reservationConfirmed": "Reservation Confirmed",
     "reservationConfirmedDescription": "Your reservation has been successfully booked.",
     "reservationConfirmedMail": "An email confirmation has been sent to",
-    "close": "Close"
+    "close": "Close",
+    "noAppointments": "No appointments for today"
   },
   "services": {
     "haircut": {

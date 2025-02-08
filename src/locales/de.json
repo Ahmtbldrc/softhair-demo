@@ -338,7 +338,8 @@
     "reservationConfirmed": "Termin bestätigt",
     "reservationConfirmedDescription": "Ihr Termin wurde erfolgreich gebucht.",
     "reservationConfirmedMail": "Eine Bestätigungs-E-Mail wurde gesendet an",
-    "close": "Schließen"
+    "close": "Schließen",
+    "noAppointments": "Keine Termine für heute"
   },
   "services": {
     "haircut": {
