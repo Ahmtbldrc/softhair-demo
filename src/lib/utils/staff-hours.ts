@@ -37,7 +37,7 @@ export function getAvailableTimesForDay(
     let currentTime = parse(slot.start || "", "HH:mm", day)
     const endTime = parse(slot.end || "", "HH:mm", day)
 
-    while (currentTime <= subMinutes(endTime, 60)) {
+    while (currentTime <= subMinutes(endTime, 30)) {
       const hasConflict = reservations.some((res) =>
         res.staffId === staffMember.id &&
         isSameDay(new Date(res.start), day) &&
@@ -52,7 +52,7 @@ export function getAvailableTimesForDay(
         available: !hasConflict && !isPastDateTime && !isFutureDateTime
       })
 
-      currentTime = addMinutes(currentTime, 60)
+      currentTime = addMinutes(currentTime, 30)
     }
   })
 
