@@ -289,7 +289,7 @@ export default function ReservationPage() {
       let currentTime = parse(slot.start, "HH:mm", day);
       const endTime = parse(slot.end, "HH:mm", day);
 
-      while (currentTime <= subMinutes(endTime, 60)) {
+      while (currentTime <= subMinutes(endTime, 30)) {
         const hasConflict = calendarReservations.some((res) =>
           res.staffId === newReservation.staffId &&
           isSameDay(new Date(res.start), day) &&
@@ -304,7 +304,7 @@ export default function ReservationPage() {
           available: !hasConflict && !isPastDateTime && !isFutureDateTime
         });
 
-        currentTime = addMinutes(currentTime, 60);
+        currentTime = addMinutes(currentTime, 30);
       }
     });
 
