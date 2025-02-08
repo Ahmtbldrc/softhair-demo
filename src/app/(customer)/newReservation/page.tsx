@@ -25,7 +25,7 @@ import { useRouter } from 'next/navigation'
 import useMail from '@/hooks/use-mail'
 import { useLocale } from '@/contexts/LocaleContext' // Add this import
 import { getReservationConfirmationTemplate } from '@/lib/email-templates/reservation-confirmation'
-import PhoneInput from 'react-phone-input-2'
+import dynamic from 'next/dynamic'
 import 'react-phone-input-2/lib/style.css'
 import { getActiveStaff } from "@/lib/services/staff.service"
 import { StaffWithServices } from "@/lib/database.types"
@@ -53,6 +53,10 @@ type Appointment = {
   start: Date;
   end: Date;
 }
+
+const PhoneInput = dynamic(() => import('react-phone-input-2'), {
+  ssr: false
+})
 
 export default function NewReservation() {
   const router = useRouter()
@@ -88,6 +92,8 @@ export default function NewReservation() {
 
   const [isKvkkDialogOpen, setIsKvkkDialogOpen] = useState(false)
   const [isKvkkAccepted, setIsKvkkAccepted] = useState(false)
+
+  const [isPhoneInputReady, setIsPhoneInputReady] = useState(false)
 
   const fetchBranches = async () => {
     const { data, error } = await supabase.from("branches").select("*")
@@ -208,6 +214,7 @@ export default function NewReservation() {
 
   useEffect(() => {
     setIsClient(true)
+    setIsPhoneInputReady(true)
   }, [])
 
   const handlePrevWeek = () => {
@@ -365,11 +372,11 @@ export default function NewReservation() {
     fetchStaffForService(serviceId)
   }
 
-  // Sayfa yüklenene kadar loading göster
+  // Loading durumunu en üstte kontrol edelim
   if (!isClient) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white">
-        <p>{t("common.loading")}</p>
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <p className="text-white">{t("common.loading")}</p>
       </div>
     )
   }
@@ -413,32 +420,36 @@ export default function NewReservation() {
                 </div>
                 <div>
                   <Label htmlFor="phone">{t("newReservation.phone")}</Label>
-                  <PhoneInput
-                    country={'ch'}
-                    value={customerInfo.phone}
-                    onChange={(phone) => setCustomerInfo({
-                      ...customerInfo,
-                      phone: phone
-                    })}
-                    inputClass="!w-full !h-10 !text-base !border-input !bg-background !text-foreground"
-                    containerClass="!w-full"
-                    buttonClass="!h-10 !border-input !bg-background"
-                    dropdownClass="!bg-popover !text-foreground"
-                    searchClass="!bg-background !text-foreground"
-                    enableSearch={true}
-                    inputProps={{
-                      id: 'phone',
-                    }}
-                    inputStyle={{
-                      width: '100%',
-                      height: '40px',
-                      fontSize: '16px',
-                      borderRadius: '6px',
-                    }}
-                    buttonStyle={{
-                      borderRadius: '6px 0 0 6px',
-                    }}
-                  />
+                  {isPhoneInputReady ? (
+                    <PhoneInput
+                      country={'ch'}
+                      value={customerInfo.phone}
+                      onChange={(phone) => setCustomerInfo({
+                        ...customerInfo,
+                        phone: phone
+                      })}
+                      inputClass="!w-full !h-10 !text-base !border-input !bg-background !text-foreground"
+                      containerClass="!w-full"
+                      buttonClass="!h-10 !border-input !bg-background"
+                      dropdownClass="!bg-popover !text-foreground"
+                      searchClass="!bg-background !text-foreground"
+                      enableSearch={true}
+                      inputProps={{
+                        id: 'phone',
+                      }}
+                      inputStyle={{
+                        width: '100%',
+                        height: '40px',
+                        fontSize: '16px',
+                        borderRadius: '6px',
+                      }}
+                      buttonStyle={{
+                        borderRadius: '6px 0 0 6px',
+                      }}
+                    />
+                  ) : (
+                    <div className="h-10 bg-background rounded-md animate-pulse" />
+                  )}
                 </div>
                 <div className="md:col-span-2">
                   <div className="flex items-center space-x-2">
