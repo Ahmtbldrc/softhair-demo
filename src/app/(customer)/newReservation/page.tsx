@@ -262,7 +262,7 @@ export default function NewReservation() {
       let currentTime = parse(slot.start, 'HH:mm', day)
       const endTime = parse(slot.end, 'HH:mm', day)
 
-      while (currentTime <= subMinutes(endTime, 60)) {
+      while (currentTime <= subMinutes(endTime, 30)) {
         const hasConflict = existingAppointments.some((apt) =>
           apt.staffId === selectedStaff &&
           isSameDay(apt.start, day) &&
@@ -277,7 +277,7 @@ export default function NewReservation() {
           available: !hasConflict && !isPastDateTime && !isFutureDateTime
         })
 
-        currentTime = addMinutes(currentTime, 60)
+        currentTime = addMinutes(currentTime, 30)
       }
     })
 
@@ -307,7 +307,7 @@ export default function NewReservation() {
       return
     }
 
-    const endTime = addMinutes(selectedTime, 59)
+    const endTime = addMinutes(selectedTime, 29)
 
     const newReservation = {
       serviceId: selectedService,
