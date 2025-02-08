@@ -852,13 +852,13 @@ export default function Home() {
                       <span className="text-sm text-zinc-400">
                         {t('prices.duration')}: ~{price.duration || 30} min
                       </span>
-                      <Button 
+                      {/* <Button 
                         variant="ghost" 
                         size="sm" 
                         className="hover:bg-zinc-800 transition-all duration-300 hover:scale-105"
                       >
                         {t('common.bookNow')}
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 </div>
@@ -919,7 +919,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm text-zinc-400">{t('contact.phone')}</p>
-                      <p className="text-lg font-semibold metal-text">+49 123 456789</p>
+                      <p className="text-lg font-semibold metal-text">081 558 84 56</p>
                     </div>
                   </div>
                 </div>
@@ -935,7 +935,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm text-zinc-400">{t('contact.email')}</p>
-                      <p className="text-lg font-semibold metal-text">info@royalteam.de</p>
+                      <p className="text-lg font-semibold metal-text">info@royalcoiffeur.ch</p>
                     </div>
                   </div>
                 </div>
@@ -952,32 +952,40 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm text-zinc-400">{t('contact.address')}</p>
-                      <p className="text-lg font-semibold metal-text">Hauptstraße 123, 10115 Berlin</p>
+                      <p className="text-lg font-semibold metal-text">Bahnhofstrasse 21A, 9470 Buchs</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="contact-detail mt-8">
                   <h3 className="text-xl font-semibold mb-4 metal-text">{t('contact.hours')}</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-xl bg-zinc-800/30">
-                      <p className="text-sm text-zinc-400">Mon - Fri</p>
-                      <p className="font-medium">09:00 - 20:00</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-xl bg-zinc-800/30">
+                      <p className="text-sm text-zinc-400">Mo - Do</p>
+                      <p className="font-medium text-sm">09:00 - 19:00</p>
                     </div>
-                    <div className="p-4 rounded-xl bg-zinc-800/30">
-                      <p className="text-sm text-zinc-400">Sat - Sun</p>
-                      <p className="font-medium">10:00 - 18:00</p>
+                    <div className="p-3 rounded-xl bg-zinc-800/30">
+                      <p className="text-sm text-zinc-400">Freitag</p>
+                      <p className="font-medium text-sm">09:00 - 20:00</p>
+                    </div>
+                    <div className="p-3 rounded-xl bg-zinc-800/30">
+                      <p className="text-sm text-zinc-400">Samstag</p>
+                      <p className="font-medium text-sm">09:00 - 17:30</p>
+                    </div>
+                    <div className="p-3 rounded-xl bg-zinc-800/30">
+                      <p className="text-sm text-zinc-400">So / Feiertage</p>
+                      <p className="font-medium text-sm">Geschlossen</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="contact-map w-full h-[500px] rounded-2xl overflow-hidden relative">
+            <div className="contact-map h-auto rounded-2xl overflow-hidden relative bg-zinc-900/50 backdrop-blur-sm border border-zinc-800">
               <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent z-10 pointer-events-none"></div>
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2428.409722750949!2d13.394913776680424!3d52.52000687210677!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a851c655f20989%3A0x26bbfb4e84674c63!2sHauptstra%C3%9Fe%2C%20Berlin%2C%20Germany!5e0!3m2!1sen!2sus!4v1701745391689!5m2!1sen!2sus"
-                className="absolute inset-0 w-full h-full"
+                className="w-full aspect-square lg:aspect-auto lg:h-full"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"

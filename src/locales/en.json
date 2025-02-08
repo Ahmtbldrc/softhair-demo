@@ -515,7 +515,8 @@
     "subtitle": "Contact Us for Perfect Styling",
     "phone": "Phone",
     "email": "Email",
-    "address": "Address"
+    "address": "Address",
+    "hours": "Opening Hours"
   },
   "navigation": {
     "home": "Home",
