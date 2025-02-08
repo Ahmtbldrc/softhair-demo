@@ -64,7 +64,7 @@ export default function NewReservation() {
   const [selectedService, setSelectedService] = useState<number | null>(null)
   const [selectedStaff, setSelectedStaff] = useState<number | null>(null)
   const [selectedTime, setSelectedTime] = useState<Date | null>(null)
-  const [staff, setStaff] = useState<StaffType[]>([])
+  const [staff] = useState<StaffType[]>([])
   const [services, setServices] = useState<Service[]>([])
   const [existingAppointments, setExistingAppointments] = useState<Appointment[]>([])
 

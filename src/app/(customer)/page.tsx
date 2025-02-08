@@ -13,7 +13,7 @@ import { useLocale } from '@/contexts/LocaleContext'
 import Link from 'next/link'
 import { ServiceDetails } from '@/lib/types'
 import { supabase } from '@/lib/supabase'
-import { Scissors, Palette, Brush, Sparkles, Heart, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 
 gsap.registerPlugin(ScrollTrigger)
