@@ -16,7 +16,7 @@ export function sortReservationsByDate(reservations: ReservationWithDetails[]): 
 export function groupReservationsByTime(reservations: ReservationWithDetails[]): { [key: string]: ReservationWithDetails[] } {
   const grouped: { [key: string]: ReservationWithDetails[] } = {}
   reservations.forEach(res => {
-    const timeKey = format(new Date(res.start), "HH:mm")
+    const timeKey = format(new Date(res.start), "HH:00")
     if (!grouped[timeKey]) {
       grouped[timeKey] = []
     }
