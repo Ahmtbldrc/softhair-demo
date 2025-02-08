@@ -7,7 +7,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF, OrbitControls, Environment } from '@react-three/drei'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import * as THREE from 'three'
 import React from 'react'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -61,7 +60,6 @@ useGLTF.preload('/models/barber-chair.glb')
 export default function Home() {
   const { t } = useLocale()
   const heroRef = useRef(null)
-  const servicesRef = useRef(null)
   const carouselRef = useRef(null)
   const aboutRef = useRef(null)
   const priceRef = useRef(null)
@@ -76,7 +74,7 @@ export default function Home() {
     '/image/slide/slide-4.jpg',
     '/image/slide/slide-5.jpg',
   ]
-  const [isHovered, setIsHovered] = useState(false)
+  const [, setIsHovered] = useState(false)
   const [direction, setDirection] = useState(0)
 
   // Servisleri getir
@@ -448,15 +446,6 @@ export default function Home() {
 
     return () => ctx.revert()
   }, [mounted])
-
-  const services = [
-    { icon: Scissors, key: 'haircut' },
-    { icon: Palette, key: 'coloring' },
-    { icon: Brush, key: 'styling' },
-    { icon: Sparkles, key: 'treatments' },
-    { icon: Heart, key: 'bridal' },
-    { icon: Scissors, key: 'beard' }
-  ]
 
   const slideVariants = {
     enter: (direction: number) => ({

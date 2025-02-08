@@ -29,13 +29,6 @@ interface StaffMember {
   branchId: number
 }
 
-interface StaffByBranch {
-  [branchId: number]: {
-    branchName: string
-    staff: StaffMember[]
-  }
-}
-
 // Gravatar default image URL'ini tanımlayalım
 const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/default?s=400&d=mp"
 

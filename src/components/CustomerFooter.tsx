@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Facebook, Instagram, Twitter, Phone, Mail, MapPin } from 'lucide-react'
+import { Facebook, Instagram, Phone, Mail, MapPin } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useLocale } from '@/contexts/LocaleContext'
 

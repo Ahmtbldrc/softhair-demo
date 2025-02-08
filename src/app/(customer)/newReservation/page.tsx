@@ -129,23 +129,6 @@ export default function NewReservation() {
     }
   }
 
-  const fetchStaff = async () => {
-    const { data, error } = await supabase
-      .from("staff")
-      .select("*, services:staff_services(service:service_id(id, name))")
-      .eq('status', true)
-    if (error) {
-      console.error("Error fetching staff:", error)
-      toast({
-        title: "Error",
-        description: t("newReservation.errors.fetchStaff"),
-        variant: "destructive",
-      })
-    } else {
-      setStaff(data as StaffType[])
-    }
-  }
-
   const fetchAppointments = async () => {
     const { data, error } = await supabase
       .from("reservations")

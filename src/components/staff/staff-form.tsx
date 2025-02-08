@@ -36,14 +36,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { LANGUAGES } from "@/lib/constants"
 import { Badge } from "@/components/ui/badge"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command"
-import { Check, ChevronsUpDown } from "lucide-react"
+
 
 interface StaffFormProps {
   branchId: number
@@ -73,8 +66,7 @@ export function StaffForm({ branchId, staffId, t }: StaffFormProps) {
     handleConfirmDiscard,
     setStaff,
     setShowPassword,
-    setShowDiscardDialog,
-    handleFormValueChange
+    setShowDiscardDialog
   } = useStaffForm({ branchId, staffId, t })
 
   return (

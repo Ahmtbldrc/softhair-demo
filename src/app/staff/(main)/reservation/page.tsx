@@ -165,7 +165,7 @@ export default function ReservationPage() {
     },
   });
   const [staffMember, setStaffMember] = useState<StaffMember | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+  const [, setViewMode] = useState<ViewMode>(() => {
     if (typeof window !== 'undefined') {
       return window.innerWidth < 768 ? 'list' : 'calendar';
     }
