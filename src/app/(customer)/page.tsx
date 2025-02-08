@@ -984,8 +984,9 @@ export default function Home() {
             <div className="contact-map h-auto rounded-2xl overflow-hidden relative bg-zinc-900/50 backdrop-blur-sm border border-zinc-800">
               <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent z-10 pointer-events-none"></div>
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2428.409722750949!2d13.394913776680424!3d52.52000687210677!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a851c655f20989%3A0x26bbfb4e84674c63!2sHauptstra%C3%9Fe%2C%20Berlin%2C%20Germany!5e0!3m2!1sen!2sus!4v1701745391689!5m2!1sen!2sus"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d347207.5423096114!2d8.866279589062495!3d47.16649240000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479b31c9c3214b95%3A0x29f7bed73615ad91!2sRoyal%20Team%20-%20Coiffeur%20Salon!5e0!3m2!1sde!2sch!4v1739011318652!5m2!1sde!2sch"
                 className="w-full aspect-square lg:aspect-auto lg:h-full"
+
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
