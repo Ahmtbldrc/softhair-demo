@@ -56,6 +56,7 @@ export function AddServiceDialog({
     try {
       const result = await createService({
         ...data,
+        duration: 30,
         branchId: selectedBranchId
       });
 

@@ -171,7 +171,7 @@ export default function MyAccount() {
       if (staffData) {
         const formattedStaff = {
           ...staffData,
-          services: staffData.services?.map((s: any) => ({
+          services: staffData.services?.map((s: { service: { id: number; name: string } }) => ({
             service: {
               id: s.service.id,
               name: s.service.name
