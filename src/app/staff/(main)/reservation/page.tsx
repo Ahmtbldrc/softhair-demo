@@ -59,10 +59,24 @@ import 'react-phone-input-2/lib/style.css'
 import { useBranch } from "@/contexts/BranchContext";
 import { useReservationCalendar } from "@/hooks/use-reservation-calendar";
 
+type WeeklyHours = {
+  [key in 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN']: Array<{
+    start: string;
+    end: string;
+  }>;
+};
+
+type StaffMember = {
+  id: number;
+  weeklyHours: WeeklyHours;
+  staff_services: Array<{
+    service_id: number;
+  }>;
+};
+
 export default function ReservationPage() {
   const { t } = useLocale();
   const { selectedBranchId } = useBranch();
-  console.log(selectedBranchId)
   const {
     currentDate,
     weekStart,
@@ -101,6 +115,7 @@ export default function ReservationPage() {
       phone: "",
     },
   });
+  const [staffMember, setStaffMember] = useState<StaffMember | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -110,6 +125,32 @@ export default function ReservationPage() {
         staffId: session?.user.user_metadata.staffId as number | null,
       }));
     });
+  }, []);
+
+  useEffect(() => {
+    const fetchStaffMember = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.user_metadata?.staffId) {
+        const { data, error } = await supabase
+          .from('staff')
+          .select(`
+            *,
+            weeklyHours,
+            staff_services!inner (
+              service_id
+            )
+          `)
+          .eq('id', session.user.user_metadata.staffId)
+          .single();
+
+        if (!error && data) {
+          console.log('Staff data:', data);
+          setStaffMember(data);
+        }
+      }
+    };
+
+    fetchStaffMember();
   }, []);
 
   const handleNewReservationSubmit = async () => {
@@ -147,16 +188,14 @@ export default function ReservationPage() {
   );
 
   const isStaffWorkingOnDay = (staffId: number, day: Date) => {
-    const staffMember = calendarStaffMembers.find((s) => s.id === staffId);
     if (!staffMember) return false;
-    const dayName = format(day, "EEE").toUpperCase();
+    const dayName = format(day, "EEE").toUpperCase() as keyof WeeklyHours;
     return staffMember.weeklyHours && staffMember.weeklyHours[dayName]?.length > 0;
   };
 
   const getStaffWorkingHours = (staffId: number, day: Date) => {
-    const staffMember = calendarStaffMembers.find((s) => s.id === staffId);
     if (!staffMember || !staffMember.weeklyHours) return null;
-    const dayName = format(day, "EEE").toUpperCase();
+    const dayName = format(day, "EEE").toUpperCase() as keyof WeeklyHours;
     return staffMember.weeklyHours[dayName] || null;
   };
 
@@ -170,7 +209,7 @@ export default function ReservationPage() {
     const now = new Date();
     const twoWeeksFromNow = addDays(now, 14);
 
-    workingHours.forEach((slot: { start: string; end: string }) => {
+    workingHours.forEach((slot) => {
       let currentTime = parse(slot.start, "HH:mm", day);
       const endTime = parse(slot.end, "HH:mm", day);
 
@@ -335,14 +374,21 @@ export default function ReservationPage() {
                         <SelectValue placeholder={t("staff-reservation.selectService")} />
                       </SelectTrigger>
                       <SelectContent>
-                        {calendarServices.map((service) => (
-                          <SelectItem
-                            key={service.id}
-                            value={service.id.toString()}
-                          >
-                            {service.name} ({service.price} CHF)
-                          </SelectItem>
-                        ))}
+                        {calendarServices
+                          .filter(service => 
+                            staffMember?.staff_services?.some(
+                              staffService => staffService.service_id === service.id
+                            )
+                          )
+                          .map((service) => (
+                            <SelectItem
+                              key={service.id}
+                              value={service.id.toString()}
+                            >
+                              {service.name} ({service.price} CHF)
+                            </SelectItem>
+                          ))
+                        }
                       </SelectContent>
                     </Select>
                   </div>
@@ -380,6 +426,7 @@ export default function ReservationPage() {
                                 ) ? (
                                   getAvailableTimesForDay(day).map(
                                     ({ time, available }) => {
+                                      console.log('Time Slot:', format(time, 'HH:mm'), 'Available:', available);
                                       const isPastDateTime = time < new Date();
                                       const isFutureDateTime = time > addDays(new Date(), 14);
                                       return (
