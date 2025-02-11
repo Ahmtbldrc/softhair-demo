@@ -196,7 +196,7 @@ export function NewReservationForm({
           <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
             <Button onClick={handlePrevWeek} type="button" className="mb-2 sm:mb-0">&lt; {t("admin-reservation.previousWeek")}</Button>
             <h2 className="text-lg font-semibold text-center">
-              {format(weekStart, "MMM d, yyyy")} - {format(weekEnd, "MMM d, yyyy")}
+              {format(weekStart, "dd.MM.yyyy")} - {format(weekEnd, "dd.MM.yyyy")}
             </h2>
             <Button onClick={handleNextWeek} type="button" className="mt-2 sm:mt-0">{t("admin-reservation.nextWeek")} &gt;</Button>
           </div>

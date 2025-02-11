@@ -531,8 +531,8 @@ export default function ReservationPage() {
                               &lt; {t("staff-reservation.previousWeek")}
                             </Button>
                             <h2 className="text-lg font-semibold text-center">
-                              {format(weekStart, "MMM d, yyyy")} -{" "}
-                              {format(weekEnd, "MMM d, yyyy")}
+                              {format(weekStart, "dd.MM.yyyy")} -{" "}
+                              {format(weekEnd, "dd.MM.yyyy")}
                             </h2>
                             <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">
                               {t("staff-reservation.nextWeek")} &gt;
@@ -631,8 +631,8 @@ export default function ReservationPage() {
                   <span className="sm:hidden">&lt;</span>
                 </Button>
                 <h2 className="text-sm sm:text-lg font-semibold text-center">
-                  {format(weekStart, "MMM d, yyyy")} -{" "}
-                  {format(weekEnd, "MMM d, yyyy")}
+                  {format(weekStart, "dd.MM.yyyy")} -{" "}
+                  {format(weekEnd, "dd.MM.yyyy")}
                 </h2>
                 <Button
                   onClick={handleNextWeek}
@@ -1050,8 +1050,8 @@ export default function ReservationPage() {
                         &lt; {t("staff-reservation.previousWeek")}
                       </Button>
                       <h2 className="text-lg font-semibold text-center">
-                        {format(weekStart, "MMM d, yyyy")} -{" "}
-                        {format(weekEnd, "MMM d, yyyy")}
+                        {format(weekStart, "dd.MM.yyyy")} -{" "}
+                        {format(weekEnd, "dd.MM.yyyy")}
                       </h2>
                       <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">
                         {t("staff-reservation.nextWeek")} &gt;

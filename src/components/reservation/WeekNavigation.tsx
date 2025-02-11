@@ -23,8 +23,8 @@ export function WeekNavigation({
         <ChevronLeft className="h-4 w-4" />
       </Button>
       <h2 className="text-lg font-semibold text-center min-w-[200px]">
-        <span className="hidden md:inline">{format(weekStart, "MMM d, yyyy")} - {format(weekEnd, "MMM d, yyyy")}</span>
-        <span className="md:hidden">{format(weekStart, "MMM d")} - {format(weekEnd, "MMM d")}</span>
+        <span className="hidden md:inline">{format(weekStart, "dd.MM.yyyy")} - {format(weekEnd, "dd.MM.yyyy")}</span>
+        <span className="md:hidden">{format(weekStart, "dd.MM.yyyy")} - {format(weekEnd, "dd.MM.yyyy")}</span>
       </h2>
       <Button onClick={handleNextWeek} size="icon" variant="outline">
         <ChevronRight className="h-4 w-4" />

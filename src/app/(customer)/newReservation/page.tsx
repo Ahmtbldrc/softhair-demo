@@ -561,7 +561,7 @@ export default function NewReservation() {
                   &lt; {t("newReservation.previousWeek")}
                 </Button>
                 <h2 className="text-lg font-semibold text-center">
-                  {format(weekStart, 'MMM d, yyyy')} - {format(weekEnd, 'MMM d, yyyy')}
+                  {format(weekStart, 'dd.MM.yyyy')} - {format(weekEnd, 'dd.MM.yyyy')}
                 </h2>
                 <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">
                   {t("newReservation.nextWeek")} &gt;
