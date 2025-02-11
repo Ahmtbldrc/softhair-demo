@@ -20,7 +20,6 @@ const images = [
   '/image/gallery/g-7.jpg',
   '/image/gallery/g-8.jpg',
   '/image/gallery/g-9.jpg',
-  '/image/gallery/g-10.jpg',  
 ]
 
 const ITEMS_PER_PAGE = 6
