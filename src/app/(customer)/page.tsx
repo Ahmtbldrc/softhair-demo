@@ -827,13 +827,17 @@ export default function Home() {
               >
                 <div className="relative flex flex-col h-full bg-black rounded-xl p-6 transition-all">
                   <div className="absolute inset-0 bg-gradient-to-br from-zinc-800/20 to-transparent rounded-xl" />
-                  <div className="relative flex justify-between items-start mb-4">
-                    <h3 className="price-title text-xl font-semibold text-white/90 group-hover:text-white transition-colors">
-                      {price.name}
-                    </h3>
-                    <span className="price-value text-2xl font-bold metal-text">
-                      CHF {price.price}
-                    </span>
+                  <div className="relative flex mb-4">
+                    <div className="flex-1 min-w-0 pr-4">
+                      <h3 className="price-title text-xl font-semibold text-white/90 group-hover:text-white transition-colors break-words">
+                        {price.name}
+                      </h3>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <span className="price-value text-2xl font-bold metal-text whitespace-nowrap">
+                        CHF {price.price}
+                      </span>
+                    </div>
                   </div>
                   <div className="relative mt-auto">
                     <div className="h-px w-full bg-gradient-to-r from-transparent via-zinc-500/50 to-transparent" />
