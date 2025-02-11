@@ -908,7 +908,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm text-zinc-400">{t('contact.phone')}</p>
-                      <p className="text-lg font-semibold metal-text">081 558 84 56</p>
+                      <a href="tel:0815588456" className="text-lg font-semibold metal-text hover:text-zinc-300 transition-colors">081 558 84 56</a>
                     </div>
                   </div>
                 </div>
@@ -924,7 +924,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm text-zinc-400">{t('contact.email')}</p>
-                      <p className="text-lg font-semibold metal-text">info@royalcoiffeur.ch</p>
+                      <a href="mailto:info@royalcoiffeur.ch" className="text-lg font-semibold metal-text hover:text-zinc-300 transition-colors">info@royalcoiffeur.ch</a>
                     </div>
                   </div>
                 </div>
