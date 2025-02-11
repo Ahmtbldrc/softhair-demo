@@ -345,7 +345,8 @@ export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
               email: staffData.email,
               role: Roles.STAFF,
               branchIds: [selectedBranchId],
-              languages: staffData.languages
+              languages: staffData.languages,
+              selectedBranchId: selectedBranchId
             }
           })
 
