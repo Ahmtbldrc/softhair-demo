@@ -222,22 +222,28 @@ export default function Team() {
             &gt; {t("team.breadcrumb.team")}
             
             <div className="ml-auto w-[200px]">
-              <Select
-                value={selectedBranch?.toString() || "all"}
-                onValueChange={(value) => setSelectedBranch(value === "all" ? null : Number(value))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t("team.selectBranch")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("team.allBranches")}</SelectItem>
-                  {branches.map((branch) => (
-                    <SelectItem key={branch.id} value={branch.id.toString()}>
-                      {branch.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {branches.length === 1 ? (
+                <div className="text-right text-zinc-400">
+                  {branches[0].name}
+                </div>
+              ) : (
+                <Select
+                  value={selectedBranch?.toString() || "all"}
+                  onValueChange={(value) => setSelectedBranch(value === "all" ? null : Number(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("team.selectBranch")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("team.allBranches")}</SelectItem>
+                    {branches.map((branch) => (
+                      <SelectItem key={branch.id} value={branch.id.toString()}>
+                        {branch.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
 
