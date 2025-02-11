@@ -61,7 +61,8 @@ export async function getAllStaff(branchId: number) {
     const { data: { session } } = await supabase.auth.getSession();
     const currentUserId = session?.user?.id;
 
-    const { data, error } = await supabase
+    // First get all staff members
+    const { data: staffData, error: staffError } = await supabase
       .from("staff")
       .select(`
         *,
@@ -76,11 +77,24 @@ export async function getAllStaff(branchId: number) {
       .neq("userId", currentUserId)
       .order("status", { ascending: false }); // true (active) comes before false (passive)
 
-    if (error) {
-      return { error: error.message };
+    if (staffError) {
+      return { error: staffError.message };
     }
 
-    return { data: data as StaffWithServices[] };
+    // Get user metadata for all staff members to filter out admins
+    const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers();
+    
+    if (usersError) {
+      return { error: usersError.message };
+    }
+
+    // Filter out staff members who are admins
+    const filteredStaff = staffData.filter(staff => {
+      const userData = usersData.users.find(user => user.id === staff.userId);
+      return userData?.user_metadata?.role !== "admin";
+    });
+
+    return { data: filteredStaff as StaffWithServices[] };
   } catch (err) {
     console.error("Failed to fetch staff members:", err);
     return { error: "Failed to fetch staff members" };
