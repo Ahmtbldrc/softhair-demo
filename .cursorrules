@@ -94,3 +94,98 @@ Output Expectations
 - Follow Next.js 13+ best practices.
 - Ensure proper error handling and loading states.
 - Maintain consistent styling with Tailwind CSS.
+
+
+  ### Git Workflow Automation (Cursor)
+When prompted with "git workflow işlemlerine başla", Cursor will:
+
+#### Commit Convention
+```
+<type>: <türkçe açıklama>
+
+# Types:
+- feat: Yeni özellik
+- fix: Hata düzeltmesi
+- docs: Dokümantasyon değişiklikleri
+- style: Kod stili değişiklikleri (formatting, missing semi colons, etc)
+- refactor: Kod refaktörü
+- test: Test ile ilgili değişiklikler
+- chore: Genel bakım işlemleri
+```
+
+#### Automated Workflow Steps
+1. Stage Changes:
+   - Değişiklikleri analiz et ve gruplandır
+   - Her mantıksal değişiklik için ayrı commit oluştur
+   - Değişiklik gruplarını otomatik tespit et:
+     * Aynı dosyadaki farklı bölümlerdeki değişiklikler
+     * Farklı dosyalardaki ilişkili değişiklikler
+     * Farklı özellik/fix için yapılan değişiklikler
+   - Her grup için:
+     * `git add -p` ile interaktif staging
+     * İlgili dosyaları seçerek `git add <file>` 
+
+2. Commit Message Creation:
+   - Her değişiklik grubu için:
+     * Değişiklik tipini otomatik tespit
+     * İngilizce prefix seçimi
+     * Türkçe commit mesajı oluşturma
+     * Format: `<type>: <türkçe açıklama>`
+   - Çoklu commit örneği:
+     ```bash
+     # Aynı branch üzerinde farklı değişiklikler
+     git add src/components/auth/*
+     git commit -m "feat: auth komponenti eklendi"
+     
+     git add src/styles/*
+     git commit -m "style: auth sayfası stilleri düzenlendi"
+     
+     git add src/lib/api/*
+     git commit -m "feat: auth servisi implementasyonu tamamlandı"
+     ```
+
+3. Branch Management:
+   - Feature branch format: `feature/<özellik-adı>`
+   - Bugfix branch format: `bugfix/<hata-açıklaması>`
+   - Hotfix branch format: `hotfix/<acil-düzeltme>`
+
+4. Pull Request Template:
+```md
+## Değişiklik Açıklaması
+- 
+
+## Test Edildi mi?
+- [ ] Evet
+- [ ] Hayır
+
+## Breaking Changes
+- [ ] Var
+- [ ] Yok
+
+## Ek Notlar
+```
+
+5. Code Review Checklist:
+- [ ] TypeScript tip kontrolleri
+- [ ] ESLint kurallarına uygunluk
+- [ ] Test coverage yeterliliği
+- [ ] Performans kriterleri
+- [ ] Güvenlik kontrolleri
+
+6. Git Push:
+   - Mevcut branch için remote kontrolü
+   - Remote yoksa: `git push -u origin <branch-name>`
+   - Remote varsa: `git push`
+   - Push sonrası durum kontrolü
+   - Hata durumunda geri bildirim
+
+#### Commit Examples
+```
+feat: kullanıcı girişi için supabase auth entegrasyonu eklendi
+fix: sayfa yönlendirmelerindeki hata giderildi
+docs: API dokümantasyonu güncellendi
+style: komponent dosyaları prettier ile formatlandı
+refactor: user service katmanı yeniden yapılandırıldı
+test: auth servisi için unit testler eklendi
+chore: paket bağımlılıkları güncellendi
+```
