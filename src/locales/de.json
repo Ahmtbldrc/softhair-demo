@@ -67,7 +67,9 @@
     "daily": "Täglich",
     "weekly": "Wöchentlich",
     "monthly": "Monatlich",
-    "visitors": "Besucher"
+    "visitors": "Besucher",
+    "selectService": "Dienstleistung auswählen",
+    "allServices": "Alle Dienstleistungen"
   },
   "staff-weekly-trend": {
     "recentSales": "Aktuelle Verkäufe",

@@ -67,7 +67,9 @@
     "daily": "Daily",
     "weekly": "Weekly",
     "monthly": "Monthly",
-    "visitors": "Visitors"
+    "visitors": "Visitors",
+    "selectService": "Select service",
+    "allServices": "All Services"
   },
   "staff-weekly-trend":{
     "recentSales": "Recent Sales",
