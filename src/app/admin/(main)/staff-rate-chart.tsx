@@ -13,7 +13,6 @@ import {
 import {
   ChartConfig,
   ChartContainer,
-  ChartStyle,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
@@ -93,7 +92,7 @@ export function StaffRateChart() {
       <ChartContainer
         id={id}
         config={chartConfig}
-        className="aspect-[4/1.8] w-full pt-0 px-4"
+        className="mx-auto aspect-square max-h-[250px]"
       >
         <PieChart>
           <ChartTooltip
@@ -104,9 +103,9 @@ export function StaffRateChart() {
             data={staffChartData[activeTab as keyof typeof staffChartData]}
             dataKey="appointments"
             nameKey="staff"
-            innerRadius={65}
+            innerRadius={60}
             outerRadius={90}
-            strokeWidth={1}
+            strokeWidth={5}
             activeIndex={activeIndex}
             activeShape={({
               outerRadius = 0,
