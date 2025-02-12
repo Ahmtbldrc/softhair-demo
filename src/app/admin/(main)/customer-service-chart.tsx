@@ -35,7 +35,7 @@ export default function CustomerServiceChart() {
     weekly: { visitors: number; service: string, fill: string }[];
     monthly: { visitors: number; service: string, fill: string }[];
   };
-//pipeline
+
   const [chartData, setChartData] = React.useState<ChartData>({
     daily: [],
     weekly: [],
@@ -53,11 +53,10 @@ export default function CustomerServiceChart() {
       return
     }
 
-    // Her bir veri için fill rengini servicesConfig'den alalım
-    const processData = (data: any[]) => {
-      return data.map(item => ({
+    const processData = (data: { visitors: number; service: string }[]) => {
+      return data.map((item, index) => ({
         ...item,
-        fill: `hsl(var(--chart-${(data.indexOf(item) % 12) + 1}))`,
+        fill: `hsl(var(--chart-${(index % 30) + 1}))`,
       }))
     }
 
