@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Label, Pie, PieChart } from "recharts"
+import { Label, Pie, PieChart, Sector } from "recharts"
 import { supabase } from "@/lib/supabase"
 
 import {
@@ -18,6 +18,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AnalyticType } from "@/lib/types"
 import { useLocale } from "@/contexts/LocaleContext"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const chartConfig = {
   visitors: {
@@ -28,6 +29,7 @@ const chartConfig = {
 export default function CustomerServiceChart() {
   const { t } = useLocale()
   const [activeTab, setActiveTab] = React.useState<keyof ChartData>("daily")
+  const [activeService, setActiveService] = React.useState<string>("")
   type ChartData = {
     daily: { visitors: number; service: string, fill: string }[];
     weekly: { visitors: number; service: string, fill: string }[];
@@ -51,11 +53,28 @@ export default function CustomerServiceChart() {
       return
     }
 
+    // Her bir veri için fill rengini servicesConfig'den alalım
+    const processData = (data: any[]) => {
+      return data.map(item => ({
+        ...item,
+        fill: `hsl(var(--chart-${(data.indexOf(item) % 12) + 1}))`,
+      }))
+    }
+
+    const processedDaily = processData(dailyData || [])
+    const processedWeekly = processData(weeklyData || [])
+    const processedMonthly = processData(monthlyData || [])
+
     setChartData({
-      daily: dailyData || [],
-      weekly: weeklyData || [],
-      monthly: monthlyData || [],
+      daily: processedDaily,
+      weekly: processedWeekly,
+      monthly: processedMonthly,
     })
+
+    // İlk servisi seç
+    if (processedDaily.length > 0 && !activeService) {
+      setActiveService(processedDaily[0].service)
+    }
   }
 
   const fetchServicesConfig = async () => {
@@ -66,24 +85,41 @@ export default function CustomerServiceChart() {
       return
     }
 
-    const config = servicesData.reduce((acc: Record<string, { label: string; color: string }>, service) => {
-      acc[service.name.replace(/[^a-zA-Z0-9]/g, '')] = {
-      label: service.name,
-      color: `hsl(var(--chart-${Object.keys(acc).length + 1}))`,
+    const config = servicesData.reduce((acc: Record<string, { label: string; color: string }>, service, index) => {
+      acc[service.name] = {
+        label: service.name,
+        color: `hsl(var(--chart-${(index % 12) + 1}))`,
       }
       return acc
     }, {})
 
     setServicesConfig(config)
+    fetchChartData()
   }
 
   React.useEffect(() => {
-    fetchChartData()
+    // Önce servicesConfig'i yükleyelim
     fetchServicesConfig()
+    // fetchChartData artık fetchServicesConfig içinden çağrılacak
   }, [])
 
   const totalVisitors = React.useMemo(() => {
     return chartData[activeTab].reduce((acc: number, curr: { visitors: number }) => acc + curr.visitors, 0)
+  }, [activeTab, chartData])
+
+  const activeIndex = React.useMemo(
+    () => chartData[activeTab].findIndex((item) => item.service === activeService),
+    [activeService, activeTab, chartData]
+  )
+
+  const availableServices = React.useMemo(() => {
+    console.log('Chart Data:', chartData[activeTab])
+    return chartData[activeTab]
+      .filter(item => item.service !== "empty" && item.visitors > 0)
+      .map(item => ({
+        service: item.service,
+        visitors: item.visitors
+      }))
   }, [activeTab, chartData])
 
   const renderChart = () => {
@@ -92,6 +128,13 @@ export default function CustomerServiceChart() {
       service: "empty",
       fill: "hsl(var(--muted))"
     }]
+
+    const currentData = totalVisitors === 0 
+      ? emptyChartData 
+      : chartData[activeTab].map((item, index) => ({
+          ...item,
+          fill: `hsl(var(--chart-${(index % 12) + 1}))`
+        }))
 
     return (
       <ChartContainer
@@ -104,11 +147,25 @@ export default function CustomerServiceChart() {
             content={<ChartTooltipContent hideLabel />}
           />
           <Pie
-            data={totalVisitors === 0 ? emptyChartData : chartData[activeTab]}
+            data={currentData}
             dataKey="visitors"
             nameKey="service"
             innerRadius={60}
             strokeWidth={5}
+            activeIndex={activeIndex}
+            activeShape={({
+              outerRadius = 0,
+              ...props
+            }) => (
+              <g>
+                <Sector {...props} outerRadius={outerRadius + 8} />
+                <Sector
+                  {...props}
+                  outerRadius={outerRadius + 20}
+                  innerRadius={outerRadius + 10}
+                />
+              </g>
+            )}
           >
             <Label
               content={({ viewBox }) => {
@@ -159,6 +216,49 @@ export default function CustomerServiceChart() {
           </TabsList>
           {Object.entries(chartData).map(([period]) => (
             <TabsContent key={period} value={period}>
+              <div className="flex justify-end mb-4">
+                <Select 
+                  value={activeService} 
+                  onValueChange={setActiveService}
+                >
+                  <SelectTrigger
+                    className="h-8 w-[140px]"
+                    aria-label={t("customer-service.selectService")}
+                  >
+                    <SelectValue 
+                      placeholder={t("customer-service.selectService")} 
+                      className="truncate"
+                    />
+                  </SelectTrigger>
+                  <SelectContent 
+                    align="end" 
+                    className="max-h-[300px] min-w-[200px]"
+                  >
+                    {availableServices.map(({ service }) => {
+                      const serviceIndex = chartData[activeTab].findIndex(item => item.service === service)
+                      const color = `hsl(var(--chart-${(serviceIndex % 12) + 1}))`
+
+                      return (
+                        <SelectItem
+                          key={service}
+                          value={service}
+                          className="rounded-lg"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="h-3 w-3 shrink-0 rounded-sm"
+                              style={{
+                                backgroundColor: color,
+                              }}
+                            />
+                            <span className="text-sm truncate">{service}</span>
+                          </div>
+                        </SelectItem>
+                      )
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
               {renderChart()}
             </TabsContent>
           ))}
