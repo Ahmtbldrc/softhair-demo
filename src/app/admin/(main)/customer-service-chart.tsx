@@ -29,7 +29,7 @@ const chartConfig = {
 export default function CustomerServiceChart() {
   const { t } = useLocale()
   const [activeTab, setActiveTab] = React.useState<keyof ChartData>("daily")
-  const [activeService, setActiveService] = React.useState<string>("")
+  const [activeService, setActiveService] = React.useState<string>("all")
   type ChartData = {
     daily: { visitors: number; service: string, fill: string }[];
     weekly: { visitors: number; service: string, fill: string }[];
@@ -233,6 +233,18 @@ export default function CustomerServiceChart() {
                     align="end" 
                     className="max-h-[300px] min-w-[200px]"
                   >
+                    <SelectItem
+                      key="all"
+                      value="all"
+                      className="rounded-lg"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="h-3 w-3 shrink-0 rounded-sm bg-primary"
+                        />
+                        <span className="text-sm truncate">{t("customer-service.allServices")}</span>
+                      </div>
+                    </SelectItem>
                     {availableServices.map(({ service }) => {
                       const serviceIndex = chartData[activeTab].findIndex(item => item.service === service)
                       const color = `hsl(var(--chart-${(serviceIndex % 12) + 1}))`
