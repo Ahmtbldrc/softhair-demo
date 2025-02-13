@@ -53,7 +53,8 @@
     "loginDescription": "Enter your credentials to access your account",
     "username": "Username",
     "password": "Password",
-    "login": "Sign In"
+    "login": "Sign In",
+    "loading": "Loading..."
   },
   "occupancy-rate":{
     "occupancyRate": "Occupancy Rate",

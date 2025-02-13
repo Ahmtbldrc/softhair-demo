@@ -53,7 +53,8 @@
     "loginDescription": "Geben Sie Ihre Anmeldedaten ein",
     "username": "Benutzername",
     "password": "Passwort",
-    "login": "Anmelden"
+    "login": "Anmelden",
+    "loading": "Wird geladen..."
   },
   "occupancy-rate": {
     "occupancyRate": "Auslastungsrate",

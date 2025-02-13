@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Roles } from "@/lib/types";
 import LocaleToggle from "@/components/LocalToggle";
 import { useLocale } from "@/contexts/LocaleContext";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const { t } = useLocale();
@@ -24,6 +24,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [mounted, setMounted] = useState(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -35,6 +36,7 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -47,13 +49,15 @@ export default function LoginPage() {
       }
 
       const userRole = data.session?.user?.user_metadata.role;
-
+      
       window.location.href = userRole == Roles.ADMIN ? "/admin" : "/staff/reservation";
+      return;
     } catch {
       toast({
         title: "Warning",
         description: "Username or password wrong",
       });
+      setIsLoading(false);
     }
   };
 
@@ -120,8 +124,15 @@ export default function LoginPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button type="submit" className="w-full">
-                  {t("auth.login")}
+                <Button disabled={isLoading} type="submit" className="w-full">
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t("auth.loading")}
+                    </>
+                  ) : (
+                    t("auth.login")
+                  )}
                 </Button>
               </CardFooter>
             </Card>
