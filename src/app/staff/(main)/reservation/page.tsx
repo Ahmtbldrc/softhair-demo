@@ -82,8 +82,8 @@ const DailyNavigation = ({ selectedDate, setSelectedDate }: {
   setSelectedDate: (date: Date) => void
 }) => {
   const today = new Date();
-  const twoWeeksFromNow = addDays(today, 14);
-  const startOfCurrentWeek = startOfWeek(today);
+  today.setHours(0, 0, 0, 0); // Bugünün başlangıcını al
+  const threeWeeksFromNow = addDays(today, 21); // 3 hafta (21 gün) sonrasına kadar
 
   const handlePrevDay = () => {
     const newDate = new Date(selectedDate)
@@ -97,8 +97,8 @@ const DailyNavigation = ({ selectedDate, setSelectedDate }: {
     setSelectedDate(newDate)
   }
 
-  const isPrevDisabled = selectedDate <= startOfCurrentWeek;
-  const isNextDisabled = selectedDate >= twoWeeksFromNow;
+  const isPrevDisabled = selectedDate <= today;
+  const isNextDisabled = selectedDate >= threeWeeksFromNow; // 3 hafta kontrolü
 
   return (
     <div className="flex items-center justify-between mb-4">
@@ -283,7 +283,8 @@ export default function ReservationPage() {
 
     const availableTimes: { time: Date; available: boolean }[] = [];
     const now = new Date();
-    const twoWeeksFromNow = addDays(now, 14);
+    const threeWeeksLater = new Date(now);
+    threeWeeksLater.setDate(now.getDate() + 21);
 
     workingHours.forEach((slot) => {
       let currentTime = parse(slot.start, "HH:mm", day);
@@ -297,7 +298,7 @@ export default function ReservationPage() {
         );
 
         const isPastDateTime = currentTime < now;
-        const isFutureDateTime = currentTime > twoWeeksFromNow;
+        const isFutureDateTime = currentTime > threeWeeksLater;
 
         availableTimes.push({
           time: new Date(currentTime),
@@ -560,7 +561,7 @@ export default function ReservationPage() {
                                         ({ time, available }) => {
                                           console.log('Time Slot:', format(time, 'HH:mm'), 'Available:', available);
                                           const isPastDateTime = time < new Date();
-                                          const isFutureDateTime = time > addDays(new Date(), 14);
+                                          const isFutureDateTime = time > addDays(new Date(), 21);
                                           return (
                                             <Button
                                               key={time.toISOString()}
@@ -636,7 +637,7 @@ export default function ReservationPage() {
                 </h2>
                 <Button
                   onClick={handleNextWeek}
-                  disabled={startOfWeek(currentDate) >= startOfWeek(addDays(new Date(), 14))}
+                  disabled={startOfWeek(currentDate) >= startOfWeek(addDays(new Date(), 21))}
                   className="sm:w-auto sm:px-4 w-8 h-8 p-0 text-xs sm:text-sm"
                 >
                   <span className="hidden sm:inline">{t("staff-reservation.nextWeek")} &gt;</span>
@@ -1079,7 +1080,7 @@ export default function ReservationPage() {
                                   ({ time, available }) => {
                                     console.log('Time Slot:', format(time, 'HH:mm'), 'Available:', available);
                                     const isPastDateTime = time < new Date();
-                                    const isFutureDateTime = time > addDays(new Date(), 14);
+                                    const isFutureDateTime = time > addDays(new Date(), 21);
                                     return (
                                       <Button
                                         key={time.toISOString()}
