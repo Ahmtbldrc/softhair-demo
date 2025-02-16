@@ -394,4 +394,43 @@ export async function getActiveServices(branchId: number) {
     console.error("Failed to fetch active services:", err)
     return { error: "Failed to fetch active services" }
   }
+}
+
+export interface StaffAppointmentData {
+  staff: string
+  appointments: number
+  fill: string
+}
+
+export type StaffAppointmentPeriod = 'daily' | 'weekly' | 'monthly'
+
+export async function getStaffAppointmentStatistics(
+  branchId: number
+): Promise<Record<StaffAppointmentPeriod, StaffAppointmentData[]>> {
+  const { data, error } = await supabase
+    .from('staff_appointment_statistics')
+    .select('*')
+    .eq('branchId', branchId)
+
+  if (error) {
+    console.error('Error fetching staff appointment statistics:', error)
+    return {
+      daily: [],
+      weekly: [],
+      monthly: []
+    }
+  }
+
+  const transformData = (period: StaffAppointmentPeriod) => 
+    data.map((staff, index) => ({
+      staff: staff.fullName || '',
+      appointments: staff[`${period}Appointments`] || 0,
+      fill: `hsl(var(--chart-${(index % 30) + 1}))`
+    }))
+
+  return {
+    daily: transformData('daily'),
+    weekly: transformData('weekly'),
+    monthly: transformData('monthly')
+  }
 } 

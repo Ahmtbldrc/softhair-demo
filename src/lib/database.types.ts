@@ -6,276 +6,426 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
-      staff: {
-        Row: {
-          id: number
-          firstName: string
-          lastName: string
-          email: string
-          username: string
-          image: string | null
-          status: boolean
-          weeklyHours: WeeklyHours
-          userId: string
-          branchId: number
-          password: string
-          created_at: string
-          updated_at: string | null
-        }
-        Insert: {
-          id?: number
-          firstName: string
-          lastName: string
-          email: string
-          username: string
-          image?: string | null
-          status?: boolean
-          weeklyHours?: WeeklyHours
-          userId: string
-          branchId: number
-          password: string
-          created_at?: string
-          updated_at?: string | null
-        }
-        Update: {
-          id?: number
-          firstName?: string
-          lastName?: string
-          email?: string
-          username?: string
-          image?: string | null
-          status?: boolean
-          weeklyHours?: WeeklyHours
-          userId?: string
-          branchId?: number
-          password?: string
-          created_at?: string
-          updated_at?: string | null
-        }
-      }
-      services: {
-        Row: {
-          id: number
-          name: string
-          price: number
-          duration: number
-          status: boolean
-          branchId: number
-          created_at: string
-          updated_at: string | null
-        }
-        Insert: {
-          id?: number
-          name: string
-          price: number
-          duration: number
-          status?: boolean
-          branchId: number
-          created_at?: string
-          updated_at?: string | null
-        }
-        Update: {
-          id?: number
-          name?: string
-          price?: number
-          duration?: number
-          status?: boolean
-          branchId?: number
-          created_at?: string
-          updated_at?: string | null
-        }
-      }
       branches: {
         Row: {
-          id: number
-          name: string
-          status: boolean
           created_at: string
-          updated_at: string | null
+          id: number
+          name: string | null
+          status: boolean | null
         }
         Insert: {
-          id?: number
-          name: string
-          status?: boolean
           created_at?: string
-          updated_at?: string | null
+          id?: number
+          name?: string | null
+          status?: boolean | null
         }
         Update: {
-          id?: number
-          name?: string
-          status?: boolean
           created_at?: string
-          updated_at?: string | null
+          id?: number
+          name?: string | null
+          status?: boolean | null
         }
+        Relationships: []
       }
       reservations: {
         Row: {
+          branchId: number | null
+          customer: Json | null
+          end: string | null
           id: number
           serviceId: number
-          staffId: number
-          branchId: number
-          start: string
-          end: string
-          customer: Json
-          status: string
-          created_at: string
-          updated_at: string | null
+          staffId: number | null
+          start: string | null
+          status: boolean | null
         }
         Insert: {
+          branchId?: number | null
+          customer?: Json | null
+          end?: string | null
           id?: number
           serviceId: number
-          staffId: number
-          branchId: number
-          start: string
-          end: string
-          customer: Json
-          status?: string
-          created_at?: string
-          updated_at?: string | null
+          staffId?: number | null
+          start?: string | null
+          status?: boolean | null
         }
         Update: {
+          branchId?: number | null
+          customer?: Json | null
+          end?: string | null
           id?: number
           serviceId?: number
-          staffId?: number
-          branchId?: number
-          start?: string
-          end?: string
-          customer?: Json
-          status?: string
-          created_at?: string
-          updated_at?: string | null
+          staffId?: number | null
+          start?: string | null
+          status?: boolean | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_serviceId_fkey"
+            columns: ["serviceId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_staffId_fkey"
+            columns: ["staffId"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_staffId_fkey"
+            columns: ["staffId"]
+            isOneToOne: false
+            referencedRelation: "staff_appointment_statistics"
+            referencedColumns: ["staffId"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          branchId: number | null
+          duration: number | null
+          id: number
+          name: string | null
+          price: number | null
+          status: boolean
+        }
+        Insert: {
+          branchId?: number | null
+          duration?: number | null
+          id?: number
+          name?: string | null
+          price?: number | null
+          status?: boolean
+        }
+        Update: {
+          branchId?: number | null
+          duration?: number | null
+          id?: number
+          name?: string | null
+          price?: number | null
+          status?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff: {
+        Row: {
+          branchId: number | null
+          email: string | null
+          firstName: string | null
+          id: number
+          image: string | null
+          languages: Json | null
+          lastName: string | null
+          password: string | null
+          status: boolean | null
+          userId: string | null
+          username: string | null
+          weeklyHours: Json | null
+        }
+        Insert: {
+          branchId?: number | null
+          email?: string | null
+          firstName?: string | null
+          id?: number
+          image?: string | null
+          languages?: Json | null
+          lastName?: string | null
+          password?: string | null
+          status?: boolean | null
+          userId?: string | null
+          username?: string | null
+          weeklyHours?: Json | null
+        }
+        Update: {
+          branchId?: number | null
+          email?: string | null
+          firstName?: string | null
+          id?: number
+          image?: string | null
+          languages?: Json | null
+          lastName?: string | null
+          password?: string | null
+          status?: boolean | null
+          userId?: string | null
+          username?: string | null
+          weeklyHours?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       staff_services: {
         Row: {
           id: number
-          staffId: number
-          serviceId: number
-          created_at: string
+          service_id: number | null
+          staff_id: number | null
         }
         Insert: {
           id?: number
-          staffId: number
-          serviceId: number
-          created_at?: string
+          service_id?: number | null
+          staff_id?: number | null
         }
         Update: {
           id?: number
-          staffId?: number
-          serviceId?: number
-          created_at?: string
+          service_id?: number | null
+          staff_id?: number | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "staff_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_services_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_services_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_appointment_statistics"
+            referencedColumns: ["staffId"]
+          },
+        ]
       }
     }
     Views: {
-      [_ in never]: never
+      admin_emails: {
+        Row: {
+          email: string | null
+        }
+        Relationships: []
+      }
+      staff_appointment_statistics: {
+        Row: {
+          branchId: number | null
+          dailyAppointments: number | null
+          fullName: string | null
+          monthlyAppointments: number | null
+          staffId: number | null
+          weeklyAppointments: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
-      [_ in never]: never
+      calculate_daily_occupancy: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total: number
+          booked: number
+        }[]
+      }
+      calculate_overall_occupancy: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      get_daily_income_for_weeks: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          day: string
+          thisweek: number
+          lastweek: number
+        }[]
+      }
+      get_daily_visitors: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          service: string
+          visitors: number
+          fill: string
+        }[]
+      }
+      get_monthly_visitors: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          service: string
+          visitors: number
+          fill: string
+        }[]
+      }
+      get_recent_sales_by_staff: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: number
+          name: string
+          image: string
+          initials: string
+          weeklyearnings: number
+        }[]
+      }
+      get_recent_transactions: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          customer: string
+          email: string
+          staff: string
+          service: string
+          date: string
+          amount: number
+        }[]
+      }
+      get_reservation_count: {
+        Args: {
+          start_date: string
+          end_date: string
+        }
+        Returns: {
+          active: number
+          passive: number
+        }[]
+      }
+      get_weekly_visitors: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          service: string
+          visitors: number
+          fill: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
     }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }
 
-// Helper types
-export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
-export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T]
+type PublicSchema = Database[Extract<keyof Database, "public">]
 
-// Table types
-export type StaffTable = Tables<'staff'>
-export type Service = Tables<'services'>
-export type Branch = Tables<'branches'>
-export type Reservation = Tables<'reservations'>
-export type StaffServiceTable = Tables<'staff_services'>
+export type Tables<
+  PublicTableNameOrOptions extends
+    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
+        PublicSchema["Views"])
+    ? (PublicSchema["Tables"] &
+        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
 
-// Custom types that extend database types
-export interface TimeSlot {
-  start: string
-  end: string
-}
+export type TablesInsert<
+  PublicTableNameOrOptions extends
+    | keyof PublicSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
 
-export interface WeeklyHours {
-  SUN: TimeSlot[]
-  MON: TimeSlot[]
-  TUE: TimeSlot[]
-  WED: TimeSlot[]
-  THU: TimeSlot[]
-  FRI: TimeSlot[]
-  SAT: TimeSlot[]
-}
+export type TablesUpdate<
+  PublicTableNameOrOptions extends
+    | keyof PublicSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
 
-export interface StaffServiceWithDetails {
-  service: {
-    id: number
-    name: string
+export type Enums<
+  PublicEnumNameOrOptions extends
+    | keyof PublicSchema["Enums"]
+    | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
+    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof PublicSchema["CompositeTypes"]
+    | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
   }
-}
-
-export interface Staff extends StaffTable {
-  password: string
-  userId: string
-  branchId: number
-}
-
-export interface StaffWithServices extends Staff {
-  services: StaffServiceWithDetails[]
-  weeklyHours: WeeklyHours
-  created_at: string
-  updated_at: string | null
-  languages: string[]
-}
-
-export interface StaffFormData extends Omit<Staff, 'id' | 'userId' | 'created_at' | 'updated_at'> {
-  services: number[]
-  weeklyHours: WeeklyHours
-}
-
-export interface ReservationWithDetails extends Omit<Reservation, 'customer'> {
-  customer: {
-    id: number
-    firstName: string
-    lastName: string
-    email: string
-    phone: string
-  }
-  service: {
-    id: number
-    name: string
-    price: number
-  }
-  staff: {
-    id: number
-    firstName: string
-    lastName: string
-    email: string
-  }
-}
-
-export interface ServiceWithBranch extends Service {
-  branch: Branch
-}
-
-// Enums
-export enum UserRole {
-  ADMIN = 'admin',
-  STAFF = 'staff',
-  USER = 'user'
-}
-
-export enum AnalyticPeriod {
-  DAILY = 'daily',
-  WEEKLY = 'weekly',
-  MONTHLY = 'monthly'
-}
-
-export enum ReservationStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  CANCELLED = 'cancelled',
-  COMPLETED = 'completed'
-} 
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
+    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
