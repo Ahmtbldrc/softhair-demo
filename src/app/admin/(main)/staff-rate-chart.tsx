@@ -24,70 +24,78 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-
-const staffChartData = {
-  daily: [
-    { staff: "ahmet", appointments: 86, fill: "var(--color-staff1)" },
-    { staff: "mehmet", appointments: 105, fill: "var(--color-staff2)" },
-    { staff: "ayşe", appointments: 77, fill: "var(--color-staff3)" },
-    { staff: "fatma", appointments: 63, fill: "var(--color-staff4)" },
-    { staff: "zeynep", appointments: 89, fill: "var(--color-staff5)" },
-  ],
-  weekly: [
-    { staff: "ahmet", appointments: 386, fill: "var(--color-staff1)" },
-    { staff: "mehmet", appointments: 425, fill: "var(--color-staff2)" },
-    { staff: "ayşe", appointments: 337, fill: "var(--color-staff3)" },
-    { staff: "fatma", appointments: 293, fill: "var(--color-staff4)" },
-    { staff: "zeynep", appointments: 359, fill: "var(--color-staff5)" },
-  ],
-  monthly: [
-    { staff: "ahmet", appointments: 1286, fill: "var(--color-staff1)" },
-    { staff: "mehmet", appointments: 1505, fill: "var(--color-staff2)" },
-    { staff: "ayşe", appointments: 1137, fill: "var(--color-staff3)" },
-    { staff: "fatma", appointments: 973, fill: "var(--color-staff4)" },
-    { staff: "zeynep", appointments: 1209, fill: "var(--color-staff5)" },
-  ],
-}
-
-const chartConfig = {
-  appointments: {
-    label: "Randevular",
-    color: "transparent",
-  },
-  staff1: {
-    label: "Ahmet",
-    color: "hsl(var(--chart-1))",
-  },
-  staff2: {
-    label: "Mehmet",
-    color: "hsl(var(--chart-2))",
-  },
-  staff3: {
-    label: "Ayşe",
-    color: "hsl(var(--chart-3))",
-  },
-  staff4: {
-    label: "Fatma",
-    color: "hsl(var(--chart-4))",
-  },
-  staff5: {
-    label: "Zeynep",
-    color: "hsl(var(--chart-5))",
-  },
-} satisfies ChartConfig
+import { getStaffAppointmentStatistics, type StaffAppointmentData } from "@/lib/services/staff.service"
+import { useBranch } from "@/contexts/BranchContext"
 
 export function StaffRateChart() {
+  const { selectedBranchId } = useBranch()
   const id = "pie-interactive"
-  const [activeStaff, setActiveStaff] = React.useState(staffChartData.daily[0].staff)
+  const [staffChartData, setStaffChartData] = React.useState<Record<string, StaffAppointmentData[]>>({
+    daily: [],
+    weekly: [],
+    monthly: []
+  })
+  const [activeStaff, setActiveStaff] = React.useState<string>('')
   const [activeTab, setActiveTab] = React.useState("daily")
+  const [chartConfig, setChartConfig] = React.useState<ChartConfig>({
+    appointments: {
+      label: "Randevular",
+      color: "transparent",
+    }
+  })
+
+  // Staff verilerini çek
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const data = await getStaffAppointmentStatistics(selectedBranchId)
+      setStaffChartData(data)
+
+      if (data.daily.length > 0) {
+        const firstStaffKey = `staff_${data.daily[0].staff.toLowerCase().replace(/\s+/g, '_')}`
+        setActiveStaff(firstStaffKey)
+      }
+    }
+
+    if (selectedBranchId > 0) {
+      fetchData()
+    }
+  }, [selectedBranchId])
+
+  // Chart config'i güncelle
+  React.useEffect(() => {
+    const newConfig: ChartConfig = {
+      appointments: {
+        label: "Randevular",
+        color: "transparent",
+      }
+    }
+
+    staffChartData[activeTab].forEach((staff) => {
+      const staffKey = `staff_${staff.staff.toLowerCase().replace(/\s+/g, '_')}`
+      newConfig[staffKey] = {
+        label: staff.staff,
+        color: staff.fill
+      }
+    })
+
+    setChartConfig(newConfig)
+  }, [staffChartData, activeTab])
 
   const activeIndex = React.useMemo(
-    () => staffChartData[activeTab as keyof typeof staffChartData].findIndex((item) => item.staff === activeStaff),
-    [activeStaff, activeTab]
+    () => {
+      const staffName = activeStaff.split('_').slice(1).join('_')
+      return staffChartData[activeTab as keyof typeof staffChartData]
+        .findIndex((item) => item.staff.toLowerCase().replace(/\s+/g, '_') === staffName)
+    },
+    [activeStaff, activeTab, staffChartData]
   )
-  const staffMembers = React.useMemo(() => staffChartData.daily.map((item) => item.staff), [])
 
   const renderChart = () => {
+    const currentData = staffChartData[activeTab as keyof typeof staffChartData].map(staff => ({
+      ...staff,
+      fill: chartConfig[`staff_${staff.staff.toLowerCase().replace(/\s+/g, '_')}`]?.color || 'transparent'
+    }))
+
     return (
       <ChartContainer
         id={id}
@@ -100,23 +108,26 @@ export function StaffRateChart() {
             content={<ChartTooltipContent hideLabel />}
           />
           <Pie
-            data={staffChartData[activeTab as keyof typeof staffChartData]}
+            data={currentData}
             dataKey="appointments"
             nameKey="staff"
             innerRadius={60}
             outerRadius={90}
             strokeWidth={5}
             activeIndex={activeIndex}
+            fill="#000"
             activeShape={({
               outerRadius = 0,
+              fill,
               ...props
             }: PieSectorDataItem) => (
               <g>
-                <Sector {...props} outerRadius={outerRadius + 8} />
+                <Sector {...props} outerRadius={outerRadius + 8} fill={fill} />
                 <Sector
                   {...props}
                   outerRadius={outerRadius + 20}
                   innerRadius={outerRadius + 10}
+                  fill={fill}
                 />
               </g>
             )}
@@ -124,6 +135,8 @@ export function StaffRateChart() {
             <Label
               content={({ viewBox }) => {
                 if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                  const appointments = currentData[activeIndex]?.appointments || 0
+
                   return (
                     <text
                       x={viewBox.cx}
@@ -136,7 +149,7 @@ export function StaffRateChart() {
                         y={viewBox.cy}
                         className="fill-foreground text-3xl font-bold"
                       >
-                        {staffChartData[activeTab as keyof typeof staffChartData][activeIndex].appointments.toLocaleString()}
+                        {appointments.toLocaleString()}
                       </tspan>
                       <tspan
                         x={viewBox.cx}
@@ -179,8 +192,8 @@ export function StaffRateChart() {
                     <SelectValue placeholder="Personel seç" />
                   </SelectTrigger>
                   <SelectContent align="end">
-                    {staffMembers.map((staff) => {
-                      const staffKey = `staff${staffMembers.indexOf(staff) + 1}` as keyof typeof chartConfig
+                    {staffChartData[activeTab].map((staff) => {
+                      const staffKey = `staff_${staff.staff.toLowerCase().replace(/\s+/g, '_')}` as keyof typeof chartConfig
                       const config = chartConfig[staffKey]
 
                       if (!config) {
@@ -189,8 +202,8 @@ export function StaffRateChart() {
 
                       return (
                         <SelectItem
-                          key={staff}
-                          value={staff}
+                          key={staffKey}
+                          value={staffKey}
                           className="rounded-lg [&_span]:flex"
                         >
                           <div className="flex items-center gap-2 text-xs">
