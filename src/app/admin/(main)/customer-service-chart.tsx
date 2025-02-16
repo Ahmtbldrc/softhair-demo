@@ -112,7 +112,6 @@ export default function CustomerServiceChart() {
   )
 
   const availableServices = React.useMemo(() => {
-    console.log('Chart Data:', chartData[activeTab])
     return chartData[activeTab]
       .filter(item => item.service !== "empty" && item.visitors > 0)
       .map(item => ({
