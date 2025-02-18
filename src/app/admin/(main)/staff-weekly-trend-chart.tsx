@@ -28,7 +28,10 @@ export default function StaffWeeklyTrendChart() {
   const totalPages = Math.ceil(staffData.length / itemsPerPage)
 
   const fetchStaffSalesData = async () => {
-    if (selectedBranchId <= 0) return;
+    if (selectedBranchId <= 0) {
+      setStaffData([]);
+      return;
+    }
 
     const result = await getRecentSalesByStaff(selectedBranchId)
     if (result.error || !result.data) {

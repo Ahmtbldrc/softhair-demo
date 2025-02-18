@@ -17,8 +17,9 @@ import {
 } from "@/components/ui/chart"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AnalyticType } from "@/lib/types"
-import { getReservationCount } from "@/lib/services/reservation.service"
+import { getReservationCountFromView } from "@/lib/services/reservation.service"
 import { useLocale } from "@/contexts/LocaleContext";
+import { useBranch } from "@/contexts/BranchContext";
 
 // define ChartDataType from chartData object
 type ChartDataType = {
@@ -50,6 +51,7 @@ const chartConfig = {
 
 export function TotalAppointmentChart() {
   const { t } = useLocale();
+  const { selectedBranchId } = useBranch();
   const [activeTab, setActiveTab] = useState<AnalyticType>(AnalyticType.DAILY)
   const [chartData, setChartData] = useState<ChartDataType>(initialChartData);
 
@@ -60,42 +62,34 @@ export function TotalAppointmentChart() {
 
   useEffect(() => {
     const fetchReservationCount = async () => {
-      const endDate = new Date();
-      endDate.setDate(endDate.getDate() + 1);
-      const dailyStartDate = new Date();
-      const weeklyStartDate = new Date();
-      const monthlyStartDate = new Date();
-
-      dailyStartDate.setDate(dailyStartDate.getDate() - 1);
-      weeklyStartDate.setDate(weeklyStartDate.getDate() - 7);
-      monthlyStartDate.setMonth(monthlyStartDate.getMonth() - 1);
-      const dailyData = await getReservationCount(dailyStartDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
-      const weeklyData = await getReservationCount(weeklyStartDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
-      const monthlyData = await getReservationCount(monthlyStartDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
+      if (selectedBranchId <= 0) return;
+      
+      const result = await getReservationCountFromView(selectedBranchId);
+      if (!result.data) return;
 
       setChartData({
         daily: [{ 
           period: AnalyticType.DAILY, 
-          active: dailyData.active, 
-          passive: dailyData.passive,
-          empty: dailyData.active + dailyData.passive === 0 ? 100 : 0 
+          active: result.data.dailyActiveCount || 0, 
+          passive: result.data.dailyPassiveCount || 0,
+          empty: (result.data.dailyActiveCount || 0) + (result.data.dailyPassiveCount || 0) === 0 ? 100 : 0 
         }],
         weekly: [{ 
           period: AnalyticType.WEEKLY, 
-          active: weeklyData.active, 
-          passive: weeklyData.passive,
-          empty: weeklyData.active + weeklyData.passive === 0 ? 100 : 0 
+          active: result.data.weeklyActiveCount || 0, 
+          passive: result.data.weeklyPassiveCount || 0,
+          empty: (result.data.weeklyActiveCount || 0) + (result.data.weeklyPassiveCount || 0) === 0 ? 100 : 0 
         }],
         monthly: [{ 
           period: AnalyticType.MONTHLY, 
-          active: monthlyData.active, 
-          passive: monthlyData.passive,
-          empty: monthlyData.active + monthlyData.passive === 0 ? 100 : 0 
+          active: result.data.monthlyActiveCount || 0, 
+          passive: result.data.monthlyPassiveCount || 0,
+          empty: (result.data.monthlyActiveCount || 0) + (result.data.monthlyPassiveCount || 0) === 0 ? 100 : 0 
         }]
       });
     }
     fetchReservationCount();
-  }, [activeTab])
+  }, [selectedBranchId])
 
   return (
     <Card className="flex flex-col">
