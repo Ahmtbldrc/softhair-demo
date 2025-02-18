@@ -77,6 +77,13 @@ export type Database = {
             referencedColumns: ["branchId"]
           },
           {
+            foreignKeyName: "reservations_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "recent_sales_by_staff_view"
+            referencedColumns: ["branchid"]
+          },
+          {
             foreignKeyName: "reservations_serviceId_fkey"
             columns: ["serviceId"]
             isOneToOne: false
@@ -88,6 +95,13 @@ export type Database = {
             columns: ["serviceId"]
             isOneToOne: false
             referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_staffId_fkey"
+            columns: ["staffId"]
+            isOneToOne: false
+            referencedRelation: "recent_sales_by_staff_view"
             referencedColumns: ["id"]
           },
           {
@@ -145,6 +159,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "daily_income_for_weeks_by_branch_view"
             referencedColumns: ["branchId"]
+          },
+          {
+            foreignKeyName: "services_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "recent_sales_by_staff_view"
+            referencedColumns: ["branchid"]
           },
         ]
       }
@@ -206,6 +227,13 @@ export type Database = {
             referencedRelation: "daily_income_for_weeks_by_branch_view"
             referencedColumns: ["branchId"]
           },
+          {
+            foreignKeyName: "staff_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "recent_sales_by_staff_view"
+            referencedColumns: ["branchid"]
+          },
         ]
       }
       staff_services: {
@@ -243,6 +271,13 @@ export type Database = {
             foreignKeyName: "staff_services_staff_id_fkey"
             columns: ["staff_id"]
             isOneToOne: false
+            referencedRelation: "recent_sales_by_staff_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_services_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
             referencedRelation: "staff"
             referencedColumns: ["id"]
           },
@@ -272,6 +307,51 @@ export type Database = {
         }
         Relationships: []
       }
+      recent_sales_by_staff_view: {
+        Row: {
+          branchid: number | null
+          id: number | null
+          image: string | null
+          initials: string | null
+          name: string | null
+          weeklyEarnings: number | null
+        }
+        Relationships: []
+      }
+      recent_transactions_view: {
+        Row: {
+          amount: number | null
+          branchId: number | null
+          customer: string | null
+          date: string | null
+          email: string | null
+          service: string | null
+          staff: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "daily_income_for_weeks_by_branch_view"
+            referencedColumns: ["branchId"]
+          },
+          {
+            foreignKeyName: "reservations_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "recent_sales_by_staff_view"
+            referencedColumns: ["branchid"]
+          },
+        ]
+      }
       service_appointment_statistics: {
         Row: {
           branchId: number | null
@@ -295,6 +375,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "daily_income_for_weeks_by_branch_view"
             referencedColumns: ["branchId"]
+          },
+          {
+            foreignKeyName: "services_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "recent_sales_by_staff_view"
+            referencedColumns: ["branchid"]
           },
         ]
       }
@@ -321,6 +408,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "daily_income_for_weeks_by_branch_view"
             referencedColumns: ["branchId"]
+          },
+          {
+            foreignKeyName: "staff_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "recent_sales_by_staff_view"
+            referencedColumns: ["branchid"]
           },
         ]
       }
