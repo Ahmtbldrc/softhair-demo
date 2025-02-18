@@ -5,8 +5,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { supabase } from '@/lib/supabase'
-import { useLocale } from "@/contexts/LocaleContext";
+import { getRecentSalesByStaff } from '@/lib/services/staff.service'
+import { useLocale } from "@/contexts/LocaleContext"
+import { useBranch } from '@/contexts/BranchContext'
+import { RecentSalesByStaffView } from '@/lib/database.aliases'
 
 type StaffData = {
   id: number;
@@ -18,6 +20,7 @@ type StaffData = {
 
 export default function StaffWeeklyTrendChart() {
   const { t } = useLocale();
+  const { selectedBranchId } = useBranch();
 
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 4
@@ -25,28 +28,28 @@ export default function StaffWeeklyTrendChart() {
   const totalPages = Math.ceil(staffData.length / itemsPerPage)
 
   const fetchStaffSalesData = async () => {
-    const { data, error } = await supabase.rpc('get_recent_sales_by_staff')
-    if (error) {
-      console.error('Error fetching staff sales data:', error)
-    } else {
+    if (selectedBranchId <= 0) return;
 
-      const parsedData = data.map((staff: { 
-        id: number;
-        name: string;
-        image: string;
-        initials: string;
-        weeklyearnings: number;
-      }) => ({
-        ...staff,
-        weeklyEarnings: staff.weeklyearnings
-      }))
-      setStaffData(parsedData)
+    const result = await getRecentSalesByStaff(selectedBranchId)
+    if (result.error || !result.data) {
+      console.error('Error fetching staff sales data:', result.error)
+      setStaffData([])
+      return
     }
+
+    const parsedData = result.data.map((staff: RecentSalesByStaffView) => ({
+      id: staff.id || 0,
+      name: staff.name || '',
+      image: staff.image || '',
+      initials: staff.initials || '',
+      weeklyEarnings: staff.weeklyEarnings || 0
+    }))
+    setStaffData(parsedData)
   }
 
   useEffect(() => {
     fetchStaffSalesData()
-  }, [])
+  }, [selectedBranchId])
 
   const paginatedStaff = staffData.slice(
     (currentPage - 1) * itemsPerPage,

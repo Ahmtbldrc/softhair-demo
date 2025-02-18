@@ -5,8 +5,9 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { supabase } from '@/lib/supabase'
 import { useLocale } from "@/contexts/LocaleContext";
+import { useBranch } from '@/contexts/BranchContext'
+import { getRecentTransactions } from '@/lib/services/reservation.service'
 
 type Transaction = {
   customer: string;
@@ -19,6 +20,7 @@ type Transaction = {
 
 export default function TransactionsChart() {
   const { t } = useLocale();
+  const { selectedBranchId } = useBranch();
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 3
@@ -26,16 +28,14 @@ export default function TransactionsChart() {
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      const { data, error } = await supabase.rpc('get_recent_transactions')
-      if (error) {
-        console.error("Error fetching transactions:", error)
-      } else {
-        setTransactions(data)
-      }
+      if (selectedBranchId <= 0) return;
+
+      const { data } = await getRecentTransactions(selectedBranchId)
+      setTransactions(data || [])
     }
 
     fetchTransactions()
-  }, [])
+  }, [selectedBranchId])
 
   const paginatedTransactions = transactions.slice(
     (currentPage - 1) * itemsPerPage,
