@@ -18,7 +18,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AnalyticType } from "@/lib/types"
 import { useLocale } from "@/contexts/LocaleContext"
+import { useBranch } from "@/contexts/BranchContext"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ServiceAppointmentStatistics } from "@/lib/database.aliases"
+import { fetchServiceAppointmentStatistics } from "@/lib/services/service.service"
 
 const chartConfig = {
   visitors: {
@@ -28,6 +31,7 @@ const chartConfig = {
 
 export default function CustomerServiceChart() {
   const { t } = useLocale()
+  const { selectedBranchId } = useBranch()
   const [activeTab, setActiveTab] = React.useState<keyof ChartData>("daily")
   const [activeService, setActiveService] = React.useState<string>("all")
   type ChartData = {
@@ -43,41 +47,48 @@ export default function CustomerServiceChart() {
   })
   const [servicesConfig, setServicesConfig] = React.useState<Record<string, { label: string; color: string }>>({})
 
-  const fetchChartData = async () => {
-    const { data: dailyData, error: dailyError } = await supabase.rpc('get_daily_visitors')
-    const { data: weeklyData, error: weeklyError } = await supabase.rpc('get_weekly_visitors')
-    const { data: monthlyData, error: monthlyError } = await supabase.rpc('get_monthly_visitors')
+  const processServiceData = (data: ServiceAppointmentStatistics[]) => {
+    return {
+      daily: data.map((item, index) => ({
+        visitors: item.dailyAppointments || 0,
+        service: item.serviceName || '',
+        fill: `hsl(var(--chart-${(index % 30) + 1}))`
+      })),
+      weekly: data.map((item, index) => ({
+        visitors: item.weeklyAppointments || 0,
+        service: item.serviceName || '',
+        fill: `hsl(var(--chart-${(index % 30) + 1}))`
+      })),
+      monthly: data.map((item, index) => ({
+        visitors: item.monthlyAppointments || 0,
+        service: item.serviceName || '',
+        fill: `hsl(var(--chart-${(index % 30) + 1}))`
+      }))
+    }
+  }
 
-    if (dailyError || weeklyError || monthlyError) {
-      console.error('Error fetching chart data:', dailyError || weeklyError || monthlyError)
+  const fetchChartData = async () => {
+    const { data: serviceStats, error } = await fetchServiceAppointmentStatistics(selectedBranchId)
+    
+    if (error || !serviceStats) {
+      console.error('Error fetching service stats:', error)
       return
     }
 
-    const processData = (data: { visitors: number; service: string }[]) => {
-      return data.map((item, index) => ({
-        ...item,
-        fill: `hsl(var(--chart-${(index % 30) + 1}))`,
-      }))
-    }
-
-    const processedDaily = processData(dailyData || [])
-    const processedWeekly = processData(weeklyData || [])
-    const processedMonthly = processData(monthlyData || [])
-
-    setChartData({
-      daily: processedDaily,
-      weekly: processedWeekly,
-      monthly: processedMonthly,
-    })
+    const processedData = processServiceData(serviceStats)
+    setChartData(processedData)
 
     // İlk servisi seç
-    if (processedDaily.length > 0 && !activeService) {
-      setActiveService(processedDaily[0].service)
+    if (processedData.daily.length > 0 && !activeService) {
+      setActiveService(processedData.daily[0].service)
     }
   }
 
   const fetchServicesConfig = async () => {
-    const { data: servicesData, error: servicesError } = await supabase.from('services').select('name')
+    const { data: servicesData, error: servicesError } = await supabase
+      .from('services')
+      .select('name')
+      .eq('branchId', selectedBranchId)
 
     if (servicesError) {
       console.error('Error fetching services config:', servicesError)
@@ -97,10 +108,10 @@ export default function CustomerServiceChart() {
   }
 
   React.useEffect(() => {
-    // Önce servicesConfig'i yükleyelim
-    fetchServicesConfig()
-    // fetchChartData artık fetchServicesConfig içinden çağrılacak
-  }, [])
+    if (selectedBranchId) {
+      fetchServicesConfig()
+    }
+  }, [selectedBranchId])
 
   const totalVisitors = React.useMemo(() => {
     return chartData[activeTab].reduce((acc: number, curr: { visitors: number }) => acc + curr.visitors, 0)
