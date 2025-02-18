@@ -4,6 +4,7 @@ import { type Database } from "./database.types"
 export type StaffAppointmentStatistics = Database["public"]["Views"]["staff_appointment_statistics"]["Row"]
 export type ServiceAppointmentStatistics = Database["public"]["Views"]["service_appointment_statistics"]["Row"]
 export type AdminEmails = Database["public"]["Views"]["admin_emails"]["Row"]
+export type DailyIncomeForWeeksByBranch = Database["public"]["Views"]["daily_income_for_weeks_by_branch_view"]["Row"]
 
 // Database table types
 export type Branch = Database["public"]["Tables"]["branches"]["Row"]
@@ -11,6 +12,13 @@ export type Reservation = Database["public"]["Tables"]["reservations"]["Row"]
 export type Service = Database["public"]["Tables"]["services"]["Row"]
 export type Staff = Database["public"]["Tables"]["staff"]["Row"]
 export type StaffService = Database["public"]["Tables"]["staff_services"]["Row"]
+
+// Composite types
+export type ReservationWithDetails = Reservation & {
+    service: Service;
+    staff: Staff;
+    branch: Branch;
+}
 
 // Insert types
 export type BranchInsert = Database["public"]["Tables"]["branches"]["Insert"]

@@ -1,5 +1,5 @@
+import { ReservationWithDetails } from "../database.aliases";
 import { supabase } from "../supabase"
-import { ReservationWithDetails } from "../database.types"
 
 export const getReservationCount = async (startDate: string, endDate: string) => {
     const { data, error } = await supabase
@@ -91,25 +91,23 @@ export const getReservations = async (params: {
     return { data: data as ReservationWithDetails[] }
 }
 
-interface DailyIncomeItem {
-    day: string;
-    thisweek: number;
-    lastweek: number;
-}
-
-export const getDailyIncomeForWeeks = async () => {
+export const getDailyIncomeForWeeks = async (branchId: number) => {
     const { data, error } = await supabase
-        .rpc('get_daily_income_for_weeks');
+        .from('daily_income_for_weeks_by_branch_view')
+        .select('*')
+        .eq('branchId', branchId);
+
+    console.log(data);
 
     if (error) {
-        console.error('Error getting reservation count:', error);
+        console.error('Error getting daily income for weeks:', error);
         return null;
     }
 
-    const mappedData = data.map((item: DailyIncomeItem) => ({
-        day: item.day.trim(),
-        thisWeek: item.thisweek,
-        lastWeek: item.lastweek,
+    const mappedData = data.map((item) => ({
+        day: item.day?.trim() ?? '',
+        thisWeek: item.this_week ?? 0,
+        lastWeek: item.last_week ?? 0,
     }));
 
     return mappedData;
