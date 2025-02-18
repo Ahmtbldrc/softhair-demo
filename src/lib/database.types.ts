@@ -73,6 +73,13 @@ export type Database = {
             foreignKeyName: "reservations_serviceId_fkey"
             columns: ["serviceId"]
             isOneToOne: false
+            referencedRelation: "service_appointment_statistics"
+            referencedColumns: ["serviceId"]
+          },
+          {
+            foreignKeyName: "reservations_serviceId_fkey"
+            columns: ["serviceId"]
+            isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
@@ -201,6 +208,13 @@ export type Database = {
             foreignKeyName: "staff_services_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
+            referencedRelation: "service_appointment_statistics"
+            referencedColumns: ["serviceId"]
+          },
+          {
+            foreignKeyName: "staff_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
@@ -227,6 +241,25 @@ export type Database = {
           email: string | null
         }
         Relationships: []
+      }
+      service_appointment_statistics: {
+        Row: {
+          branchId: number | null
+          dailyAppointments: number | null
+          monthlyAppointments: number | null
+          serviceId: number | null
+          serviceName: string | null
+          weeklyAppointments: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       staff_appointment_statistics: {
         Row: {

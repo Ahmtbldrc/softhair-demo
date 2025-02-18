@@ -2,6 +2,7 @@ import { type Database } from "./database.types"
 
 // Database view types
 export type StaffAppointmentStatistics = Database["public"]["Views"]["staff_appointment_statistics"]["Row"]
+export type ServiceAppointmentStatistics = Database["public"]["Views"]["service_appointment_statistics"]["Row"]
 export type AdminEmails = Database["public"]["Views"]["admin_emails"]["Row"]
 
 // Database table types
