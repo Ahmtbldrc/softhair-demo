@@ -84,6 +84,13 @@ export type Database = {
             referencedColumns: ["branchid"]
           },
           {
+            foreignKeyName: "reservations_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "reservation_count_view"
+            referencedColumns: ["branchId"]
+          },
+          {
             foreignKeyName: "reservations_serviceId_fkey"
             columns: ["serviceId"]
             isOneToOne: false
@@ -167,6 +174,13 @@ export type Database = {
             referencedRelation: "recent_sales_by_staff_view"
             referencedColumns: ["branchid"]
           },
+          {
+            foreignKeyName: "services_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "reservation_count_view"
+            referencedColumns: ["branchId"]
+          },
         ]
       }
       staff: {
@@ -233,6 +247,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "recent_sales_by_staff_view"
             referencedColumns: ["branchid"]
+          },
+          {
+            foreignKeyName: "staff_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "reservation_count_view"
+            referencedColumns: ["branchId"]
           },
         ]
       }
@@ -350,7 +371,29 @@ export type Database = {
             referencedRelation: "recent_sales_by_staff_view"
             referencedColumns: ["branchid"]
           },
+          {
+            foreignKeyName: "reservations_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "reservation_count_view"
+            referencedColumns: ["branchId"]
+          },
         ]
+      }
+      reservation_count_view: {
+        Row: {
+          branchId: number | null
+          dailyActiveCount: number | null
+          dailyPassiveCount: number | null
+          dailyTotalCount: number | null
+          monthlyActiveCount: number | null
+          monthlyPassiveCount: number | null
+          monthlyTotalCount: number | null
+          weeklyActiveCount: number | null
+          weeklyPassiveCount: number | null
+          weeklyTotalCount: number | null
+        }
+        Relationships: []
       }
       service_appointment_statistics: {
         Row: {
@@ -382,6 +425,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "recent_sales_by_staff_view"
             referencedColumns: ["branchid"]
+          },
+          {
+            foreignKeyName: "services_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "reservation_count_view"
+            referencedColumns: ["branchId"]
           },
         ]
       }
@@ -415,6 +465,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "recent_sales_by_staff_view"
             referencedColumns: ["branchid"]
+          },
+          {
+            foreignKeyName: "staff_branchId_fkey"
+            columns: ["branchId"]
+            isOneToOne: false
+            referencedRelation: "reservation_count_view"
+            referencedColumns: ["branchId"]
           },
         ]
       }

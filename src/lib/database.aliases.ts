@@ -7,6 +7,7 @@ export type AdminEmails = Database["public"]["Views"]["admin_emails"]["Row"]
 export type DailyIncomeForWeeksByBranch = Database["public"]["Views"]["daily_income_for_weeks_by_branch_view"]["Row"]
 export type RecentSalesByStaffView = Database["public"]["Views"]["recent_sales_by_staff_view"]["Row"]
 export type RecentTransactionsView = Database["public"]["Views"]["recent_transactions_view"]["Row"]
+export type ReservationCountView = Database["public"]["Views"]["reservation_count_view"]["Row"]
 
 // Database table types
 export type Branch = Database["public"]["Tables"]["branches"]["Row"]
