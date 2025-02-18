@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase"
 import { StaffFormState } from "@/hooks/use-staff-form"
 import { Roles, Service } from "../types"
+import { RecentSalesByStaffView } from "../database.aliases"
 
 interface StaffWithServices {
   id: number
@@ -432,4 +433,20 @@ export async function getStaffAppointmentStatistics(
     weekly: transformData('weekly'),
     monthly: transformData('monthly')
   }
+}
+
+export async function getRecentSalesByStaff(branchId: number) {
+  if (branchId <= 0) return { data: [] }
+
+  const { data, error } = await supabase
+    .from('recent_sales_by_staff_view')
+    .select('*')
+    .eq('branchid', branchId)
+
+  if (error) {
+    console.error('Error fetching recent sales by staff:', error)
+    return { error: error.message }
+  }
+
+  return { data: data as RecentSalesByStaffView[] }
 } 

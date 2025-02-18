@@ -97,8 +97,6 @@ export const getDailyIncomeForWeeks = async (branchId: number) => {
         .select('*')
         .eq('branchId', branchId);
 
-    console.log(data);
-
     if (error) {
         console.error('Error getting daily income for weeks:', error);
         return null;
@@ -111,4 +109,20 @@ export const getDailyIncomeForWeeks = async (branchId: number) => {
     }));
 
     return mappedData;
+}
+
+export const getRecentTransactions = async (branchId: number) => {
+    if (branchId <= 0) return { data: [] };
+
+    const { data, error } = await supabase
+        .from('recent_transactions_view')
+        .select('*')
+        .eq('branchId', branchId);
+
+    if (error) {
+        console.error('Error getting recent transactions:', error);
+        return { data: [] };
+    }
+
+    return { data: data || [] };
 }
