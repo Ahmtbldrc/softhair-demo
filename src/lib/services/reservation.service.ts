@@ -1,4 +1,4 @@
-import { ReservationWithDetails } from "../database.aliases";
+import { ReservationWithDetails, ReservationCountView } from "../database.aliases";
 import { supabase } from "../supabase"
 
 export const getReservationCount = async (startDate: string, endDate: string) => {
@@ -11,6 +11,23 @@ export const getReservationCount = async (startDate: string, endDate: string) =>
     }
 
     return data[0];
+}
+
+export const getReservationCountFromView = async (branchId: number) => {
+    if (branchId <= 0) return { data: null };
+
+    const { data, error } = await supabase
+        .from('reservation_count_view')
+        .select('*')
+        .eq('branchId', branchId)
+        .single();
+
+    if (error) {
+        console.error('Error getting reservation count:', error);
+        return { data: null };
+    }
+
+    return { data };
 }
 
 export const createReservation = async (reservationData: {
