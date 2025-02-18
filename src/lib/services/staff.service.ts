@@ -1,7 +1,6 @@
 import { supabase } from "@/lib/supabase"
 import { StaffFormState } from "@/hooks/use-staff-form"
-import { Service } from "@/lib/database.types"
-import { Roles } from "../types"
+import { Roles, Service } from "../types"
 
 interface StaffWithServices {
   id: number

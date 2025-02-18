@@ -1,5 +1,4 @@
 import React from "react";
-import OccupancyRateChart from "./occupancy-rate-chart";
 import CustomerServiceChart from "./customer-service-chart";
 import { TotalAppointmentChart } from "./total-appointment-chart";
 import { WeeklyTrendChart } from "./weekly-trend-chart";
