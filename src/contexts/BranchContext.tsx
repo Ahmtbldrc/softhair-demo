@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { Branch } from "@/lib/database.types";
+import { Branch } from "@/lib/database.aliases";
 import { getAllBranches } from "@/lib/services/branch.service";
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";

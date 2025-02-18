@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/chart"
 import { getDailyIncomeForWeeks } from '@/lib/services/reservation.service'
 import { useLocale } from "@/contexts/LocaleContext";
+import { useBranch } from '@/contexts/BranchContext';
 
 type ChartDataType = {
   day: string;
@@ -47,18 +48,21 @@ const chartConfig = {
 
 export function WeeklyTrendChart() {
   const { t } = useLocale();
+  const { selectedBranchId } = useBranch();
   const [chartData, setChartData] = useState<ChartDataType[]>(initialChartData);
 
   useEffect(() => {
     const fetchDailyIncomeForWeeks = async () => {
-      const data = await getDailyIncomeForWeeks();
+      if (selectedBranchId <= 0) return;
+      
+      const data = await getDailyIncomeForWeeks(selectedBranchId);
       if (data) {
         setChartData(data);
       }
     }
 
     fetchDailyIncomeForWeeks();
-  }, [])
+  }, [selectedBranchId])
 
   return (
     <Card>
