@@ -246,7 +246,7 @@ export default function Home() {
         }
       );
 
-      // Price section animasyonları
+      // Price section animasyonları burada bulunur
       const priceTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: priceRef.current,
