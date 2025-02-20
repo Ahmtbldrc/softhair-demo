@@ -15,7 +15,7 @@ export interface WeeklyHours {
   SAT: TimeSlot[];
 }
 
-// Form Types
+// Form Types Data
 export type CustomerFormData = {
   firstName: string
   lastName: string
