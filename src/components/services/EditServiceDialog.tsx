@@ -16,7 +16,7 @@ import { Loader2 } from "lucide-react";
 import { useLocale } from "@/contexts/LocaleContext";
 import { updateService } from "@/lib/services/service.service";
 import { toast } from "@/hooks/use-toast";
-import { Service } from "@/lib/database.types";
+import { Service } from "@/lib/types";
 import { serviceSchema } from "@/lib/validations";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,20 +41,20 @@ export function EditServiceDialog({
   const form = useForm<FormData>({
     resolver: zodResolver(serviceSchema),
     defaultValues: {
-      name: service.name,
-      price: service.price,
-      status: service.status,
-      branchId: service.branchId
+      name: service.name ?? "",
+      price: service.price ?? 0,
+      status: service.status ?? true,
+      branchId: service.branchId ?? 0
     }
   });
 
   useEffect(() => {
     if (open) {
       form.reset({
-        name: service.name,
-        price: service.price,
-        status: service.status,
-        branchId: service.branchId
+        name: service.name ?? "",
+        price: service.price ?? 0,
+        status: service.status ?? true,
+        branchId: service.branchId ?? 0
       });
     }
   }, [open, service, form]);
@@ -62,8 +62,8 @@ export function EditServiceDialog({
   const handleSubmit = async (data: FormData) => {
     try {
       const result = await updateService(service.id, {
-        name: data.name,
-        price: data.price
+        name: data.name ?? "",
+        price: data.price ?? 0
       });
 
       if (result.error) {

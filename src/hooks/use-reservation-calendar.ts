@@ -10,7 +10,7 @@ import {
 import { createReservation, deleteReservation, getReservations } from "@/lib/services/reservation.service"
 import { getAllStaff } from "@/lib/services/staff.service"
 import { getActiveServices } from "@/lib/services/service.service"
-import { ReservationWithDetails, Service, StaffWithServices } from "@/lib/database.types"
+import { ReservationWithDetails, Service, StaffWithServices } from "@/lib/types"
 import { useReservationForm, ReservationFormData } from "./use-reservation-form"
 import useMail from "./use-mail"
 import { getReservationConfirmationTemplate, getReservationCancellationTemplate } from "@/lib/email-templates"
@@ -219,11 +219,11 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
             lastName: reservation.customer.lastName
           }),
           html: getReservationCancellationTemplate(
-            new Date(reservation.start),
-            service.name,
-            service.price,
-            staffMember.firstName,
-            staffMember.lastName
+            new Date(reservation.start ?? ""),
+            service.name ?? "",
+            service.price ?? 0,
+            staffMember.firstName ?? "",
+            staffMember.lastName ?? ""
           )
         })
       }
@@ -281,8 +281,8 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
         }),
         html: getReservationConfirmationTemplate(
           data.start,
-          service.name,
-          service.price,
+          service.name ?? "",
+          service.price ?? 0,
           staffMember?.firstName || "",
           staffMember?.lastName || ""
         )
@@ -304,7 +304,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
   const memoizedDailyReservations = useMemo(() => {
     if (!isMobile) return reservations
     return reservations.filter(reservation => {
-      const reservationDate = new Date(reservation.start)
+      const reservationDate = new Date(reservation.start ?? "")
       return (
         reservationDate.getDate() === selectedDate.getDate() &&
         reservationDate.getMonth() === selectedDate.getMonth() &&

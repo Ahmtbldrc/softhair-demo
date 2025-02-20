@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
 import React from "react";
 import ActionToggleMenu from "./action-toggle-menu";
-import { StaffWithServices } from "@/lib/database.types";
+import { StaffWithServices } from "@/lib/types";
 import Image from "next/image";
 import { useLocale } from "@/contexts/LocaleContext";
 

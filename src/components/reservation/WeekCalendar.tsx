@@ -3,7 +3,7 @@
 import { format, isSameDay } from "date-fns"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Service, StaffWithServices, ReservationWithDetails } from "@/lib/database.types"
+import { Service, StaffWithServices, ReservationWithDetails } from "@/lib/types"
 import { Clock, User, Calendar } from "lucide-react"
 import { useLocale } from "@/contexts/LocaleContext"
 
@@ -38,7 +38,7 @@ export function WeekCalendar({
   if (isMobile) {
     const filteredReservations = sortedReservations.filter(res => 
       (!selectedStaff || selectedStaff === "all" || res.staffId === Number(selectedStaff)) &&
-      isSameDay(new Date(res.start), days[0])
+      isSameDay(new Date(res.start ?? ""), days[0])
     );
 
     if (filteredReservations.length === 0) {
@@ -73,7 +73,7 @@ export function WeekCalendar({
                   </div>
                 </div>
                 <div className="text-[13px] font-medium text-primary/80 group-hover:text-primary transition-colors">
-                  {format(new Date(reservation.start), 'HH:mm')}
+                  {format(new Date(reservation.start ?? ""), 'HH:mm')}
                 </div>
               </div>
               
@@ -114,7 +114,7 @@ export function WeekCalendar({
             <CardContent className="p-2">
               <ScrollArea className="h-40 md:h-60">
                 {Object.entries(groupReservationsByTime(
-                  filteredReservations.filter(res => isSameDay(new Date(res.start), day))
+                  filteredReservations.filter(res => isSameDay(new Date(res.start ?? ""), day))
                 )).map(([time, reservations]) => (
                   <div key={time} className="mb-2">
                     <p className="text-xs font-semibold">{time}</p>

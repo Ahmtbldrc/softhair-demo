@@ -1,6 +1,5 @@
 import { supabase } from '../supabase'
-import { Branch } from '../database.types'
-import { ApiResponse } from '../types'
+import { Branch, ApiResponse } from '../types'
 
 export async function getBranchById(id: number): Promise<ApiResponse<Branch>> {
   try {

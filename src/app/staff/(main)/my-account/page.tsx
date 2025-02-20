@@ -42,7 +42,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { StaffWithServices, TimeSlot, WeeklyHours } from "@/lib/database.types";
+import { StaffWithServices, TimeSlot, WeeklyHours } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useLocale } from "@/contexts/LocaleContext";

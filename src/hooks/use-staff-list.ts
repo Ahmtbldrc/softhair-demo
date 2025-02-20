@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { StaffWithServices } from "@/lib/database.types"
+import { StaffWithServices } from "@/lib/types"
 import { getAllStaff, deleteStaff } from "@/lib/services/staff.service"
 import { handleError, handleSuccess } from "@/lib/utils/error-handler"
 

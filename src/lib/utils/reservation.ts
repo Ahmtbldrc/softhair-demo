@@ -1,5 +1,5 @@
 import { format, compareAsc } from "date-fns"
-import { ReservationWithDetails } from "@/lib/database.types"
+import { ReservationWithDetails } from "@/lib/types"
 
 export const filterReservationsByStaff = (
   reservations: ReservationWithDetails[], 
@@ -10,13 +10,13 @@ export const filterReservationsByStaff = (
 }
 
 export function sortReservationsByDate(reservations: ReservationWithDetails[]): ReservationWithDetails[] {
-  return reservations.sort((a, b) => compareAsc(new Date(a.start), new Date(b.start)))
+  return reservations.sort((a, b) => compareAsc(new Date(a.start ?? ""), new Date(b.start ?? "" )))
 }
 
 export function groupReservationsByTime(reservations: ReservationWithDetails[]): { [key: string]: ReservationWithDetails[] } {
   const grouped: { [key: string]: ReservationWithDetails[] } = {}
   reservations.forEach(res => {
-    const timeKey = format(new Date(res.start), "HH:00")
+    const timeKey = format(new Date(res.start ?? ""), "HH:00")
     if (!grouped[timeKey]) {
       grouped[timeKey] = []
     }
@@ -39,7 +39,7 @@ export function validateReservationCancellation(
     }
   }
 
-  if (new Date(reservation.start) < new Date()) {
+  if (new Date(reservation.start ?? "") < new Date()) {
     return {
       isValid: false,
       error: {

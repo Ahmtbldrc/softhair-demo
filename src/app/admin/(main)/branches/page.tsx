@@ -37,7 +37,7 @@ import { useLocale } from "@/contexts/LocaleContext"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { useBranch } from "@/contexts/BranchContext"
-import { Branch } from "@/lib/database.types"
+import { Branch } from "@/lib/types"
 
 export default function BranchesPage() {
   const { t } = useLocale()
@@ -54,7 +54,7 @@ export default function BranchesPage() {
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null)
 
   const filteredBranches = branches.filter(branch =>
-    branch.name.toLowerCase().includes(searchTerm.toLowerCase())
+    branch.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false
   )
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function BranchesPage() {
 
   const handleEditClick = (branch: Branch) => {
     setBranchToEdit(branch)
-    setEditedName(branch.name)
+    setEditedName(branch.name ?? "")
   }
 
   const handleConfirmEdit = async () => {
@@ -96,7 +96,6 @@ export default function BranchesPage() {
           name: response.data.name,
           status: response.data.status,
           created_at: response.data.created_at,
-          updated_at: response.data.updated_at
         };
 
         setBranches(prev => prev.map(branch => 
@@ -177,7 +176,6 @@ export default function BranchesPage() {
         name: response.data.name,
         status: response.data.status,
         created_at: response.data.created_at,
-        updated_at: response.data.updated_at
       };
 
       setBranches(prev => [...prev, newBranch]);

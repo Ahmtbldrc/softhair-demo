@@ -260,7 +260,7 @@ export default function ReservationPage() {
   };
 
   const sortedReservations = calendarReservations.sort((a, b) =>
-    compareAsc(new Date(a.start), new Date(b.start))
+    compareAsc(new Date(a.start ?? ""), new Date(b.start ?? ""))
   );
 
   const isStaffWorkingOnDay = (staffId: number, day: Date) => {
@@ -293,8 +293,8 @@ export default function ReservationPage() {
       while (currentTime <= subMinutes(endTime, 30)) {
         const hasConflict = calendarReservations.some((res) =>
           res.staffId === newReservation.staffId &&
-          isSameDay(new Date(res.start), day) &&
-          format(currentTime, "HH:mm") === format(new Date(res.start), "HH:mm")
+          isSameDay(new Date(res.start ?? ""), day) &&
+          format(currentTime, "HH:mm") === format(new Date(res.start ?? ""), "HH:mm")
         );
 
         const isPastDateTime = currentTime < now;
@@ -327,7 +327,7 @@ export default function ReservationPage() {
             />
             <div className="flex-1 flex flex-col">
               {sortedReservations
-                .filter(res => isSameDay(new Date(res.start), selectedDate))
+                .filter(res => isSameDay(new Date(res.start ?? ""), selectedDate))
                 .length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
                   <Calendar className="h-12 w-12 mb-2" />
@@ -336,7 +336,7 @@ export default function ReservationPage() {
               ) : (
                 <div className="space-y-4">
                   {sortedReservations
-                    .filter(res => isSameDay(new Date(res.start), selectedDate))
+                    .filter(res => isSameDay(new Date(res.start ?? ""), selectedDate))
                     .map((reservation) => {
                       const service = calendarServices.find(
                         (s) => s.id === reservation.serviceId
@@ -351,7 +351,7 @@ export default function ReservationPage() {
                             <div className="flex justify-between items-start">
                               <div>
                                 <CardTitle className="text-base">
-                                  {format(new Date(reservation.start), "HH:mm")}
+                                  {format(new Date(reservation.start ?? ""), "HH:mm")}
                                 </CardTitle>
                                 <CardDescription>
                                   {service?.name}
@@ -661,7 +661,7 @@ export default function ReservationPage() {
                         {Object.entries(
                           groupReservationsByTime(
                             sortedReservations.filter((res) =>
-                              isSameDay(res.start, day)
+                              isSameDay(res.start ?? "", day)
                             )
                           )
                         ).map(([time, reservations]) => (
@@ -712,10 +712,10 @@ export default function ReservationPage() {
                       }
                     </CardTitle>
                     <CardDescription className="text-sm">
-                      {format(selectedReservation.start, "MMMM d, yyyy")} {t("staff-reservation.at")}{" "}
-                      {format(selectedReservation.start, "HH:mm")} -{" "}
+                      {format(selectedReservation.start ?? "", "MMMM d, yyyy")} {t("staff-reservation.at")}{" "}
+                      {format(selectedReservation.start ?? "", "HH:mm")} -{" "}
                       {format(
-                        addMinutes(selectedReservation.end, 1),
+                        addMinutes(selectedReservation.end ?? "", 1),
                         "HH:mm"
                       )}
                     </CardDescription>

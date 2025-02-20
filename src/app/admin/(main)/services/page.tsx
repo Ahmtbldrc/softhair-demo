@@ -27,7 +27,7 @@ import { EditServiceDialog } from "@/components/services/EditServiceDialog";
 import { DeleteServiceDialog } from "@/components/services/DeleteServiceDialog";
 import { AddServiceDialog } from "@/components/services/AddServiceDialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ServiceWithBranch } from "@/lib/database.types";
+import { ServiceWithBranch } from "@/lib/types";
 
 export default function ServicesPage() {
   const { t } = useLocale();
@@ -104,7 +104,7 @@ export default function ServicesPage() {
           currentServices.map((service) => (
             <div key={service.id} className="mb-4 p-4 border rounded-lg">
               <h3 className="font-medium text-lg">{service.name}</h3>
-              <p className="text-2xl font-bold my-2">{service.price.toFixed(2)} CHF</p>
+              <p className="text-2xl font-bold my-2">{service.price?.toFixed(2) ?? "0.00"} CHF</p>
               <div className="flex justify-end gap-2">
                 <Button
                   variant="ghost"
@@ -157,7 +157,7 @@ export default function ServicesPage() {
                 currentServices.map((service) => (
                   <TableRow key={service.id}>
                     <TableCell className="font-medium">{service.name}</TableCell>
-                    <TableCell>{service.price.toFixed(2)} CHF</TableCell>
+                    <TableCell>{service.price?.toFixed(2) ?? "0.00"} CHF</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Button

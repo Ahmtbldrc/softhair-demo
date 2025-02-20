@@ -28,7 +28,7 @@ import { getReservationConfirmationTemplate } from '@/lib/email-templates/reserv
 import dynamic from 'next/dynamic'
 import 'react-phone-input-2/lib/style.css'
 import { getActiveStaff } from "@/lib/services/staff.service"
-import { StaffWithServices } from "@/lib/database.types"
+import { StaffWithServices } from "@/lib/types"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { LANGUAGES } from "@/lib/constants"

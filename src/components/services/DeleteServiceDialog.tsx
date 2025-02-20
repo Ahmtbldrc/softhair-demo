@@ -15,7 +15,7 @@ import { Loader2 } from "lucide-react";
 import { useLocale } from "@/contexts/LocaleContext";
 import { deleteService } from "@/lib/services/service.service";
 import { toast } from "@/hooks/use-toast";
-import { Service } from "@/lib/database.types";
+import { Service } from "@/lib/types";
 
 interface DeleteServiceDialogProps {
   open: boolean;
@@ -66,7 +66,7 @@ export function DeleteServiceDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>{t("services.deleteTitle")}</AlertDialogTitle>
           <AlertDialogDescription>
-            {t("services.deleteDescription", { name: service.name })}
+            {t("services.deleteDescription", { name: service.name ?? "" })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

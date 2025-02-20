@@ -1,5 +1,5 @@
 import { format, parse, addMinutes, subMinutes, isSameDay } from "date-fns"
-import { StaffWithServices, ReservationWithDetails, WeeklyHours } from "@/lib/database.types"
+import { StaffWithServices, ReservationWithDetails, WeeklyHours } from "@/lib/types"
 
 export function isStaffWorkingOnDay(staffMember: StaffWithServices | undefined, day: Date): boolean {
   if (!staffMember) return false
@@ -40,8 +40,8 @@ export function getAvailableTimesForDay(
     while (currentTime <= subMinutes(endTime, 30)) {
       const hasConflict = reservations.some((res) =>
         res.staffId === staffMember.id &&
-        isSameDay(new Date(res.start), day) &&
-        format(currentTime, "HH:mm") === format(new Date(res.start), "HH:mm")
+        isSameDay(new Date(res.start ?? ""), day) &&
+        format(currentTime, "HH:mm") === format(new Date(res.start ?? ""), "HH:mm")
       )
 
       const isPastDateTime = currentTime < now

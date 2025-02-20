@@ -1,4 +1,4 @@
-import { StaffFormData } from "@/lib/database.types"
+import { StaffFormData } from "@/lib/types"
 import { checkEmailExists, checkUsernameExists } from "@/lib/services/staff.service"
 
 export interface ValidationError {

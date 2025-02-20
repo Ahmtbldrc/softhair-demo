@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Service, TimeSlot, WeeklyHours } from "@/lib/database.types"
-import { Roles } from "@/lib/types"
+import { Service, TimeSlot, WeeklyHours, Roles } from "@/lib/types"
 import { validateStaffForm, ValidationError } from "@/lib/utils/staff-validation"
 import { handleError, handleSuccess } from "@/lib/utils/error-handler"
 import { uploadStaffImage, getStaffById, getActiveServices } from "@/lib/services/staff.service"

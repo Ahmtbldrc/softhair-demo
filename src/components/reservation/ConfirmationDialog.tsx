@@ -4,7 +4,7 @@ import { format } from "date-fns"
 import { UseFormReturn } from "react-hook-form"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Service, StaffWithServices } from "@/lib/database.types"
+import { Service, StaffWithServices } from "@/lib/types"
 import { ReservationFormData } from "@/hooks/use-reservation-form"
 
 interface ConfirmationDialogProps {

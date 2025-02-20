@@ -18,7 +18,7 @@ import {
 } from "@/components/reservation"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { isSameDay } from "date-fns"
-import { ReservationWithDetails } from "@/lib/database.types"
+import { ReservationWithDetails } from "@/lib/types"
 
 const DailyNavigation = ({ selectedDate, setSelectedDate }: { 
   selectedDate: Date
@@ -119,7 +119,7 @@ export default function AppointmentCalendar() {
                 days={[selectedDate]}
                 sortedReservations={reservations.filter((res: ReservationWithDetails) => 
                   (!selectedStaff || selectedStaff === "all" || res.staffId === Number(selectedStaff)) &&
-                  isSameDay(new Date(res.start), selectedDate)
+                  isSameDay(new Date(res.start ?? ""), selectedDate)
                 )}
                 services={services}
                 staffMembers={staffMembers}

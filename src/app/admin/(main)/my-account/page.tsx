@@ -350,7 +350,11 @@ export default function MyAccount() {
         if (error) {
           console.error("Error fetching services:", error);
         } else {
-          setServices(data);
+          setServices(data?.map((service) => ({
+            id: service.id,
+            name: service.name ?? "",
+            status: service.status ?? true
+          })) ?? []);
         }
       });
 

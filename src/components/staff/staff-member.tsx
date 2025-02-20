@@ -17,7 +17,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { StaffWithServices } from "@/lib/database.types";
+import { StaffWithServices } from "@/lib/types";
 
 interface StaffMemberProps {
   staff: StaffWithServices;

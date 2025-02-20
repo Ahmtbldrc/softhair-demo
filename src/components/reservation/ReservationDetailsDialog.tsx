@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Service, StaffWithServices, ReservationWithDetails } from "@/lib/database.types"
+import { Service, StaffWithServices, ReservationWithDetails } from "@/lib/types"
 
 interface ReservationDetailsDialogProps {
   isOpen: boolean
@@ -51,14 +51,14 @@ export function ReservationDetailsDialog({
             <CardHeader>
               <CardTitle>{services.find(s => s.id === selectedReservation.serviceId)?.name}</CardTitle>
               <CardDescription>
-                {format(new Date(selectedReservation.start), "MMMM d, yyyy")} {t("admin-reservation.at")} {format(new Date(selectedReservation.start), "HH:mm")} - {format(addMinutes(new Date(selectedReservation.end), 1), "HH:mm")}
+                {format(new Date(selectedReservation.start ?? ""), "MMMM d, yyyy")} {t("admin-reservation.at")} {format(new Date(selectedReservation.start ?? ""), "HH:mm")} - {format(addMinutes(new Date(selectedReservation.end ?? ""), 1), "HH:mm")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-4 mb-4">
                 <Avatar>
                   <AvatarImage src={staffMembers.find(s => s.id === selectedReservation.staffId)?.image || undefined} />
-                  <AvatarFallback>{staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName[0]}</AvatarFallback>
+                  <AvatarFallback>{staffMembers.find(s => s.id === selectedReservation.staffId)?.firstName?.[0]}</AvatarFallback>
                 </Avatar>
                 <div>
                   <h3 className="font-semibold">{t("admin-reservation.staff")}</h3>

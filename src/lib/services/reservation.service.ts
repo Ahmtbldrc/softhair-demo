@@ -1,4 +1,4 @@
-import { ReservationWithDetails, ReservationCountView } from "../database.aliases";
+import { ReservationWithDetails } from "../types";
 import { supabase } from "../supabase"
 
 export const getReservationCount = async (startDate: string, endDate: string) => {

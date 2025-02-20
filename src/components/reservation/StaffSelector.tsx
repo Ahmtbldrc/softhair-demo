@@ -3,7 +3,7 @@
 import Image from "next/image"
 import { Users } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select"
-import { StaffWithServices } from "@/lib/database.types"
+import { StaffWithServices } from "@/lib/types"
 
 interface StaffSelectorProps {
   staffMembers: StaffWithServices[]

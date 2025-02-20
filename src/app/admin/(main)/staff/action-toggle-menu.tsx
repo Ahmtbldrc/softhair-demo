@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { StaffWithServices } from "@/lib/database.types";
+import { StaffWithServices } from "@/lib/types";
 import { useLocale } from "@/contexts/LocaleContext";
 
 type Props = {

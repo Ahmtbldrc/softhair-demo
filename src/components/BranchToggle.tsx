@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { Settings } from "lucide-react";
 import { useBranch } from "@/contexts/BranchContext";
 import { useState } from "react";
-import { Branch } from "@/lib/database.types";
+import { Branch } from "@/lib/types";
 
 interface BranchToggleProps {
   className?: string;
