@@ -815,6 +815,10 @@ export default function Home() {
             {/* Alt başlık */}
             <p className="text-zinc-400 text-center mt-8 text-lg tracking-wide font-light price-section-subtitle">
               {t('prices.subtitle')}
+              <br />
+              <span className="text-zinc-200 font-medium mt-2 block">
+                *{t('prices.onlineNote')}
+              </span>
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -835,7 +839,7 @@ export default function Home() {
                     </div>
                     <div className="flex-shrink-0">
                       <span className="price-value text-2xl font-bold metal-text whitespace-nowrap">
-                        CHF {price.price}
+                        CHF {price.price - 5}
                       </span>
                     </div>
                   </div>
