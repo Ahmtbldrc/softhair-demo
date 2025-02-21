@@ -78,20 +78,24 @@ export function WeekCalendar({
               </div>
               
               <div className="mt-2 flex justify-between items-end">
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1.5 w-full">
-                    <div className="text-[12px] flex items-center gap-1.5 min-w-0">
-                      <span className="truncate">{service?.name}</span>
-                      <span className="text-muted-foreground/50 whitespace-nowrap">•</span>
-                      <span className="text-primary/80 group-hover:text-primary transition-colors font-medium whitespace-nowrap">CHF {service?.price}</span>
+                <div className="flex flex-col gap-1 max-w-[70%]">
+                  <div className="flex flex-col gap-1.5 w-full">
+                    <div className="text-[12px] flex flex-col w-full">
+                      <span className="break-words">{service?.name}</span>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="text-primary/80 group-hover:text-primary transition-colors font-medium whitespace-nowrap">
+                          CHF {service?.price}
+                        </span>
+                        <span className="text-muted-foreground/50">•</span>
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-2.5 w-2.5 text-muted-foreground/50" />
+                          <span className="text-[11px] text-muted-foreground/70">30</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/70">
-                    <Clock className="h-2.5 w-2.5 text-muted-foreground/50" />
-                    <span>30</span>
-                  </div>
                 </div>
-                <div className="text-[11px] text-muted-foreground/70 group-hover:text-muted-foreground transition-colors text-right whitespace-nowrap">
+                <div className="text-[11px] text-muted-foreground/70 group-hover:text-muted-foreground transition-colors text-right whitespace-nowrap ml-2">
                   {staff?.firstName} {staff?.lastName}
                 </div>
               </div>
