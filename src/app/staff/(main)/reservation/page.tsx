@@ -201,7 +201,6 @@ export default function ReservationPage() {
           .single();
 
         if (!error && data) {
-          console.log('Staff data:', data);
           setStaffMember(data);
         }
       }
@@ -559,7 +558,6 @@ export default function ReservationPage() {
                                     ) ? (
                                       getAvailableTimesForDay(day).map(
                                         ({ time, available }) => {
-                                          console.log('Time Slot:', format(time, 'HH:mm'), 'Available:', available);
                                           const isPastDateTime = time < new Date();
                                           const isFutureDateTime = time > addDays(new Date(), 21);
                                           return (
@@ -1078,7 +1076,6 @@ export default function ReservationPage() {
                               ) ? (
                                 getAvailableTimesForDay(day).map(
                                   ({ time, available }) => {
-                                    console.log('Time Slot:', format(time, 'HH:mm'), 'Available:', available);
                                     const isPastDateTime = time < new Date();
                                     const isFutureDateTime = time > addDays(new Date(), 21);
                                     return (

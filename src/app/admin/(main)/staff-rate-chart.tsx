@@ -26,9 +26,11 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { getStaffAppointmentStatistics, type StaffAppointmentData } from "@/lib/services/staff.service"
 import { useBranch } from "@/contexts/BranchContext"
+import { useLocale } from "@/contexts/LocaleContext";
 
 export function StaffRateChart() {
   const { selectedBranchId } = useBranch()
+  const { t } = useLocale();
   const id = "pie-interactive"
   const [staffChartData, setStaffChartData] = React.useState<Record<string, StaffAppointmentData[]>>({
     daily: [],
@@ -65,7 +67,7 @@ export function StaffRateChart() {
   React.useEffect(() => {
     const newConfig: ChartConfig = {
       appointments: {
-        label: "Randevular",
+        label: t("appointments"),
         color: "transparent",
       }
     }
@@ -79,7 +81,7 @@ export function StaffRateChart() {
     })
 
     setChartConfig(newConfig)
-  }, [staffChartData, activeTab])
+  }, [staffChartData, activeTab, t])
 
   const activeIndex = React.useMemo(
     () => {
@@ -172,14 +174,14 @@ export function StaffRateChart() {
   return (
     <Card>
       <CardHeader className="items-center pb-0">
-        <CardTitle>Personel Randevu Dağılımı</CardTitle>
+        <CardTitle>{t("staff-rate-chart.title")}</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mt-3">
-            <TabsTrigger value="daily">Günlük</TabsTrigger>
-            <TabsTrigger value="weekly">Haftalık</TabsTrigger>
-            <TabsTrigger value="monthly">Aylık</TabsTrigger>
+            <TabsTrigger value="daily">{t("staff-rate-chart.daily")}</TabsTrigger>
+            <TabsTrigger value="weekly">{t("staff-rate-chart.weekly")}</TabsTrigger>
+            <TabsTrigger value="monthly">{t("staff-rate-chart.monthly")}</TabsTrigger>
           </TabsList>
           {Object.entries(staffChartData).map(([period]) => (
             <TabsContent key={period} value={period}>
@@ -187,9 +189,9 @@ export function StaffRateChart() {
                 <Select value={activeStaff} onValueChange={setActiveStaff}>
                   <SelectTrigger
                     className="h-8 w-[140px]"
-                    aria-label="Personel seç"
+                    aria-label={t("staff-rate-chart.selectStaff")}
                   >
-                    <SelectValue placeholder="Personel seç" />
+                    <SelectValue placeholder={t("staff-rate-chart.selectStaff")} />
                   </SelectTrigger>
                   <SelectContent align="end">
                     {staffChartData[activeTab].map((staff) => {

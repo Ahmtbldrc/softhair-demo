@@ -657,5 +657,13 @@
         "description": "Professional care for healthy, beautiful hair"
       }
     }
+  },
+  "staff-rate-chart": {
+    "title": "Staff Appointment Distribution",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "appointments": "Appointments",
+    "selectStaff": "Select staff"
   }
 }

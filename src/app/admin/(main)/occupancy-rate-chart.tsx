@@ -79,11 +79,7 @@ export default function OccupancyRate() {
     if (monthlyError) {
       console.error('Aylık doluluk oranı hesaplanırken hata:', monthlyError);
     }
-
-    console.log('Günlük Doluluk Oranı:', dailyData);
-    console.log('Haftalık Doluluk Oranı:', weeklyData);
-    console.log('Aylık Doluluk Oranı:', monthlyData);
-
+    
     results.push({
       staffId: staffId,
       dailyOccupancy: dailyData,
@@ -92,7 +88,6 @@ export default function OccupancyRate() {
     });
   }
 
-  console.log('Doluluk Oranı Hesaplamaları:', results);
 }
   useEffect(() => {
 

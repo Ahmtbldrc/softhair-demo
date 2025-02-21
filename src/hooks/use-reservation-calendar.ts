@@ -88,8 +88,6 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
   }, [isMobile, selectedDate, fetchDailyReservations]);
 
   useEffect(() => {
-    console.log("fetching reservations")
-    console.log(branchId)
     if (branchId) {
       fetchStaff()
       fetchServices()

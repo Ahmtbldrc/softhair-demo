@@ -101,7 +101,6 @@ export default function StaffLayout({
         data: { session },
       } = await supabase.auth.getSession();
       const userRole = session?.user?.user_metadata.role;
-      console.log(userRole)
 
       if (userRole === Roles.ADMIN) {
         window.location.href = "/admin";
