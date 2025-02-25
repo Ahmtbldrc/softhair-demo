@@ -182,7 +182,7 @@ export default function NewReservation() {
 
   useEffect(() => {
     fetchAppointments()
-  }, [currentDate, fetchAppointments])
+  }, [currentDate])
 
   useEffect(() => {
     fetchBranches()
