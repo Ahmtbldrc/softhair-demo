@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase"
+import { supabase, supabaseAdmin } from "@/lib/supabase"
 import { StaffFormState } from "@/hooks/use-staff-form"
 import { Roles, Service } from "../types"
 import { RecentSalesByStaffView } from "../database.aliases"
@@ -82,7 +82,7 @@ export async function getAllStaff(branchId: number) {
     }
 
     // Get user metadata for all staff members to filter out admins
-    const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers();
+    const { data: usersData, error: usersError } = await supabaseAdmin.auth.admin.listUsers();
     
     if (usersError) {
       return { error: usersError.message };
@@ -123,7 +123,7 @@ export async function getStaffById(id: number) {
 export async function createStaff(staff: StaffFormState) {
   try {
     // Create auth user
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: `${staff.username.toLowerCase()}@softsidedigital.com`,
       password: staff.password,
       user_metadata: {
@@ -161,7 +161,7 @@ export async function createStaff(staff: StaffFormState) {
     }
 
     // Update user metadata with staffId
-    const { error: updateError } = await supabase.auth.admin.updateUserById(
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
       authData.user.id,
       {
         user_metadata: {
@@ -223,7 +223,7 @@ export async function updateStaff(id: number, staff: StaffFormState) {
 
     // Update user metadata
     if (staff.userId) {
-      const { error: updateError } = await supabase.auth.admin.updateUserById(
+      const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
         staff.userId,
         {
           user_metadata: {
@@ -322,7 +322,7 @@ export async function updateStaffAuth(
   }
 ) {
   try {
-    const { error } = await supabase.auth.admin.updateUserById(userId, {
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
       email,
       password,
       user_metadata: metadata

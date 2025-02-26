@@ -27,6 +27,8 @@
     "@radix-ui/react-toast": "^1.2.2",
     "@react-three/drei": "^9.119.0",
     "@react-three/fiber": "^8.17.10",
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.45.4",
     "@types/three": "^0.170.0",
     "class-variance-authority": "^0.7.0",
