@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { supabase, supabaseAdmin } from "@/lib/supabase";
 import {
   Select,
   SelectContent,
@@ -111,7 +111,7 @@ export default function MyAccount() {
       return;
     }
 
-    const { error: authError } = await supabase.auth.admin.updateUserById(
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
       staff.userId,
       {
         password: password,
@@ -120,15 +120,35 @@ export default function MyAccount() {
 
     if (authError) {
       console.error(authError);
+      toast({
+        title: "Error",
+        description: "Error updating auth password",
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
     }
 
-      router.push("/staff");
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: `${staff.username}@softsidedigital.com`,
+      password: password,
+    });
+
+    if (signInError) {
+      console.error('Re-authentication error:', signInError);
+      toast({
+        title: "Warning",
+        description: "Password updated but re-authentication failed",
+        variant: "destructive",
+      });
+    }
 
     toast({
       title: "Success",
       description: "Password updated successfully",
     });
 
+    router.push("/staff");
     setIsSubmitting(false);
   };
 

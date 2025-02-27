@@ -28,6 +28,10 @@ export function BranchProvider({ children }: BranchProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const refreshBranches = async () => {
+    if (pathname.includes('/login')) {
+      return;
+    }
+
     try {
       const [branchesResult, { data: { user } }] = await Promise.all([
         getAllBranches(),

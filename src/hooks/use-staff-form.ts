@@ -4,7 +4,7 @@ import { Service, TimeSlot, WeeklyHours, Roles } from "@/lib/types"
 import { validateStaffForm, ValidationError } from "@/lib/utils/staff-validation"
 import { handleError, handleSuccess } from "@/lib/utils/error-handler"
 import { uploadStaffImage, getStaffById, getActiveServices } from "@/lib/services/staff.service"
-import { supabase } from "@/lib/supabase"
+import { supabase, supabaseAdmin } from "@/lib/supabase"
 
 interface StaffService {
   service: {
@@ -292,7 +292,7 @@ export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
 
         // Update auth if password changed
         if (staffData.password !== "********" && staffData.userId) {
-          const { data: currentUser, error: fetchError } = await supabase.auth.admin.getUserById(staffData.userId)
+          const { data: currentUser, error: fetchError } = await supabaseAdmin.auth.admin.getUserById(staffData.userId)
           
           if (fetchError) {
             throw new Error(fetchError.message)
@@ -305,7 +305,7 @@ export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
             email: staffData.email
           }
 
-          const { error: authError } = await supabase.auth.admin.updateUserById(
+          const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
             staffData.userId,
             {
               email: `${staffData.username.toLowerCase()}@softsidedigital.com`,
@@ -334,7 +334,7 @@ export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
           }
 
           // First create auth user
-          const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+          const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
             email: `${staffData.username.toLowerCase()}@softsidedigital.com`,
             password: staffData.password,
             email_confirm: true,
@@ -377,7 +377,7 @@ export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
           }
 
           // Update auth user with staffId
-          const { error: updateAuthError } = await supabase.auth.admin.updateUserById(
+          const { error: updateAuthError } = await supabaseAdmin.auth.admin.updateUserById(
             authData.user.id,
             {
               user_metadata: {

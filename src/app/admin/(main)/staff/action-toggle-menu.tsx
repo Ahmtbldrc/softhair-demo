@@ -19,7 +19,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
+import { supabase, supabaseAdmin } from "@/lib/supabase";
 import { StaffWithServices } from "@/lib/types";
 import { useLocale } from "@/contexts/LocaleContext";
 
@@ -37,7 +37,7 @@ function ActionToggleMenu({ staff,  handleDelete }: Props) {
   const handleSubmitDelete = async () => {
     setIsDeleting(true);
     await handleDelete();
-    const {error} = await supabase.auth.admin.deleteUser(staff.userId);
+    const {error} = await supabaseAdmin.auth.admin.deleteUser(staff.userId);
 
     if (error)
       console.log(error);

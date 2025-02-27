@@ -49,14 +49,17 @@ export default function LoginPage() {
       }
 
       const userRole = data.session?.user?.user_metadata.role;
+      const redirectUrl = userRole === Roles.ADMIN ? "/admin" : "/staff/reservation";
       
-      window.location.href = userRole == Roles.ADMIN ? "/admin" : "/staff/reservation";
-      return;
-    } catch {
+      // Force a hard navigation to ensure the session is properly recognized
+      window.location.href = redirectUrl;
+    } catch (error) {
+      console.error('❌ Login Page - Login error:', error);
       toast({
         title: "Warning",
         description: "Username or password wrong",
       });
+    } finally {
       setIsLoading(false);
     }
   };
