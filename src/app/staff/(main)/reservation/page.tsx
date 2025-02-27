@@ -608,8 +608,7 @@ export default function ReservationPage() {
                           !newReservation.start ||
                           !newReservation.customer.firstName ||
                           !newReservation.customer.lastName ||
-                          !newReservation.customer.email ||
-                          !newReservation.customer.phone
+                          !newReservation.customer.email
                         }
                       >
                         {t("staff-reservation.bookAppointment")}
@@ -994,7 +993,7 @@ export default function ReservationPage() {
                         enableSearch={true}
                         inputProps={{
                           id: 'phone',
-                          required: true,
+                          required: false,
                         }}
                         inputStyle={{
                           width: '100%',
@@ -1126,8 +1125,7 @@ export default function ReservationPage() {
                     !newReservation.start ||
                     !newReservation.customer.firstName ||
                     !newReservation.customer.lastName ||
-                    !newReservation.customer.email ||
-                    !newReservation.customer.phone
+                    !newReservation.customer.email
                   }
                 >
                   {t("staff-reservation.bookAppointment")}
