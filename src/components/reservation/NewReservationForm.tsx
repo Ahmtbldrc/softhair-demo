@@ -101,7 +101,7 @@ export function NewReservationForm({
               enableSearch={true}
               inputProps={{
                 id: "phone",
-                required: true,
+                required: false,
               }}
               inputStyle={{
                 width: "100%",
