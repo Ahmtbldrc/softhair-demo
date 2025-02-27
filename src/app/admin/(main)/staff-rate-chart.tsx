@@ -158,7 +158,7 @@ export function StaffRateChart() {
                         y={(viewBox.cy || 0) + 24}
                         className="fill-muted-foreground"
                       >
-                        Randevu
+                        {t("staff-rate-chart.appointments")}
                       </tspan>
                     </text>
                   )
