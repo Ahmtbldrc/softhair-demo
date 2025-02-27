@@ -51,11 +51,9 @@ export function StaffRateChart() {
     const fetchData = async () => {
       const data = await getStaffAppointmentStatistics(selectedBranchId)
       setStaffChartData(data)
-
-      if (data.daily.length > 0) {
-        const firstStaffKey = `staff_${data.daily[0].staff.toLowerCase().replace(/\s+/g, '_')}`
-        setActiveStaff(firstStaffKey)
-      }
+      
+      // İlk yüklemede all_staff seçeneğini seç
+      setActiveStaff('all_staff')
     }
 
     if (selectedBranchId > 0) {
@@ -69,6 +67,10 @@ export function StaffRateChart() {
       appointments: {
         label: t("appointments"),
         color: "transparent",
+      },
+      all_staff: {
+        label: t("staff-rate-chart.allStaff"),
+        color: "hsl(var(--primary))"
       }
     }
 
@@ -81,16 +83,26 @@ export function StaffRateChart() {
     })
 
     setChartConfig(newConfig)
+
+    // Set default selection to all_staff
+    if (!activeStaff) {
+      setActiveStaff('all_staff')
+    }
   }, [staffChartData, activeTab, t])
 
   const activeIndex = React.useMemo(
     () => {
+      if (activeStaff === 'all_staff') return -1
       const staffName = activeStaff.split('_').slice(1).join('_')
       return staffChartData[activeTab as keyof typeof staffChartData]
         .findIndex((item) => item.staff.toLowerCase().replace(/\s+/g, '_') === staffName)
     },
     [activeStaff, activeTab, staffChartData]
   )
+
+  const totalAppointments = React.useMemo(() => {
+    return staffChartData[activeTab].reduce((sum, staff) => sum + staff.appointments, 0)
+  }, [staffChartData, activeTab])
 
   const renderChart = () => {
     const currentData = staffChartData[activeTab as keyof typeof staffChartData].map(staff => ({
@@ -137,7 +149,9 @@ export function StaffRateChart() {
             <Label
               content={({ viewBox }) => {
                 if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                  const appointments = currentData[activeIndex]?.appointments || 0
+                  const appointments = activeStaff === 'all_staff' 
+                    ? totalAppointments 
+                    : currentData[activeIndex]?.appointments || 0
 
                   return (
                     <text
@@ -172,11 +186,11 @@ export function StaffRateChart() {
   }
 
   return (
-    <Card>
+    <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
         <CardTitle>{t("staff-rate-chart.title")}</CardTitle>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className="flex-1 pb-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mt-3">
             <TabsTrigger value="daily">{t("staff-rate-chart.daily")}</TabsTrigger>
@@ -191,9 +205,27 @@ export function StaffRateChart() {
                     className="h-8 w-[140px]"
                     aria-label={t("staff-rate-chart.selectStaff")}
                   >
-                    <SelectValue placeholder={t("staff-rate-chart.selectStaff")} />
+                    <SelectValue 
+                      placeholder={t("staff-rate-chart.selectStaff")} 
+                      className="truncate"
+                    />
                   </SelectTrigger>
-                  <SelectContent align="end">
+                  <SelectContent 
+                    align="end"
+                    className="max-h-[300px] min-w-[200px]"
+                  >
+                    <SelectItem
+                      key="all_staff"
+                      value="all_staff"
+                      className="rounded-lg"
+                    >
+                      <div className="flex items-center gap-2 text-xs">
+                        <span
+                          className="flex h-3 w-3 shrink-0 rounded-sm bg-primary"
+                        />
+                        {t("staff-rate-chart.allStaff")}
+                      </div>
+                    </SelectItem>
                     {staffChartData[activeTab].map((staff) => {
                       const staffKey = `staff_${staff.staff.toLowerCase().replace(/\s+/g, '_')}` as keyof typeof chartConfig
                       const config = chartConfig[staffKey]

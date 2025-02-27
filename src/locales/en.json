@@ -665,6 +665,7 @@
     "weekly": "Weekly",
     "monthly": "Monthly",
     "appointments": "Appointments",
-    "selectStaff": "Select staff"
+    "selectStaff": "Select staff",
+    "allStaff": "All Staff"
   }
 }

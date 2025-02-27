@@ -566,6 +566,7 @@
     "weekly": "Wöchentlich",
     "monthly": "Monatlich",
     "appointments": "Termine",
-    "selectStaff": "Personal auswählen"
+    "selectStaff": "Personal auswählen",
+    "allStaff": "Alle Personal"
   }
 }
