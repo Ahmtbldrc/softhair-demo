@@ -256,8 +256,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
         serviceId: Number(data.serviceId),
         staffId: Number(data.staffId),
         branchId: Number(branchId),
-        start: data.start,
-        end: data.start,
+        start: data.start.toISOString(),
         customer: data.customer,
         status: true
       })

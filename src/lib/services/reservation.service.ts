@@ -1,5 +1,6 @@
 import { ReservationWithDetails } from "../types";
 import { supabase } from "../supabase"
+import dayjs from 'dayjs';
 
 export const getReservationCount = async (startDate: string, endDate: string) => {
     const { data, error } = await supabase
@@ -34,8 +35,7 @@ export const createReservation = async (reservationData: {
     serviceId: number;
     staffId: number;
     branchId: number;
-    start: Date;
-    end: Date;
+    start: string | dayjs.Dayjs;
     customer: {
         firstName: string;
         lastName: string;
@@ -44,9 +44,24 @@ export const createReservation = async (reservationData: {
     };
     status: boolean;
 }) => {
+    const startDayjs = dayjs(reservationData.start);
+    const endDayjs = startDayjs.add(29, 'minute');
+    const now = dayjs();
+    
+    const formattedStart = startDayjs.format('YYYY-MM-DD HH:mm:ss');
+    const formattedEnd = endDayjs.format('YYYY-MM-DD HH:mm:ss');
+    const formattedCreatedAt = now.format('YYYY-MM-DD HH:mm:ss');
+    
+    const reservationPayload = {
+        ...reservationData,
+        start: formattedStart,
+        end: formattedEnd,
+        createdat: formattedCreatedAt
+    };
+   
     const { data, error } = await supabase
         .from('reservations')
-        .insert([reservationData])
+        .insert([reservationPayload])
         .select()
 
     if (error) {

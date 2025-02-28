@@ -28,10 +28,12 @@ import { getReservationConfirmationTemplate } from '@/lib/email-templates/reserv
 import dynamic from 'next/dynamic'
 import 'react-phone-input-2/lib/style.css'
 import { getActiveStaff } from "@/lib/services/staff.service"
+import { createReservation } from "@/lib/services/reservation.service"
 import { StaffWithServices } from "@/lib/types"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { LANGUAGES } from "@/lib/constants"
+import dayjs from 'dayjs'
 
 interface Branch {
   id: number;
@@ -289,26 +291,22 @@ export default function NewReservation() {
       setIsSubmitting(false)
       return
     }
-
-    const endTime = addMinutes(selectedTime, 29)
-
-    const newReservation = {
+    
+    const reservationData = {
       serviceId: selectedService,
       staffId: selectedStaff,
       branchId: selectedBranch,
-      start: selectedTime,
-      end: endTime,
+      start: dayjs(selectedTime).format('YYYY-MM-DD HH:mm:ss'),
       customer: {
         firstName: customerInfo.firstName,
         lastName: customerInfo.lastName,
         email: customerInfo.email,
         phone: customerInfo.phone,
-      }
+      },
+      status: true
     }
 
-    const { error } = await supabase
-      .from('reservations')
-      .insert([newReservation])
+    const { error } = await createReservation(reservationData)
 
     if (error) {
       console.error("Error creating reservation:", error)
@@ -325,7 +323,7 @@ export default function NewReservation() {
       to: customerInfo.email,
       subject: `${customerInfo.firstName} Appointment Confirmation`,
       html: getReservationConfirmationTemplate(
-        newReservation.start!,
+        selectedTime,
         service?.name || '',
         service?.price || 0,
         staff.find(s => s.id === selectedStaff)?.firstName || '',
