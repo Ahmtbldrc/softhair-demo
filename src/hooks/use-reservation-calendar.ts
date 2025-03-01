@@ -5,7 +5,8 @@ import {
   endOfWeek, 
   eachDayOfInterval,
   startOfDay,
-  endOfDay
+  endOfDay,
+  format
 } from "date-fns"
 import { createReservation, deleteReservation, getReservations } from "@/lib/services/reservation.service"
 import { getAllStaff } from "@/lib/services/staff.service"
@@ -22,6 +23,7 @@ import {
 } from "@/lib/utils/reservation"
 import { handleError, handleSuccess } from "@/lib/utils/error-handler"
 import { supabase } from "@/lib/supabase"
+
 
 interface ReservationParams {
   branchId: number;
@@ -209,20 +211,18 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
       const service = services.find(s => s.id === reservation.serviceId)
       const staffMember = staffMembers.find(s => s.id === reservation.staffId)
 
+      //Customer Cancel Reservation Email
       if (service && staffMember) {
         await mail.sendMail({
           to: reservation.customer.email,
-          subject: t("admin-reservation.cancelEmailSubject", {
-            firstName: reservation.customer.firstName,
-            lastName: reservation.customer.lastName
-          }),
+          subject: "Ihre Reservation bei Royal Team Coiffeur wurde storniert - " + format(reservation.start ?? "", "dd.MM.yyyy") + " um " + format(reservation.start ?? "", "HH:mm"),
           html: getReservationCancellationTemplate(
             new Date(reservation.start ?? ""),
             service.name ?? "",
             service.price ?? 0,
             staffMember.firstName ?? "",
-            staffMember.lastName ?? ""
-          )
+            staffMember.lastName ?? "",
+            reservation.customer.firstName ?? ""          )
         })
       }
 
@@ -269,20 +269,18 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
       fetchReservations()
 
       const staffMember = staffMembers.find(s => s.id === Number(data.staffId))
-
+      //Customer New Reservation Email
       await mail.sendMail({
         to: data.customer.email,
-        subject: t("admin-reservation.confirmationEmailSubject", {
-          firstName: data.customer.firstName,
-          lastName: data.customer.lastName
-        }),
+        subject: "Bestätigung Ihrer Reservation bei Royal Team Coiffeur - " + format(data.start, "dd.MM.yyyy") + " um " + format(data.start, "HH:mm"),
         html: getReservationConfirmationTemplate(
           data.start,
           service.name ?? "",
           service.price ?? 0,
           staffMember?.firstName || "",
-          staffMember?.lastName || ""
-        )
+          staffMember?.lastName || "",
+          data.customer.firstName || ""
+          )
       })
     } catch (error) {
       handleError(error, {
