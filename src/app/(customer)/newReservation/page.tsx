@@ -20,7 +20,7 @@ import {
 import { toast } from '@/hooks/use-toast'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
-import { StaffType, TimeSlot, WeeklyHours } from '@/lib/types'
+import { TimeSlot, WeeklyHours } from '@/lib/types'
 import { useRouter } from 'next/navigation'
 import useMail from '@/hooks/use-mail'
 import { useLocale } from '@/contexts/LocaleContext' // Add this import
@@ -66,7 +66,6 @@ export default function NewReservation() {
   const [selectedService, setSelectedService] = useState<number | null>(null)
   const [selectedStaff, setSelectedStaff] = useState<number | null>(null)
   const [selectedTime, setSelectedTime] = useState<Date | null>(null)
-  const [staff] = useState<StaffType[]>([])
   const [services, setServices] = useState<Service[]>([])
   const [existingAppointments, setExistingAppointments] = useState<Appointment[]>([])
 
@@ -321,13 +320,14 @@ export default function NewReservation() {
 
     mail.sendMail({
       to: customerInfo.email,
-      subject: `${customerInfo.firstName} Appointment Confirmation`,
+      subject: `Bestätigung Ihrer Reservation bei Royal Team Coiffeur - ${format(selectedTime, "dd.MM.yyyy")} um ${format(selectedTime, "HH:mm")}`,
       html: getReservationConfirmationTemplate(
         selectedTime,
         service?.name || '',
         service?.price || 0,
-        staff.find(s => s.id === selectedStaff)?.firstName || '',
-        staff.find(s => s.id === selectedStaff)?.lastName || ''
+        staffMembers.find(s => s.id === selectedStaff)?.firstName || '',
+        staffMembers.find(s => s.id === selectedStaff)?.lastName || '',
+        customerInfo.firstName || ''
       )
     })
     setIsSubmitting(false)
@@ -626,7 +626,7 @@ export default function NewReservation() {
               </DialogHeader>
               <div className="space-y-4">
                 <p><strong>{t("newReservation.service")}:</strong> {services.find(s => s.id === selectedService)?.name}</p>
-                <p><strong>{t("newReservation.staff")}:</strong> {staff.find(s => s.id === selectedStaff)?.firstName} {staff.find(s => s.id === selectedStaff)?.lastName}</p>
+                <p><strong>{t("newReservation.staff")}:</strong> {staffMembers.find(s => s.id === selectedStaff)?.firstName} {staffMembers.find(s => s.id === selectedStaff)?.lastName}</p>
                 <p><strong>{t("newReservation.dateTime")}:</strong> {selectedTime && format(selectedTime, 'MMMM d, yyyy HH:mm')}</p>
                 <p><strong>{t("newReservation.name")}:</strong> {customerInfo.firstName} {customerInfo.lastName}</p>
                 <p><strong>{t("newReservation.email")}:</strong> {customerInfo.email}</p>
