@@ -11,7 +11,7 @@ import {
   subMinutes,
   startOfWeek,
 } from "date-fns";
-import { Reservation, ReservationWithDetails } from "@/lib/types";
+import { ReservationWithDetails } from "@/lib/types";
 import {
   Card,
   CardContent,
