@@ -209,10 +209,34 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
       setIsDetailsDialogOpen(false)
 
       const service = services.find(s => s.id === reservation.serviceId)
-      const staffMember = staffMembers.find(s => s.id === reservation.staffId)
+      
+      // Get staff member information - first try from staffMembers array
+      let staffMember = staffMembers.find(s => s.id === reservation.staffId)
+      
+      // If staff member not found in array, fetch directly from database
+      if (!staffMember && reservation.staffId) {
+        try {
+          const { data, error } = await supabase
+            .from('staff')
+            .select('id, firstName, lastName')
+            .eq('id', reservation.staffId)
+            .single()
+          
+          if (!error && data) {
+            // Create a minimal staff object with just the needed fields for the email
+            staffMember = {
+              id: data.id,
+              firstName: data.firstName,
+              lastName: data.lastName
+            } as any // Cast to any to avoid type errors since we only need these fields for the email
+          }
+        } catch (err) {
+          console.error("Error fetching staff member:", err)
+        }
+      }
 
       //Customer Cancel Reservation Email
-      if (service && staffMember) {
+      if (service && staffMember && reservation.customer.email) {
         await mail.sendMail({
           to: reservation.customer.email,
           subject: "Ihre Reservation bei Royal Team Coiffeur wurde storniert - " + format(reservation.start ?? "", "dd.MM.yyyy") + " um " + format(reservation.start ?? "", "HH:mm"),
@@ -268,20 +292,46 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
       setIsSuccessDialogOpen(true)
       fetchReservations()
 
-      const staffMember = staffMembers.find(s => s.id === Number(data.staffId))
+      // Get staff member information - first try from staffMembers array
+      let staffMember = staffMembers.find(s => s.id === Number(data.staffId))
+      
+      // If staff member not found in array, fetch directly from database
+      if (!staffMember && data.staffId) {
+        try {
+          const { data: staffData, error } = await supabase
+            .from('staff')
+            .select('id, firstName, lastName')
+            .eq('id', Number(data.staffId))
+            .single()
+          
+          if (!error && staffData) {
+            // Create a minimal staff object with just the needed fields for the email
+            staffMember = {
+              id: staffData.id,
+              firstName: staffData.firstName,
+              lastName: staffData.lastName
+            } as any // Cast to any to avoid type errors since we only need these fields for the email
+          }
+        } catch (err) {
+          console.error("Error fetching staff member:", err)
+        }
+      }
+
       //Customer New Reservation Email
-      await mail.sendMail({
-        to: data.customer.email,
-        subject: "Bestätigung Ihrer Reservation bei Royal Team Coiffeur - " + format(data.start, "dd.MM.yyyy") + " um " + format(data.start, "HH:mm"),
-        html: getReservationConfirmationTemplate(
-          data.start,
-          service.name ?? "",
-          service.price ?? 0,
-          staffMember?.firstName || "",
-          staffMember?.lastName || "",
-          data.customer.firstName || ""
-          )
-      })
+      if (data.customer.email && staffMember) {
+        await mail.sendMail({
+          to: data.customer.email,
+          subject: "Bestätigung Ihrer Reservation bei Royal Team Coiffeur - " + format(data.start, "dd.MM.yyyy") + " um " + format(data.start, "HH:mm"),
+          html: getReservationConfirmationTemplate(
+            data.start,
+            service.name ?? "",
+            service.price ?? 0,
+            staffMember?.firstName || "",
+            staffMember?.lastName || "",
+            data.customer.firstName || ""
+            )
+        })
+      }
     } catch (error) {
       handleError(error, {
         title: t("admin-reservation.error"),
