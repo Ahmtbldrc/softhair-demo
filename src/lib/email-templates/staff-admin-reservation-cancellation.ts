@@ -6,7 +6,7 @@ export const getAdminReservationCancellationTemplate = (
   serviceName: string,
   servicePrice: number,
   staffFirstName: string,
-  staffLastName: string
+  staffLastName: string,
 ) => `
 <!DOCTYPE html>
 <html lang="en" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml">
