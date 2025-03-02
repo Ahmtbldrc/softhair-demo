@@ -11,6 +11,7 @@ import {
   subMinutes,
   startOfWeek,
 } from "date-fns";
+import { Reservation, ReservationWithDetails } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -371,7 +372,7 @@ export default function ReservationPage() {
   };
 
   // Wrap the original handleCalendarReservationClick to also fetch staff info
-  const handleReservationWithStaffInfo = (reservation: any) => {
+  const handleReservationWithStaffInfo = (reservation: ReservationWithDetails) => {
     handleCalendarReservationClick(reservation);
     if (reservation.staffId) {
       fetchStaffInfoForReservation(reservation.staffId);

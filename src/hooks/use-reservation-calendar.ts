@@ -228,7 +228,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
               id: data.id,
               firstName: data.firstName,
               lastName: data.lastName
-            } as any // Cast to any to avoid type errors since we only need these fields for the email
+            } as StaffWithServices // Cast to any to avoid type errors since we only need these fields for the email
           }
         } catch (err) {
           console.error("Error fetching staff member:", err)
@@ -310,7 +310,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
               id: staffData.id,
               firstName: staffData.firstName,
               lastName: staffData.lastName
-            } as any // Cast to any to avoid type errors since we only need these fields for the email
+            } as StaffWithServices // Cast to any to avoid type errors since we only need these fields for the email
           }
         } catch (err) {
           console.error("Error fetching staff member:", err)
