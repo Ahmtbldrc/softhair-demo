@@ -512,7 +512,7 @@ export default function NewReservation() {
                     >
                       <CardContent className="flex flex-col items-center p-4">
                         <Image
-                          src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staffMember.image}`}
+                          src={`https://rlffvcspggzfedokaqsr.supabase.co/storage/v1/object/public/staff/${staffMember.image}`}
                           alt={`${staffMember.firstName} ${staffMember.lastName}`}
                           width={100}
                           height={100}

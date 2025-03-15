@@ -36,7 +36,7 @@ const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/default?s=400&d=mp"
 const getImageUrl = (image: string | null) => {
   if (!image) return DEFAULT_AVATAR
   
-  const imageUrl = `https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${image}`
+  const imageUrl = `https://rlffvcspggzfedokaqsr.supabase.co/storage/v1/object/public/staff/${image}`
   return imageUrl
 }
 

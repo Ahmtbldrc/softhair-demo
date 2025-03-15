@@ -48,7 +48,7 @@ export function StaffSelector({
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 relative overflow-hidden rounded-md flex-shrink-0">
                     <Image
-                      src={staff.image ? `https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}` : "https://www.gravatar.com/avatar/000?d=mp&f=y"}
+                      src={staff.image ? `https://rlffvcspggzfedokaqsr.supabase.co/storage/v1/object/public/staff/${staff.image}` : "https://www.gravatar.com/avatar/000?d=mp&f=y"}
                       alt={`${staff.firstName} ${staff.lastName}`}
                       fill
                       className="object-cover"
@@ -78,7 +78,7 @@ export function StaffSelector({
                 <div className="flex items-center gap-3 opacity-50">
                   <div className="h-10 w-10 relative overflow-hidden rounded-md flex-shrink-0 grayscale">
                     <Image
-                      src={staff.image ? `https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}` : "https://www.gravatar.com/avatar/000?d=mp&f=y"}
+                      src={staff.image ? `https://rlffvcspggzfedokaqsr.supabase.co/storage/v1/object/public/staff/${staff.image}` : "https://www.gravatar.com/avatar/000?d=mp&f=y"}
                       alt={`${staff.firstName} ${staff.lastName}`}
                       fill
                       className="object-cover"

@@ -72,7 +72,7 @@ export default function StaffWeeklyTrendChart() {
         {paginatedStaff.map((staff) => (
           <div key={staff.id} className="flex items-center gap-4">
             <Avatar className="h-9 w-9">
-              <AvatarImage src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`} alt={`${staff.name}'s avatar`} />
+              <AvatarImage src={`https://rlffvcspggzfedokaqsr.supabase.co/storage/v1/object/public/staff/${staff.image}`} alt={`${staff.name}'s avatar`} />
               <AvatarFallback>{staff.initials}</AvatarFallback>
             </Avatar>
             <div className="grid gap-1">

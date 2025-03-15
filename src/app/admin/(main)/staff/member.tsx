@@ -20,7 +20,7 @@ function Member({ member, handleDelete }: Props) {
         <Image
           alt={`${member.firstName} ${member.lastName} image`}
           className="aspect-square rounded-md object-cover"
-          src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${member.image}`}
+          src={`https://rlffvcspggzfedokaqsr.supabase.co/storage/v1/object/public/staff/${member.image}`}
           width={64}
           height={64}
           unoptimized
