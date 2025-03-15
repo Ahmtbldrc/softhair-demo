@@ -30,7 +30,7 @@ export function StaffMember({ staff, onDelete, t, view }: StaffMemberProps) {
   const renderImage = (size: number) =>
     staff.image ? (
       <Image
-        src={`https://rlffvcspggzfedokaqsr.supabase.co/storage/v1/object/public/staff/${staff.image}`}
+        src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`}
         alt={`${staff.firstName} ${staff.lastName}`}
         width={size}
         height={size}

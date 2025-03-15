@@ -5,7 +5,8 @@ import {
   endOfWeek, 
   eachDayOfInterval,
   startOfDay,
-  endOfDay
+  endOfDay,
+  format
 } from "date-fns"
 import { createReservation, deleteReservation, getReservations } from "@/lib/services/reservation.service"
 import { getAllStaff } from "@/lib/services/staff.service"
@@ -22,6 +23,7 @@ import {
 } from "@/lib/utils/reservation"
 import { handleError, handleSuccess } from "@/lib/utils/error-handler"
 import { supabase } from "@/lib/supabase"
+
 
 interface ReservationParams {
   branchId: number;
@@ -207,22 +209,44 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
       setIsDetailsDialogOpen(false)
 
       const service = services.find(s => s.id === reservation.serviceId)
-      const staffMember = staffMembers.find(s => s.id === reservation.staffId)
+      
+      // Get staff member information - first try from staffMembers array
+      let staffMember = staffMembers.find(s => s.id === reservation.staffId)
+      
+      // If staff member not found in array, fetch directly from database
+      if (!staffMember && reservation.staffId) {
+        try {
+          const { data, error } = await supabase
+            .from('staff')
+            .select('id, firstName, lastName')
+            .eq('id', reservation.staffId)
+            .single()
+          
+          if (!error && data) {
+            // Create a minimal staff object with just the needed fields for the email
+            staffMember = {
+              id: data.id,
+              firstName: data.firstName,
+              lastName: data.lastName
+            } as StaffWithServices // Cast to any to avoid type errors since we only need these fields for the email
+          }
+        } catch (err) {
+          console.error("Error fetching staff member:", err)
+        }
+      }
 
-      if (service && staffMember) {
+      //Customer Cancel Reservation Email
+      if (service && staffMember && reservation.customer.email) {
         await mail.sendMail({
           to: reservation.customer.email,
-          subject: t("admin-reservation.cancelEmailSubject", {
-            firstName: reservation.customer.firstName,
-            lastName: reservation.customer.lastName
-          }),
+          subject: "Ihre Reservation bei Royal Team Coiffeur wurde storniert - " + format(reservation.start ?? "", "dd.MM.yyyy") + " um " + format(reservation.start ?? "", "HH:mm"),
           html: getReservationCancellationTemplate(
             new Date(reservation.start ?? ""),
             service.name ?? "",
             service.price ?? 0,
             staffMember.firstName ?? "",
-            staffMember.lastName ?? ""
-          )
+            staffMember.lastName ?? "",
+            reservation.customer.firstName ?? ""          )
         })
       }
 
@@ -268,22 +292,46 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
       setIsSuccessDialogOpen(true)
       fetchReservations()
 
-      const staffMember = staffMembers.find(s => s.id === Number(data.staffId))
+      // Get staff member information - first try from staffMembers array
+      let staffMember = staffMembers.find(s => s.id === Number(data.staffId))
+      
+      // If staff member not found in array, fetch directly from database
+      if (!staffMember && data.staffId) {
+        try {
+          const { data: staffData, error } = await supabase
+            .from('staff')
+            .select('id, firstName, lastName')
+            .eq('id', Number(data.staffId))
+            .single()
+          
+          if (!error && staffData) {
+            // Create a minimal staff object with just the needed fields for the email
+            staffMember = {
+              id: staffData.id,
+              firstName: staffData.firstName,
+              lastName: staffData.lastName
+            } as StaffWithServices // Cast to any to avoid type errors since we only need these fields for the email
+          }
+        } catch (err) {
+          console.error("Error fetching staff member:", err)
+        }
+      }
 
-      await mail.sendMail({
-        to: data.customer.email,
-        subject: t("admin-reservation.confirmationEmailSubject", {
-          firstName: data.customer.firstName,
-          lastName: data.customer.lastName
-        }),
-        html: getReservationConfirmationTemplate(
-          data.start,
-          service.name ?? "",
-          service.price ?? 0,
-          staffMember?.firstName || "",
-          staffMember?.lastName || ""
-        )
-      })
+      //Customer New Reservation Email
+      if (data.customer.email && staffMember) {
+        await mail.sendMail({
+          to: data.customer.email,
+          subject: "Bestätigung Ihrer Reservation bei Royal Team Coiffeur - " + format(data.start, "dd.MM.yyyy") + " um " + format(data.start, "HH:mm"),
+          html: getReservationConfirmationTemplate(
+            data.start,
+            service.name ?? "",
+            service.price ?? 0,
+            staffMember?.firstName || "",
+            staffMember?.lastName || "",
+            data.customer.firstName || ""
+            )
+        })
+      }
     } catch (error) {
       handleError(error, {
         title: t("admin-reservation.error"),

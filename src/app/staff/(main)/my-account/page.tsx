@@ -468,7 +468,7 @@ export default function MyAccount() {
                             alt="Staff image"
                             className="aspect-square object-cover"
                             height={300}
-                            src={`https://rlffvcspggzfedokaqsr.supabase.co/storage/v1/object/public/staff/${staff.image}`}
+                            src={`https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`}
                             width={300}
                             unoptimized
                           />

@@ -421,7 +421,7 @@ export function StaffForm({ branchId, staffId, t }: StaffFormProps) {
                             height={300}
                             src={
                               staffImageName.length === 0
-                                ? `https://rlffvcspggzfedokaqsr.supabase.co/storage/v1/object/public/staff/${staff.image}`
+                                ? `https://vuylmvjocwmjybqbzuja.supabase.co/storage/v1/object/public/staff/${staff.image}`
                                 : staffImageName
                             }
                             width={300}

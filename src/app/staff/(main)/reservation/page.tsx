@@ -11,6 +11,7 @@ import {
   subMinutes,
   startOfWeek,
 } from "date-fns";
+import { ReservationWithDetails } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -69,6 +70,8 @@ type WeeklyHours = {
 
 type StaffMember = {
   id: number;
+  firstName: string;
+  lastName: string;
   weeklyHours: WeeklyHours;
   staff_services: Array<{
     service_id: number;
@@ -173,6 +176,7 @@ export default function ReservationPage() {
   });
   const [isMobile, setIsMobile] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedStaffInfo, setSelectedStaffInfo] = useState<{firstName: string, lastName: string} | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -188,6 +192,9 @@ export default function ReservationPage() {
     const fetchStaffMember = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user?.user_metadata?.staffId) {
+        const staffId = session.user.user_metadata.staffId;
+        console.log("Staff ID from session:", staffId);
+        
         const { data, error } = await supabase
           .from('staff')
           .select(`
@@ -197,11 +204,14 @@ export default function ReservationPage() {
               service_id
             )
           `)
-          .eq('id', session.user.user_metadata.staffId)
+          .eq('id', staffId)
           .single();
 
         if (!error && data) {
+          console.log("Staff member data:", data);
           setStaffMember(data);
+        } else {
+          console.error("Error fetching staff member:", error);
         }
       }
     };
@@ -228,6 +238,23 @@ export default function ReservationPage() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  useEffect(() => {
+    if (staffMember) {
+      setNewReservation(prev => ({
+        ...prev,
+        staffId: staffMember.id
+      }));
+      console.log("Updated newReservation.staffId from staffMember:", staffMember.id);
+    }
+  }, [staffMember]);
+
+  // Fetch staff info when a reservation is selected
+  useEffect(() => {
+    if (selectedReservation && selectedReservation.staffId) {
+      fetchStaffInfoForReservation(selectedReservation.staffId);
+    }
+  }, [selectedReservation]);
+
   const handleNewReservationSubmit = async () => {
     if (!newReservation.serviceId || !newReservation.staffId || !newReservation.start) {
       toast({
@@ -237,6 +264,10 @@ export default function ReservationPage() {
       });
       return;
     }
+
+    console.log("Submitting reservation with staffId:", newReservation.staffId);
+    console.log("Current staffMember:", staffMember);
+    console.log("Available staff members:", calendarStaffMembers);
 
     await handleCalendarNewReservation({
       serviceId: newReservation.serviceId,
@@ -311,6 +342,43 @@ export default function ReservationPage() {
     return availableTimes;
   };
 
+  // Function to fetch staff information when a reservation is selected
+  const fetchStaffInfoForReservation = async (staffId: number) => {
+    try {
+      console.log("Fetching staff info for staffId:", staffId);
+      const { data, error } = await supabase
+        .from('staff')
+        .select('id, firstName, lastName')
+        .eq('id', staffId)
+        .single();
+      
+      if (!error && data) {
+        console.log("Found staff info:", data);
+        setSelectedStaffInfo({
+          firstName: data.firstName,
+          lastName: data.lastName
+        });
+        return true;
+      } else {
+        console.error("Error fetching staff info:", error);
+        setSelectedStaffInfo(null);
+        return false;
+      }
+    } catch (err) {
+      console.error("Exception fetching staff info:", err);
+      setSelectedStaffInfo(null);
+      return false;
+    }
+  };
+
+  // Wrap the original handleCalendarReservationClick to also fetch staff info
+  const handleReservationWithStaffInfo = (reservation: ReservationWithDetails) => {
+    handleCalendarReservationClick(reservation);
+    if (reservation.staffId) {
+      fetchStaffInfoForReservation(reservation.staffId);
+    }
+  };
+
   if (!user) {
     return <div>Loading...</div>;
   }
@@ -344,7 +412,7 @@ export default function ReservationPage() {
                         <Card
                           key={reservation.id}
                           className="cursor-pointer"
-                          onClick={() => handleCalendarReservationClick(reservation)}
+                          onClick={() => handleReservationWithStaffInfo(reservation)}
                         >
                           <CardHeader className="p-4">
                             <div className="flex justify-between items-start">
@@ -355,6 +423,10 @@ export default function ReservationPage() {
                                 <CardDescription>
                                   {service?.name}
                                 </CardDescription>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {calendarStaffMembers.find(s => s.id === reservation.staffId)?.firstName}{" "}
+                                  {calendarStaffMembers.find(s => s.id === reservation.staffId)?.lastName}
+                                </p>
                               </div>
                               <div className="text-right">
                                 <p className="font-medium">
@@ -369,7 +441,7 @@ export default function ReservationPage() {
                         </Card>
                       );
                     })
-                }
+                  }
                 </div>
               )}
             </div>
@@ -499,6 +571,7 @@ export default function ReservationPage() {
                               ...newReservation,
                               serviceId: Number(value),
                               start: null,
+                              staffId: newReservation.staffId
                             });
                           }}
                         >
@@ -668,12 +741,16 @@ export default function ReservationPage() {
                               <div
                                 key={res.id}
                                 className="text-xs mb-1 p-1 bg-primary text-primary-foreground rounded cursor-pointer"
-                                onClick={() => handleCalendarReservationClick(res)}
+                                onClick={() => handleReservationWithStaffInfo(res)}
                               >
                                 {
                                   calendarServices.find((s) => s.id === res.serviceId)
                                     ?.name
                                 }
+                                <div className="text-[10px] opacity-80 mt-0.5">
+                                  {calendarStaffMembers.find(s => s.id === res.staffId)?.firstName}{" "}
+                                  {calendarStaffMembers.find(s => s.id === res.staffId)?.lastName}
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -689,7 +766,12 @@ export default function ReservationPage() {
 
         <Dialog
           open={isDetailsDialogOpen}
-          onOpenChange={setIsDetailsDialogOpen}
+          onOpenChange={(open) => {
+            setIsDetailsDialogOpen(open);
+            if (!open) {
+              setSelectedStaffInfo(null);
+            }
+          }}
         >
           <DialogContent className="sm:max-w-[425px] max-w-[90vw] rounded">
             <DialogHeader>
@@ -718,6 +800,40 @@ export default function ReservationPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="px-0 py-2 text-sm">
+                    <div className="flex items-center space-x-4 mb-3">
+                      <div>
+                        <h3 className="font-semibold">{t("staff-reservation.staff")}</h3>
+                        {(() => {
+                          // First try to use selectedStaffInfo if available
+                          if (selectedStaffInfo) {
+                            return (
+                              <p>
+                                {selectedStaffInfo.firstName} {selectedStaffInfo.lastName}
+                              </p>
+                            );
+                          }
+                          
+                          // Then try to find staff information from calendarStaffMembers
+                          const staffInfo = calendarStaffMembers.find(s => s.id === selectedReservation.staffId) || 
+                                          (staffMember && staffMember.id === selectedReservation.staffId ? staffMember : null);
+                          
+                          if (staffInfo) {
+                            return (
+                              <p>
+                                {staffInfo.firstName} {staffInfo.lastName}
+                              </p>
+                            );
+                          }
+                          
+                          // If staff info not found, show staffId
+                          return (
+                            <p>
+                              {t("staff-reservation.staffId")}: {selectedReservation.staffId}
+                            </p>
+                          );
+                        })()}
+                      </div>
+                    </div>
                     <div className="mb-3">
                       <h3 className="font-semibold">{t("staff-reservation.service")}</h3>
                       <p>
@@ -811,42 +927,44 @@ export default function ReservationPage() {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <p>
-                <strong>{t("staff-reservation.service")}:</strong>{" "}
-                {
-                  calendarServices.find((s) => s.id === newReservation.serviceId)
-                    ?.name
-                }
-              </p>
-              <p>
-                <strong>{t("staff-reservation.staff")}:</strong>{" "}
-                {
-                  calendarStaffMembers.find((s) => s.id === newReservation.staffId)
-                    ?.firstName
-                }{" "}
-                {
-                  calendarStaffMembers.find((s) => s.id === newReservation.staffId)
-                    ?.lastName
-                }
-              </p>
-              <p>
-                <strong>{t("staff-reservation.dateAndTime")}:</strong>{" "}
-                {newReservation.start &&
-                  format(newReservation.start, "MMMM d, yyyy HH:mm")}
-              </p>
-              <p>
-                <strong>{t("staff-reservation.customer")}:</strong>{" "}
-                {newReservation.customer.firstName}{" "}
-                {newReservation.customer.lastName}
-              </p>
-              <p>
-                <strong>{t("staff-reservation.email")}:</strong>{" "}
-                {newReservation.customer.email}
-              </p>
-              <p>
-                <strong>{t("staff-reservation.phone")}:</strong>{" "}
-                {newReservation.customer.phone}
-              </p>
+              {(() => {
+                // Find staff information from either staffMember or calendarStaffMembers
+                const staffInfo = staffMember || calendarStaffMembers.find(s => s.id === newReservation.staffId);
+                
+                return (
+                  <>
+                    <p>
+                      <strong>{t("staff-reservation.service")}:</strong>{" "}
+                      {
+                        calendarServices.find((s) => s.id === newReservation.serviceId)
+                          ?.name
+                      }
+                    </p>
+                    <p>
+                      <strong>{t("staff-reservation.staff")}:</strong>{" "}
+                      {staffInfo ? `${staffInfo.firstName} ${staffInfo.lastName}` : t("staff-reservation.notSpecified")}
+                    </p>
+                    <p>
+                      <strong>{t("staff-reservation.dateAndTime")}:</strong>{" "}
+                      {newReservation.start &&
+                        format(newReservation.start, "MMMM d, yyyy HH:mm")}
+                    </p>
+                    <p>
+                      <strong>{t("staff-reservation.customer")}:</strong>{" "}
+                      {newReservation.customer.firstName}{" "}
+                      {newReservation.customer.lastName}
+                    </p>
+                    <p>
+                      <strong>{t("staff-reservation.email")}:</strong>{" "}
+                      {newReservation.customer.email}
+                    </p>
+                    <p>
+                      <strong>{t("staff-reservation.phone")}:</strong>{" "}
+                      {newReservation.customer.phone}
+                    </p>
+                  </>
+                );
+              })()}
             </div>
             <DialogFooter>
               <Button
@@ -1016,6 +1134,7 @@ export default function ReservationPage() {
                         ...newReservation,
                         serviceId: Number(value),
                         start: null,
+                        staffId: newReservation.staffId
                       });
                     }}
                   >
