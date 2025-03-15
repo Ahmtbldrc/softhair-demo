@@ -1,0 +1,191 @@
+You are an expert developer proficient in TypeScript, Next.js, Tailwind CSS, Shadcn UI, and Supabase.
+
+Code Style and Structure
+
+- Write concise, technical TypeScript code with accurate examples.
+- Use functional and declarative programming patterns; avoid classes.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxiliary verbs (e.g., `isLoading`, `hasError`).
+- Structure files with exported components, subcomponents, helpers, static content, and types.
+- Favor named exports for components and functions.
+- Use lowercase with dashes for directory names (e.g., `components/auth-wizard`).
+
+TypeScript Usage
+
+- Use TypeScript for all code; prefer interfaces over types for object shapes.
+- Implement functional components with TypeScript interfaces for props.
+- Use proper type annotations and avoid 'any' types.
+- Leverage TypeScript's utility types when appropriate.
+
+UI and Styling
+
+- Use Tailwind CSS for styling with proper class organization.
+- Implement Shadcn UI components following their documentation.
+- Follow mobile-first responsive design principles.
+- Use CSS variables for theme customization.
+- Maintain consistent spacing and layout using Tailwind's spacing scale.
+
+Component Structure
+
+- Create reusable components in the components directory.
+- Use Next.js 13+ app directory structure and conventions.
+- Implement proper loading and error states for components.
+- Use server and client components appropriately.
+
+State Management and Data Fetching
+
+- Use React's built-in hooks for local state management.
+- Implement proper data fetching using Next.js data fetching methods.
+- Use SWR or React Query for client-side data fetching when needed.
+
+Backend and Database
+
+- Use Supabase for backend services, including:
+  - Authentication and authorization
+  - Database operations
+  - Real-time subscriptions when needed
+  - Storage for files and media
+- Follow Supabase security best practices
+- Implement proper error handling for database operations
+
+Error Handling and Validation
+
+- Prioritize error handling and edge cases.
+- Handle errors at the beginning of functions.
+- Use early returns for error conditions to avoid deep nesting.
+- Implement proper error logging and user-friendly error messages.
+- Use Zod or similar for form validation when needed.
+
+Performance Optimization
+
+- Optimize images using Next.js Image component.
+- Implement proper loading states and suspense boundaries.
+- Use dynamic imports for code splitting when beneficial.
+- Follow Next.js performance best practices.
+
+Project Structure
+
+- Follow Next.js 13+ app directory structure.
+- Organize components, hooks, and utilities in appropriate directories.
+- Use proper file naming conventions:
+  - Components: PascalCase.tsx
+  - Hooks: camelCase.ts
+  - Utils: camelCase.ts
+- Keep environment variables properly configured.
+
+Key Conventions
+
+- Write meaningful commit messages.
+- Ensure code is clean and well-documented.
+- Follow consistent code formatting using Prettier.
+- Implement proper TypeScript types and interfaces.
+
+Shadcn UI Implementation
+
+- Use Shadcn UI components with proper customization.
+- Follow component composition patterns as documented.
+- Implement proper form handling using their form components.
+- Maintain consistent theming across components.
+
+Output Expectations
+
+- Provide clear, production-ready code examples.
+- Include necessary type definitions.
+- Follow Next.js 13+ best practices.
+- Ensure proper error handling and loading states.
+- Maintain consistent styling with Tailwind CSS.
+
+
+  ### Git Workflow Automation (Cursor)
+When prompted with "git workflow işlemlerine başla", Cursor will:
+
+#### Commit Convention
+```
+<type>: <türkçe açıklama>
+
+# Types:
+- feat: Yeni özellik
+- fix: Hata düzeltmesi
+- docs: Dokümantasyon değişiklikleri
+- style: Kod stili değişiklikleri (formatting, missing semi colons, etc)
+- refactor: Kod refaktörü
+- test: Test ile ilgili değişiklikler
+- chore: Genel bakım işlemleri
+```
+
+#### Automated Workflow Steps
+1. Stage Changes:
+   - Değişiklikleri analiz et ve gruplandır
+   - Her mantıksal değişiklik için ayrı commit oluştur
+   - Değişiklik gruplarını otomatik tespit et:
+     * Aynı dosyadaki farklı bölümlerdeki değişiklikler
+     * Farklı dosyalardaki ilişkili değişiklikler
+     * Farklı özellik/fix için yapılan değişiklikler
+   - Her grup için:
+     * `git add -p` ile interaktif staging
+     * İlgili dosyaları seçerek `git add <file>` 
+
+2. Commit Message Creation:
+   - Her değişiklik grubu için:
+     * Değişiklik tipini otomatik tespit
+     * İngilizce prefix seçimi
+     * Türkçe commit mesajı oluşturma
+     * Format: `<type>: <türkçe açıklama>`
+   - Çoklu commit örneği:
+     ```bash
+     # Aynı branch üzerinde farklı değişiklikler
+     git add src/components/auth/*
+     git commit -m "feat: auth komponenti eklendi"
+     
+     git add src/styles/*
+     git commit -m "style: auth sayfası stilleri düzenlendi"
+     
+     git add src/lib/api/*
+     git commit -m "feat: auth servisi implementasyonu tamamlandı"
+     ```
+
+3. Branch Management:
+   - Feature branch format: `feature/<özellik-adı>`
+   - Bugfix branch format: `bugfix/<hata-açıklaması>`
+   - Hotfix branch format: `hotfix/<acil-düzeltme>`
+
+4. Pull Request Template:
+```md
+## Değişiklik Açıklaması
+- 
+
+## Test Edildi mi?
+- [ ] Evet
+- [ ] Hayır
+
+## Breaking Changes
+- [ ] Var
+- [ ] Yok
+
+## Ek Notlar
+```
+
+5. Code Review Checklist:
+- [ ] TypeScript tip kontrolleri
+- [ ] ESLint kurallarına uygunluk
+- [ ] Test coverage yeterliliği
+- [ ] Performans kriterleri
+- [ ] Güvenlik kontrolleri
+
+6. Git Push:
+   - Mevcut branch için remote kontrolü
+   - Remote yoksa: `git push -u origin <branch-name>`
+   - Remote varsa: `git push`
+   - Push sonrası durum kontrolü
+   - Hata durumunda geri bildirim
+
+#### Commit Examples
+```
+feat: kullanıcı girişi için supabase auth entegrasyonu eklendi
+fix: sayfa yönlendirmelerindeki hata giderildi
+docs: API dokümantasyonu güncellendi
+style: komponent dosyaları prettier ile formatlandı
+refactor: user service katmanı yeniden yapılandırıldı
+test: auth servisi için unit testler eklendi
+chore: paket bağımlılıkları güncellendi
+```
