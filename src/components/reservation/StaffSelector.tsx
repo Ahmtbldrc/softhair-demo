@@ -11,6 +11,7 @@ interface StaffSelectorProps {
   setSelectedStaff: (staffId: string) => void
   t: (key: string, params?: Record<string, string | number>) => string
   isMobile?: boolean
+  className?: string
 }
 
 export function StaffSelector({
@@ -18,16 +19,17 @@ export function StaffSelector({
   selectedStaff,
   setSelectedStaff,
   t,
-  isMobile = false
+  isMobile = false,
+  className
 }: StaffSelectorProps) {
   return (
     <div className="mb-4">
       {!isMobile && <h3 className="mb-2 font-medium">{t("admin-reservation.selectStaff")}</h3>}
       <Select
-        value={selectedStaff || ""}
+        value={selectedStaff || "all"}
         onValueChange={setSelectedStaff}
       >
-        <SelectTrigger className="w-full md:w-[300px]">
+        <SelectTrigger className={className}>
           <SelectValue placeholder={t("admin-reservation.selectStaff")} />
         </SelectTrigger>
         <SelectContent>

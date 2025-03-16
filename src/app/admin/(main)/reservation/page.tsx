@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -12,13 +12,17 @@ import {
   WeekNavigation,
   StaffSelector,
   WeekCalendar,
+  MonthCalendar,
+  DayCalendar,
+  MiniCalendar,
   ReservationDetailsDialog,
   ConfirmationDialog,
-  SuccessDialog
+  SuccessDialog,
+  ViewSwitcher
 } from "@/components/reservation"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
-import { isSameDay } from "date-fns"
-import { ReservationWithDetails } from "@/lib/types"
+import { isSameMonth } from "date-fns"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 const DailyNavigation = ({ selectedDate, setSelectedDate }: { 
   selectedDate: Date
@@ -55,6 +59,7 @@ export default function AppointmentCalendar() {
   const { t } = useLocale()
   const { selectedBranchId, branches } = useBranch()
   const tWithParams = t as (key: string, params?: Record<string, string | number>) => string
+  const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("week")
 
   const {
     weekStart,
@@ -98,136 +103,241 @@ export default function AppointmentCalendar() {
     )
   }
 
+  const renderCalendarView = () => {
+    switch (calendarView) {
+      case "month":
+        return (
+          <MonthCalendar
+            currentDate={selectedDate}
+            reservations={reservations.filter(res => {
+              const resDate = new Date(res.start ?? "")
+              return isSameMonth(resDate, selectedDate)
+            })}
+            services={services}
+            staffMembers={staffMembers}
+            selectedStaff={selectedStaff}
+            onDateSelect={setSelectedDate}
+            onReservationClick={handleReservationClick}
+            t={tWithParams}
+          />
+        )
+      case "day":
+        return (
+          <>
+            <DailyNavigation 
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+            />
+            <DayCalendar
+              currentDate={selectedDate}
+              reservations={reservations}
+              services={services}
+              staffMembers={staffMembers}
+              selectedStaff={selectedStaff}
+              onReservationClick={handleReservationClick}
+            />
+          </>
+        )
+      case "week":
+        return (
+          <>
+            <WeekNavigation 
+              weekStart={weekStart}
+              weekEnd={weekEnd}
+              handlePrevWeek={handlePrevWeek}
+              handleNextWeek={handleNextWeek}
+            />
+            <WeekCalendar
+              days={days}
+              sortedReservations={reservations}
+              services={services}
+              staffMembers={staffMembers}
+              selectedStaff={selectedStaff}
+              handleReservationClick={handleReservationClick}
+              groupReservationsByTime={groupReservationsByTime}
+              isMobile={isMobile}
+            />
+          </>
+        )
+    }
+  }
+
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <div className="container mx-auto p-4 space-y-8">
-          {isMobile ? (
-            <>
-              <DailyNavigation 
-                selectedDate={selectedDate}
-                setSelectedDate={setSelectedDate}
-              />
+    <TooltipProvider>
+      <div className="flex min-h-screen w-full flex-col bg-background">
+        {/* Header */}
+        <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="container flex h-32 items-center justify-between py-8 px-8">
+            <div className="pl-4">
+              <h1 className="text-3xl font-semibold tracking-tight mb-2">{tWithParams("admin-reservation.reservationCalendar")}</h1>
+              <p className="text-sm text-muted-foreground">{currentBranch.name}</p>
+            </div>
+            <div className="flex items-center gap-6 pr-4">
               <StaffSelector 
                 staffMembers={staffMembers}
                 selectedStaff={selectedStaff}
                 setSelectedStaff={setSelectedStaff}
                 t={tWithParams}
                 isMobile={isMobile}
+                className="w-[220px] h-10"
               />
-              <WeekCalendar 
-                days={[selectedDate]}
-                sortedReservations={reservations.filter((res: ReservationWithDetails) => 
-                  (!selectedStaff || selectedStaff === "all" || res.staffId === Number(selectedStaff)) &&
-                  isSameDay(new Date(res.start ?? ""), selectedDate)
-                )}
-                services={services}
-                staffMembers={staffMembers}
-                selectedStaff={selectedStaff}
-                handleReservationClick={handleReservationClick}
-                groupReservationsByTime={groupReservationsByTime}
-                isMobile={true}
+              <ViewSwitcher 
+                view={calendarView}
+                onChange={setCalendarView}
+                t={tWithParams}
               />
-            </>
-          ) : (
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>{tWithParams("admin-reservation.reservationCalendar")}</CardTitle>
-                  <CardDescription>
-                    {tWithParams("admin-reservation.reservationCalendarDescription")} - {currentBranch.name}
-                  </CardDescription>
-                </div>
-                <Dialog open={isNewReservationDialogOpen} onOpenChange={setIsNewReservationDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button>{tWithParams("admin-reservation.newReservation")}</Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col overflow-hidden">
-                    <DialogHeader>
-                      <DialogTitle>
-                        {tWithParams("admin-reservation.newReservation")} - {currentBranch.name}
-                      </DialogTitle>
-                    </DialogHeader>
-                    
-                    <ScrollArea className="flex-1 px-4">
-                      <NewReservationForm 
-                        form={form}
-                        services={services}
-                        staffMembers={staffMembers}
-                        reservations={reservations}
-                        weekStart={weekStart}
-                        weekEnd={weekEnd}
-                        days={days}
-                        handlePrevWeek={handlePrevWeek}
-                        handleNextWeek={handleNextWeek}
-                        handleNewReservation={handleNewReservation}
-                        t={tWithParams}
-                      />
-                    </ScrollArea>
+              <Dialog open={isNewReservationDialogOpen} onOpenChange={setIsNewReservationDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="h-10 px-8 min-w-[140px]">{tWithParams("admin-reservation.newReservation")}</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col overflow-hidden">
+                  <DialogHeader>
+                    <DialogTitle>
+                      {tWithParams("admin-reservation.newReservation")} - {currentBranch.name}
+                    </DialogTitle>
+                  </DialogHeader>
+                  
+                  <ScrollArea className="flex-1 px-4">
+                    <NewReservationForm 
+                      form={form}
+                      services={services}
+                      staffMembers={staffMembers}
+                      reservations={reservations}
+                      weekStart={weekStart}
+                      weekEnd={weekEnd}
+                      days={days}
+                      handlePrevWeek={handlePrevWeek}
+                      handleNextWeek={handleNextWeek}
+                      handleNewReservation={handleNewReservation}
+                      t={tWithParams}
+                    />
+                  </ScrollArea>
 
-                    <DialogFooter className="mt-4 px-4 py-2">
-                      <Button onClick={() => setIsConfirmDialogOpen(true)}>
-                        {tWithParams("admin-reservation.bookAppointment")}
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </CardHeader>
-              <CardContent>
-                <WeekNavigation 
-                  weekStart={weekStart}
-                  weekEnd={weekEnd}
-                  handlePrevWeek={handlePrevWeek}
-                  handleNextWeek={handleNextWeek}
-                />
-                <StaffSelector 
-                  staffMembers={staffMembers}
-                  selectedStaff={selectedStaff}
-                  setSelectedStaff={setSelectedStaff}
+                  <DialogFooter className="mt-4 px-4 py-2">
+                    <Button onClick={() => setIsConfirmDialogOpen(true)}>
+                      {tWithParams("admin-reservation.bookAppointment")}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
+        </header>
+
+        <div className="flex flex-1">
+          {/* Mini Calendar Sidebar */}
+          {!isMobile && (
+            <aside className="hidden md:flex w-80 border-r bg-card flex-col h-[calc(100vh-8rem)] sticky top-32">
+              <div className="p-8 flex flex-col gap-8 overflow-hidden h-full">
+                <MiniCalendar
+                  view={calendarView}
+                  currentDate={selectedDate}
+                  selected={selectedDate}
+                  onSelect={(date) => {
+                    if (date) {
+                      setSelectedDate(date)
+                    }
+                  }}
+                  className="w-full"
+                  disabled={[{ before: new Date() }]}
                   t={tWithParams}
-                  isMobile={isMobile}
                 />
-                <WeekCalendar 
-                  days={days}
-                  sortedReservations={reservations}
-                  services={services}
-                  staffMembers={staffMembers}
-                  selectedStaff={selectedStaff}
-                  handleReservationClick={handleReservationClick}
-                  groupReservationsByTime={groupReservationsByTime}
-                  isMobile={false}
-                />
-              </CardContent>
-            </Card>
+                <div className="border-t pt-8 flex-1 overflow-hidden">
+                  <h3 className="font-medium mb-6 text-lg">{t("admin-reservation.calendar.upcomingEvents")}</h3>
+                  <ScrollArea className="h-[calc(100%-2rem)]">
+                    {reservations
+                      .filter(res => {
+                        const resDate = new Date(res.start ?? "")
+                        return (
+                          resDate >= new Date() && 
+                          (calendarView === "month" ? isSameMonth(resDate, selectedDate) : true) &&
+                          (!selectedStaff || selectedStaff === "all" || res.staffId === Number(selectedStaff))
+                        )
+                      })
+                      .slice(0, 5)
+                      .map(res => {
+                        const service = services.find(s => s.id === res.serviceId)
+                        const staff = staffMembers.find(s => s.id === res.staffId)
+                        const startTime = new Date(res.start ?? "")
+                        return (
+                          <div
+                            key={res.id}
+                            className="p-4 text-sm hover:bg-accent rounded-md cursor-pointer mb-3 space-y-2"
+                            onClick={() => handleReservationClick(res)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium text-primary">{res.customer.firstName} {res.customer.lastName}</span>
+                              <div className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                                {startTime.toLocaleDateString(undefined, { 
+                                  day: 'numeric',
+                                  month: 'short'
+                                })}
+                              </div>
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between">
+                                <div className="text-xs truncate">{service?.name}</div>
+                                <div className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                                  {startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                </div>
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {staff?.firstName} {staff?.lastName}
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                  </ScrollArea>
+                </div>
+              </div>
+            </aside>
           )}
-          <ReservationDetailsDialog 
-            isOpen={isDetailsDialogOpen}
-            onOpenChange={setIsDetailsDialogOpen}
-            selectedReservation={selectedReservation}
-            services={services}
-            staffMembers={staffMembers}
-            handleCancelReservation={handleCancelReservation}
-            t={tWithParams}
-            className="sm:max-w-[500px] h-auto max-h-[90vh]"
-          />
-          <ConfirmationDialog 
-            isOpen={isConfirmDialogOpen}
-            onOpenChange={setIsConfirmDialogOpen}
-            form={form}
-            services={services}
-            staffMembers={staffMembers}
-            isSubmitting={isSubmitting}
-            handleNewReservation={handleNewReservation}
-            t={tWithParams}
-          />
-          <SuccessDialog 
-            isOpen={isSuccessDialogOpen}
-            onOpenChange={setIsSuccessDialogOpen}
-            form={form}
-            setIsNewReservationDialogOpen={setIsNewReservationDialogOpen}
-            t={tWithParams}
-          />
+
+          {/* Main Content */}
+          <main className="flex-1 flex flex-col min-h-[calc(100vh-8rem)]">
+            <div className="flex-1 p-8">
+              <div className="container">
+                <div className="rounded-lg border bg-card">
+                  <div className="p-8">
+                    {renderCalendarView()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
         </div>
+
+        {/* Dialogs */}
+        <ReservationDetailsDialog 
+          isOpen={isDetailsDialogOpen}
+          onOpenChange={setIsDetailsDialogOpen}
+          selectedReservation={selectedReservation}
+          services={services}
+          staffMembers={staffMembers}
+          handleCancelReservation={handleCancelReservation}
+          t={tWithParams}
+          className="sm:max-w-[500px] h-auto max-h-[90vh]"
+        />
+        <ConfirmationDialog 
+          isOpen={isConfirmDialogOpen}
+          onOpenChange={setIsConfirmDialogOpen}
+          form={form}
+          services={services}
+          staffMembers={staffMembers}
+          isSubmitting={isSubmitting}
+          handleNewReservation={handleNewReservation}
+          t={tWithParams}
+        />
+        <SuccessDialog 
+          isOpen={isSuccessDialogOpen}
+          onOpenChange={setIsSuccessDialogOpen}
+          form={form}
+          setIsNewReservationDialogOpen={setIsNewReservationDialogOpen}
+          t={tWithParams}
+        />
+
+        {/* Mobile New Reservation Button */}
         {isMobile && (
           <Dialog open={isNewReservationDialogOpen} onOpenChange={setIsNewReservationDialogOpen}>
             <DialogTrigger asChild>
@@ -241,9 +351,10 @@ export default function AppointmentCalendar() {
             <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col overflow-hidden">
               <DialogHeader>
                 <DialogTitle>
-                  {t("admin-reservation.newReservation")}
+                  {tWithParams("admin-reservation.newReservation")} - {currentBranch.name}
                 </DialogTitle>
               </DialogHeader>
+              
               <ScrollArea className="flex-1 px-4">
                 <NewReservationForm 
                   form={form}
@@ -259,15 +370,16 @@ export default function AppointmentCalendar() {
                   t={tWithParams}
                 />
               </ScrollArea>
+
               <DialogFooter className="mt-4 px-4 py-2">
                 <Button onClick={() => setIsConfirmDialogOpen(true)}>
-                  {t("admin-reservation.bookAppointment")}
+                  {tWithParams("admin-reservation.bookAppointment")}
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
         )}
-      </main>
-    </div>
+      </div>
+    </TooltipProvider>
   )
 }

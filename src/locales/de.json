@@ -274,7 +274,72 @@
     "error": "Fehler",
     "createReservationError": "Beim Erstellen des Termins ist ein Fehler aufgetreten.",
     "reservationNotFound": "Termin nicht gefunden",
-    "cannotCancelPast": "Vergangene Termine können nicht storniert werden"
+    "cannotCancelPast": "Vergangene Termine können nicht storniert werden",
+    "calendar": {
+      "month": "Monat",
+      "week": "Woche",
+      "day": "Tag",
+      "today": "Heute",
+      "viewSwitcher": "Ansicht wechseln",
+      "upcomingEvents": "Kommende Termine",
+      "noEvents": "Keine kommenden Termine",
+      "moreEvents": "weitere",
+      "loading": "Kalender wird geladen...",
+      "selectDate": "Datum auswählen",
+      "days": {
+        "monday": "Montag",
+        "tuesday": "Dienstag",
+        "wednesday": "Mittwoch",
+        "thursday": "Donnerstag",
+        "friday": "Freitag",
+        "saturday": "Samstag",
+        "sunday": "Sonntag"
+      },
+      "timeSlots": {
+        "morning": "Vormittag",
+        "afternoon": "Nachmittag",
+        "evening": "Abend",
+        "noAvailableSlots": "Keine verfügbaren Zeitfenster"
+      },
+      "navigation": {
+        "previousMonth": "Vorheriger Monat",
+        "nextMonth": "Nächster Monat",
+        "previousWeek": "Vorherige Woche",
+        "nextWeek": "Nächste Woche",
+        "previousDay": "Vorheriger Tag",
+        "nextDay": "Nächster Tag"
+      },
+      "months": {
+        "january": "Januar",
+        "february": "Februar",
+        "march": "März",
+        "april": "April",
+        "may": "Mai",
+        "june": "Juni",
+        "july": "Juli",
+        "august": "August",
+        "september": "September",
+        "october": "Oktober",
+        "november": "November",
+        "december": "Dezember"
+      }
+    },
+    "tooltips": {
+      "clickToViewDetails": "Klicken Sie für Details",
+      "dragToReschedule": "Ziehen zum Verschieben",
+      "staffMember": "Mitarbeiter",
+      "service": "Dienstleistung",
+      "duration": "Dauer",
+      "price": "Preis"
+    },
+    "confirmDialog": {
+      "reschedule": {
+        "title": "Termin verschieben",
+        "description": "Möchten Sie diesen Termin wirklich verschieben?",
+        "confirm": "Ja, verschieben",
+        "cancel": "Nein, beibehalten"
+      }
+    }
   },
   "staff-my-account": {
     "myAccount": "Mein Konto",
@@ -476,7 +541,6 @@
     "street": "Bahnhofstrasse 21A",
     "city": "9470 Buchs",
     "country": "Schweiz"
-
   },
   "newReservation": {
     "title": "Neuer Termin",

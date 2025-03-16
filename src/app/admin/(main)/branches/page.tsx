@@ -69,6 +69,55 @@ export default function BranchesPage() {
     };
 
     fetchBranches();
+
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel('branches-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'branches'
+        },
+        async (payload) => {
+          // Handle different types of changes based on payload
+          switch (payload.eventType) {
+            case 'INSERT':
+              const newBranch: Branch = {
+                id: payload.new.id,
+                name: payload.new.name,
+                status: payload.new.status,
+                created_at: payload.new.created_at,
+              };
+              setBranches(prev => [...prev, newBranch]);
+              break;
+            
+            case 'DELETE':
+              setBranches(prev => prev.filter(branch => branch.id !== payload.old.id));
+              break;
+            
+            case 'UPDATE':
+              setBranches(prev => prev.map(branch => 
+                branch.id === payload.new.id 
+                  ? {
+                      id: payload.new.id,
+                      name: payload.new.name,
+                      status: payload.new.status,
+                      created_at: payload.new.created_at,
+                    }
+                  : branch
+              ));
+              break;
+          }
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      channel.unsubscribe();
+    };
   }, []);
 
   const handleEditClick = (branch: Branch) => {
@@ -177,6 +226,33 @@ export default function BranchesPage() {
         status: response.data.status,
         created_at: response.data.created_at,
       };
+
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Get current branchIds from metadata
+        const currentBranchIds = user.user_metadata.branchIds || [];
+        
+        // Add new branch ID to the array if it's not already there
+        if (!currentBranchIds.includes(newBranch.id)) {
+          const updatedBranchIds = [...currentBranchIds, newBranch.id];
+          
+          // Update user metadata with new branchIds array
+          const { error: updateError } = await supabase.auth.updateUser({
+            data: { branchIds: updatedBranchIds }
+          });
+
+          if (updateError) {
+            toast({
+              title: "Warning",
+              description: "Branch created but failed to update user access",
+              variant: "destructive"
+            });
+            return;
+          }
+        }
+      }
 
       setBranches(prev => [...prev, newBranch]);
       setNewBranchName("");

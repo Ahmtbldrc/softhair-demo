@@ -345,7 +345,72 @@
     "error": "Error",
     "createReservationError": "An error occurred while creating the reservation.",
     "reservationNotFound": "Reservation not found",
-    "cannotCancelPast": "Cannot cancel past reservations"
+    "cannotCancelPast": "Cannot cancel past reservations",
+    "calendar": {
+      "month": "Month",
+      "week": "Week",
+      "day": "Day",
+      "today": "Today",
+      "viewSwitcher": "View Switcher",
+      "upcomingEvents": "Upcoming Events",
+      "noEvents": "No upcoming events",
+      "moreEvents": "more",
+      "loading": "Loading calendar...",
+      "selectDate": "Select Date",
+      "days": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      },
+      "timeSlots": {
+        "morning": "Morning",
+        "afternoon": "Afternoon",
+        "evening": "Evening",
+        "noAvailableSlots": "No available slots"
+      },
+      "navigation": {
+        "previousMonth": "Previous month",
+        "nextMonth": "Next month",
+        "previousWeek": "Previous week",
+        "nextWeek": "Next week",
+        "previousDay": "Previous day",
+        "nextDay": "Next day"
+      },
+      "months": {
+        "january": "January",
+        "february": "February",
+        "march": "March",
+        "april": "April",
+        "may": "May",
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "september": "September",
+        "october": "October",
+        "november": "November",
+        "december": "December"
+      }
+    },
+    "tooltips": {
+      "clickToViewDetails": "Click to view details",
+      "dragToReschedule": "Drag to reschedule",
+      "staffMember": "Staff member",
+      "service": "Service",
+      "duration": "Duration",
+      "price": "Price"
+    },
+    "confirmDialog": {
+      "reschedule": {
+        "title": "Reschedule Appointment",
+        "description": "Are you sure you want to reschedule this appointment?",
+        "confirm": "Yes, reschedule",
+        "cancel": "No, keep as is"
+      }
+    }
   },
   "staff-my-account":{
     "myAccount": "My Account",

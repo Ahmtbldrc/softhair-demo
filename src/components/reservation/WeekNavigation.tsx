@@ -18,13 +18,12 @@ export function WeekNavigation({
   handleNextWeek
 }: WeekNavigationProps) {
   return (
-    <div className="flex justify-center items-center gap-4 mb-4">
+    <div className="md:hidden flex justify-center items-center gap-4 mb-4">
       <Button onClick={handlePrevWeek} size="icon" variant="outline">
         <ChevronLeft className="h-4 w-4" />
       </Button>
       <h2 className="text-lg font-semibold text-center min-w-[200px]">
-        <span className="hidden md:inline">{format(weekStart, "dd.MM.yyyy")} - {format(weekEnd, "dd.MM.yyyy")}</span>
-        <span className="md:hidden">{format(weekStart, "dd.MM.yyyy")} - {format(weekEnd, "dd.MM.yyyy")}</span>
+        {format(weekStart, "dd.MM.yyyy")} - {format(weekEnd, "dd.MM.yyyy")}
       </h2>
       <Button onClick={handleNextWeek} size="icon" variant="outline">
         <ChevronRight className="h-4 w-4" />
