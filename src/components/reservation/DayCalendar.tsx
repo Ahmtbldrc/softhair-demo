@@ -54,6 +54,12 @@ export function DayCalendar({
       return false
     }
 
+    // Check if staff has working hours for the current day
+    const dayHours = staff.weeklyHours?.[currentDay]
+    if (!dayHours || dayHours.length === 0) {
+      return false
+    }
+
     return true
   })
 
