@@ -165,7 +165,14 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
         throw new Error(result.error)
       }
 
-      setReservations(result.data ?? [])
+      // Sort reservations by start time
+      const sortedReservations = result.data?.sort((a, b) => {
+        const dateA = new Date(a.start ?? "")
+        const dateB = new Date(b.start ?? "")
+        return dateA.getTime() - dateB.getTime()
+      }) ?? []
+
+      setReservations(sortedReservations)
     } catch (error) {
       handleError(error, {
         title: t("admin-reservation.fetchReservationsError"),

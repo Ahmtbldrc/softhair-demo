@@ -45,7 +45,20 @@ export const createReservation = async (reservationData: {
     status: boolean;
 }) => {
     const startDayjs = dayjs(reservationData.start);
-    const endDayjs = startDayjs.add(29, 'minute');
+    
+    // Get service duration
+    const { data: serviceData, error: serviceError } = await supabase
+        .from('services')
+        .select('duration')
+        .eq('id', reservationData.serviceId)
+        .single();
+
+    if (serviceError || !serviceData) {
+        console.error('Error getting service duration:', serviceError);
+        return { error: 'Failed to get service duration' };
+    }
+
+    const endDayjs = startDayjs.add(serviceData.duration, 'minute');
     const now = dayjs();
     
     const formattedStart = startDayjs.format('YYYY-MM-DD HH:mm:ss');

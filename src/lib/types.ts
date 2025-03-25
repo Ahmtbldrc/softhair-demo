@@ -6,13 +6,10 @@ export interface TimeSlot {
 }
 
 export interface WeeklyHours {
-  SUN: TimeSlot[];
-  MON: TimeSlot[];
-  TUE: TimeSlot[];
-  WED: TimeSlot[];
-  THU: TimeSlot[];
-  FRI: TimeSlot[];
-  SAT: TimeSlot[];
+  [key: string]: {
+    start: string
+    end: string
+  }[]
 }
 
 // Form Types Data
@@ -108,16 +105,6 @@ export interface TimeSlot {
   end: string
 }
 
-export interface WeeklyHours {
-  SUN: TimeSlot[]
-  MON: TimeSlot[]
-  TUE: TimeSlot[]
-  WED: TimeSlot[]
-  THU: TimeSlot[]
-  FRI: TimeSlot[]
-  SAT: TimeSlot[]
-}
-
 export interface StaffServiceWithDetails {
   service: {
     id: number
@@ -151,6 +138,7 @@ export interface ReservationWithDetails extends Omit<Reservation, 'customer'> {
     lastName: string
     email: string
     phone: string
+    image?: string | null
   }
   service: {
     id: number
@@ -187,4 +175,13 @@ export enum ReservationStatus {
   CONFIRMED = 'confirmed',
   CANCELLED = 'cancelled',
   COMPLETED = 'completed'
+}
+
+export interface Customer {
+  id: number
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  image?: string | null
 } 
