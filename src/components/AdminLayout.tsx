@@ -65,8 +65,8 @@ const NavLinks = React.memo(({ onClick }: { onClick?: () => void }) => {
 
   return (
     <>
-      <NavLink href="/admin" onClick={onClick}>
-        {t("admin.dashboard")}
+      <NavLink href="/admin/reservation" onClick={onClick}>
+        {t("admin.reservations")}
       </NavLink>
       <NavLink href="/admin/staff" onClick={onClick}>
         {t("admin.staff")}
@@ -74,8 +74,8 @@ const NavLinks = React.memo(({ onClick }: { onClick?: () => void }) => {
       <NavLink href="/admin/services" onClick={onClick}>
         {t("admin.services")}
       </NavLink>
-      <NavLink href="/admin/reservation" onClick={onClick}>
-        {t("admin.reservations")}
+      <NavLink href="/admin" onClick={onClick}>
+        {t("admin.dashboard")}
       </NavLink>
     </>
   );
