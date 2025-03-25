@@ -44,7 +44,10 @@
     "showPassword": "Passwort anzeigen",
     "hidePassword": "Passwort verbergen",
     "optional": "optional",
-    "bookNow": "Jetzt Buchen"
+    "bookNow": "Jetzt Buchen",
+    "breakTimeRange": "Pause {start}-{end}",
+    "clickToBook": "Klicken zum Buchen",
+    "inactive": "Inaktiv"
   },
   "auth": {
     "logout": "Abmelden",
@@ -339,7 +342,9 @@
         "confirm": "Ja, verschieben",
         "cancel": "Nein, beibehalten"
       }
-    }
+    },
+    "quickBook": "Schnellbuchung",
+    "selectService": "Wählen Sie einen Service"
   },
   "staff-my-account": {
     "myAccount": "Mein Konto",
