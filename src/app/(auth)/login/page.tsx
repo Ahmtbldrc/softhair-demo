@@ -49,7 +49,7 @@ export default function LoginPage() {
       }
 
       const userRole = data.session?.user?.user_metadata.role;
-      const redirectUrl = userRole === Roles.ADMIN ? "/admin" : "/staff/reservation";
+      const redirectUrl = userRole === Roles.ADMIN ? "/admin/reservation" : "/staff/reservation";
       
       // Force a hard navigation to ensure the session is properly recognized
       window.location.href = redirectUrl;
