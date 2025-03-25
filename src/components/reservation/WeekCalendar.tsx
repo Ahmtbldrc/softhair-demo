@@ -181,7 +181,7 @@ export function WeekCalendar({
                       <span className="break-words">{service?.name}</span>
                       <div className="flex items-center gap-1.5 mt-1">
                         <span className="text-primary/80 group-hover:text-primary transition-colors font-medium whitespace-nowrap">
-                          CHF {service?.price}
+                        € {service?.price}
                         </span>
                         <span className="text-muted-foreground/50">•</span>
                         <div className="flex items-center gap-1">
@@ -342,7 +342,7 @@ export function WeekCalendar({
                         <span className="break-words">{service?.name}</span>
                         <div className="flex items-center gap-1.5 mt-1">
                           <span className="text-primary/80 font-medium whitespace-nowrap">
-                            CHF {service?.price}
+                          € {service?.price}
                           </span>
                           <span className="text-muted-foreground/50">•</span>
                           <div className="flex items-center gap-1">

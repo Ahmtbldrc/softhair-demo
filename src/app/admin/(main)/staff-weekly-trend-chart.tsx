@@ -81,7 +81,7 @@ export default function StaffWeeklyTrendChart() {
               </p>
             </div>
             <div className="ml-auto font-medium">
-              {staff.weeklyEarnings.toFixed(2)} CHF
+              {staff.weeklyEarnings.toFixed(2)} €
             </div>
           </div>
         ))}

@@ -134,7 +134,7 @@ export const getAdminReservationCancellationTemplate = (
 <tr>
 <td class="pad">
 <div style="color:#ffffff;font-family:'Varela Round', 'Trebuchet MS', Helvetica, sans-serif;font-size:16px;font-weight:700;line-height:150%;text-align:center;mso-line-height-alt:24px;">
-<p style="margin: 0; word-break: break-word;"><strong>Service & Preis: ${serviceName} ${servicePrice} CHF</strong></p>
+<p style="margin: 0; word-break: break-word;"><strong>Service & Preis: ${serviceName} ${servicePrice} €</strong></p>
 </div>
 </td>
 </tr>

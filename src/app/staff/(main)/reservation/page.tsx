@@ -433,7 +433,7 @@ export default function ReservationPage() {
                                   {reservation.customer.firstName} {reservation.customer.lastName}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
-                                  {service?.price} CHF
+                                  {service?.price} €
                                 </p>
                               </div>
                             </div>
@@ -590,7 +590,7 @@ export default function ReservationPage() {
                                   key={service.id}
                                   value={service.id.toString()}
                                 >
-                                  {service.name} ({service.price} CHF)
+                                  {service.name} ({service.price} €)
                                 </SelectItem>
                               ))
                             }
@@ -852,7 +852,7 @@ export default function ReservationPage() {
                             (s) => s.id === selectedReservation.serviceId
                           )?.price
                         }{" "}
-                        CHF
+                        €
                       </p>
                     </div>
                     <div>
@@ -1153,7 +1153,7 @@ export default function ReservationPage() {
                             key={service.id}
                             value={service.id.toString()}
                           >
-                            {service.name} ({service.price} CHF)
+                            {service.name} ({service.price} €)
                           </SelectItem>
                         ))
                       }

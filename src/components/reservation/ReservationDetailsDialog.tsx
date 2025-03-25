@@ -81,7 +81,7 @@ export function ReservationDetailsDialog({
               </div>
               <div className="mb-4">
                 <h3 className="font-semibold">{t("admin-reservation.price")}</h3>
-                <p>{services.find(s => s.id === selectedReservation.serviceId)?.price} CHF</p>
+                <p>{services.find(s => s.id === selectedReservation.serviceId)?.price} €</p>
               </div>
               <div>
                 <h3 className="font-semibold mb-2">{t("admin-reservation.customerInformation")}</h3>

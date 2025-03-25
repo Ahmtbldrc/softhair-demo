@@ -490,7 +490,7 @@ export default function NewReservation() {
                   <SelectContent>
                     {services.map((service) => (
                       <SelectItem key={service.id} value={service.id.toString()}>
-                        {service.name} ({service.price} CHF)
+                        {service.name} ({service.price} €)
                       </SelectItem>
                     ))}
                   </SelectContent>
