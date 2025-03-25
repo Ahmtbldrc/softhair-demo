@@ -18,7 +18,8 @@ import {
   ReservationDetailsDialog,
   ConfirmationDialog,
   SuccessDialog,
-  ViewSwitcher
+  ViewSwitcher,
+  QuickReservationDialog
 } from "@/components/reservation"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { isSameMonth } from "date-fns"
@@ -59,7 +60,7 @@ export default function AppointmentCalendar() {
   const { t } = useLocale()
   const { selectedBranchId, branches } = useBranch()
   const tWithParams = t as (key: string, params?: Record<string, string | number>) => string
-  const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("week")
+  const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("day")
 
   const {
     weekStart,
@@ -92,6 +93,9 @@ export default function AppointmentCalendar() {
     isMobile,
   } = useReservationCalendar(selectedBranchId, tWithParams)
 
+  const [isQuickBookDialogOpen, setIsQuickBookDialogOpen] = useState(false)
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<{ staffId: number; startTime: Date; endTime: Date } | null>(null)
+
   // Get the current branch information
   const currentBranch = branches.find(branch => branch.id === selectedBranchId)
 
@@ -101,6 +105,13 @@ export default function AppointmentCalendar() {
         <p className="text-lg text-muted-foreground">{t("admin-reservation.selectBranch")}</p>
       </div>
     )
+  }
+
+  const handleTimeSlotClick = (staffId: number, startTime: Date, endTime: Date) => {
+    setSelectedTimeSlot({ staffId, startTime, endTime })
+    form.setValue("staffId", staffId)
+    form.setValue("start", startTime)
+    setIsQuickBookDialogOpen(true)
   }
 
   const renderCalendarView = () => {
@@ -135,6 +146,20 @@ export default function AppointmentCalendar() {
               staffMembers={staffMembers}
               selectedStaff={selectedStaff}
               onReservationClick={handleReservationClick}
+              onTimeSlotClick={handleTimeSlotClick}
+            />
+            <QuickReservationDialog
+              isOpen={isQuickBookDialogOpen}
+              onOpenChange={setIsQuickBookDialogOpen}
+              form={form}
+              services={services}
+              selectedStaff={staffMembers.find(staff => staff.id === selectedTimeSlot?.staffId)}
+              selectedDate={selectedDate}
+              selectedTime={selectedTimeSlot?.startTime ?? new Date()}
+              onSubmit={handleNewReservation}
+              isSubmitting={isSubmitting}
+              t={tWithParams}
+              reservations={reservations}
             />
           </>
         )
@@ -165,70 +190,20 @@ export default function AppointmentCalendar() {
   return (
     <TooltipProvider>
       <div className="flex min-h-screen w-full flex-col bg-background">
-        {/* Header */}
-        <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="container flex h-32 items-center justify-between py-8 px-8">
-            <div className="pl-4">
-              <h1 className="text-3xl font-semibold tracking-tight mb-2">{tWithParams("admin-reservation.reservationCalendar")}</h1>
-              <p className="text-sm text-muted-foreground">{currentBranch.name}</p>
-            </div>
-            <div className="flex items-center gap-6 pr-4">
-              <StaffSelector 
-                staffMembers={staffMembers}
-                selectedStaff={selectedStaff}
-                setSelectedStaff={setSelectedStaff}
-                t={tWithParams}
-                isMobile={isMobile}
-                className="w-[220px] h-10"
-              />
-              <ViewSwitcher 
-                view={calendarView}
-                onChange={setCalendarView}
-                t={tWithParams}
-              />
-              <Dialog open={isNewReservationDialogOpen} onOpenChange={setIsNewReservationDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="h-10 px-8 min-w-[140px]">{tWithParams("admin-reservation.newReservation")}</Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col overflow-hidden">
-                  <DialogHeader>
-                    <DialogTitle>
-                      {tWithParams("admin-reservation.newReservation")} - {currentBranch.name}
-                    </DialogTitle>
-                  </DialogHeader>
-                  
-                  <ScrollArea className="flex-1 px-4">
-                    <NewReservationForm 
-                      form={form}
-                      services={services}
-                      staffMembers={staffMembers}
-                      reservations={reservations}
-                      weekStart={weekStart}
-                      weekEnd={weekEnd}
-                      days={days}
-                      handlePrevWeek={handlePrevWeek}
-                      handleNextWeek={handleNextWeek}
-                      handleNewReservation={handleNewReservation}
-                      t={tWithParams}
-                    />
-                  </ScrollArea>
-
-                  <DialogFooter className="mt-4 px-4 py-2">
-                    <Button onClick={() => setIsConfirmDialogOpen(true)}>
-                      {tWithParams("admin-reservation.bookAppointment")}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
-        </header>
-
         <div className="flex flex-1">
           {/* Mini Calendar Sidebar */}
           {!isMobile && (
-            <aside className="hidden md:flex w-80 border-r bg-card flex-col h-[calc(100vh-8rem)] sticky top-32">
+            <aside className="hidden md:flex w-80 border-r bg-card flex-col h-screen sticky top-0">
               <div className="p-8 flex flex-col gap-8 overflow-hidden h-full">
+                <div>
+                  <h1 className="text-2xl font-semibold tracking-tight mb-2">{tWithParams("admin-reservation.reservationCalendar")}</h1>
+                  <p className="text-sm text-muted-foreground">{currentBranch.name}</p>
+                </div>
+                <ViewSwitcher 
+                  view={calendarView}
+                  onChange={setCalendarView}
+                  t={tWithParams}
+                />
                 <MiniCalendar
                   view={calendarView}
                   currentDate={selectedDate}
@@ -242,6 +217,48 @@ export default function AppointmentCalendar() {
                   disabled={[{ before: new Date() }]}
                   t={tWithParams}
                 />
+                <StaffSelector 
+                  staffMembers={staffMembers}
+                  selectedStaff={selectedStaff}
+                  setSelectedStaff={setSelectedStaff}
+                  t={tWithParams}
+                  isMobile={isMobile}
+                  className="w-full"
+                />
+                <Dialog open={isNewReservationDialogOpen} onOpenChange={setIsNewReservationDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full">{tWithParams("admin-reservation.newReservation")}</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col overflow-hidden">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {tWithParams("admin-reservation.newReservation")} - {currentBranch.name}
+                      </DialogTitle>
+                    </DialogHeader>
+                    
+                    <ScrollArea className="flex-1 px-4">
+                      <NewReservationForm 
+                        form={form}
+                        services={services}
+                        staffMembers={staffMembers}
+                        reservations={reservations}
+                        weekStart={weekStart}
+                        weekEnd={weekEnd}
+                        days={days}
+                        handlePrevWeek={handlePrevWeek}
+                        handleNextWeek={handleNextWeek}
+                        handleNewReservation={handleNewReservation}
+                        t={tWithParams}
+                      />
+                    </ScrollArea>
+
+                    <DialogFooter className="mt-4 px-4 py-2">
+                      <Button onClick={() => setIsConfirmDialogOpen(true)}>
+                        {tWithParams("admin-reservation.bookAppointment")}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
                 <div className="border-t pt-8 flex-1 overflow-hidden">
                   <h3 className="font-medium mb-6 text-lg">{t("admin-reservation.calendar.upcomingEvents")}</h3>
                   <ScrollArea className="h-[calc(100%-2rem)]">
