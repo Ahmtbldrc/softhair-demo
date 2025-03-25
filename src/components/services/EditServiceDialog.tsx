@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { Loader2 } from "lucide-react";
 import { useLocale } from "@/contexts/LocaleContext";
 import { updateService } from "@/lib/services/service.service";
@@ -38,23 +39,29 @@ export function EditServiceDialog({
   service,
 }: EditServiceDialogProps) {
   const { t } = useLocale();
+  const [durationValue, setDurationValue] = useState(service.duration ?? 30);
+
   const form = useForm<FormData>({
     resolver: zodResolver(serviceSchema),
     defaultValues: {
       name: service.name ?? "",
       price: service.price ?? 0,
       status: service.status ?? true,
-      branchId: service.branchId ?? 0
+      branchId: service.branchId ?? 0,
+      duration: service.duration ?? 30
     }
   });
 
   useEffect(() => {
     if (open) {
+      const duration = service.duration ?? 30;
+      setDurationValue(duration);
       form.reset({
         name: service.name ?? "",
         price: service.price ?? 0,
         status: service.status ?? true,
-        branchId: service.branchId ?? 0
+        branchId: service.branchId ?? 0,
+        duration: duration
       });
     }
   }, [open, service, form]);
@@ -63,7 +70,8 @@ export function EditServiceDialog({
     try {
       const result = await updateService(service.id, {
         name: data.name ?? "",
-        price: data.price ?? 0
+        price: data.price ?? 0,
+        duration: data.duration
       });
 
       if (result.error) {
@@ -84,6 +92,12 @@ export function EditServiceDialog({
         variant: "destructive",
       });
     }
+  };
+
+  const handleDurationChange = (value: number[]) => {
+    const duration = value[0];
+    setDurationValue(duration);
+    form.setValue("duration", duration, { shouldValidate: true });
   };
 
   return (
@@ -129,6 +143,20 @@ export function EditServiceDialog({
                   {form.formState.errors.price.message}
                 </p>
               )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="duration">
+                {t("services.duration")} - {durationValue} {t("services.minutes")}
+              </Label>
+              <Slider
+                id="duration"
+                min={5}
+                max={180}
+                step={5}
+                value={[durationValue]}
+                onValueChange={handleDurationChange}
+                className="py-4"
+              />
             </div>
           </div>
           <DialogFooter>

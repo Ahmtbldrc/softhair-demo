@@ -481,73 +481,35 @@
     "noAppointments": "No appointments for today"
   },
   "services": {
-    "haircut": {
-      "title": "Haircut",
-      "description": "Professional haircuts for every style"
-    },
-    "coloring": {
-      "title": "Coloring",
-      "description": "Creative hair coloring techniques"
-    },
-    "styling": {
-      "title": "Styling",
-      "description": "Perfect styling for every occasion"
-    },
-    "treatments": {
-      "title": "Treatments",
-      "description": "Nourishing hair treatments"
-    },
-    "bridal": {
-      "title": "Bridal Hair",
-      "description": "Dream hairstyles for your big day"
-    },
-    "beard": {
-      "title": "Beard Care",
-      "description": "Professional beard care and styling for the modern man"
-    },
     "title": "Services",
-    "addNew": "Add New Service",
-    "add": "Add Service",
-    "edit": "Edit",
-    "delete": "Delete",
-    "save": "Save Changes",
-    "name": "Service Name",
+    "name": "Name",
     "price": "Price",
-    "noResults": "No services found for this branch.",
+    "duration": "Duration",
+    "minutes": "minutes",
+    "addNew": "Add New Service",
     "addNewTitle": "Add New Service",
-    "addNewDescription": "Enter the details for the new service.",
+    "addNewDescription": "Add a new service to your branch.",
     "editTitle": "Edit Service",
-    "editDescription": "Update the service price.",
+    "editDescription": "Make changes to your service here.",
     "deleteTitle": "Delete Service",
-    "deleteDescription": "Are you sure you want to delete this service? This action cannot be undone.",
+    "deleteDescription": "Are you sure you want to delete {name}? This action cannot be undone.",
+    "add": "Add Service",
+    "edit": "Edit Service",
+    "delete": "Delete Service",
     "addSuccess": "Service Added",
     "addSuccessDescription": "The service has been added successfully.",
     "addError": "Error Adding Service",
     "addErrorDescription": "There was an error adding the service. Please try again.",
-    "editSuccess": "Service Updated",
-    "editSuccessDescription": "The service has been updated successfully.",
-    "editError": "Error Updating Service",
-    "editErrorDescription": "There was an error updating the service. Please try again.",
+    "updateSuccess": "Service Updated",
+    "updateSuccessDescription": "The service has been updated successfully.",
+    "updateError": "Error Updating Service",
+    "updateErrorDescription": "There was an error updating the service. Please try again.",
     "deleteSuccess": "Service Deleted",
     "deleteSuccessDescription": "The service has been deleted successfully.",
     "deleteError": "Error Deleting Service",
     "deleteErrorDescription": "There was an error deleting the service. Please try again.",
-    "updateSuccess": "Service updated",
-    "updateSuccessDescription": "The service has been updated successfully.",
-    "updateError": "Error updating service",
-    "updateErrorDescription": "An error occurred while updating the service.",
-    "editTitle": "Edit Service",
-    "editDescription": "Edit service details",
-    "name": "Name",
-    "price": "Price",
-    "update": "Update",
-    "addSuccess": "Service added",
-    "addSuccessDescription": "The service has been added successfully.",
-    "addError": "Error adding service",
-    "addErrorDescription": "An error occurred while adding the service.",
-    "addNewTitle": "Add New Service",
-    "addNewDescription": "Add a new service",
-    "add": "Add"
+    "noResults": "No services found.",
+    "update": "Update"
   },
   "prices": {
     "title": "Our Prices",

@@ -44,7 +44,11 @@ export const serviceSchema = z.object({
   name: z.string().min(2, 'Service name must be at least 2 characters'),
   price: z.number().positive('Price must be positive'),
   status: z.boolean(),
-  branchId: z.number().positive()
+  branchId: z.number().positive(),
+  duration: z.number()
+    .min(5, 'Duration must be at least 5 minutes')
+    .max(180, 'Duration cannot exceed 180 minutes')
+    .multipleOf(5, 'Duration must be in increments of 5 minutes')
 })
 
 // Branch Schema

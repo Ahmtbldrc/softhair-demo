@@ -25,6 +25,9 @@ export function ServiceCard({ service, onUpdate }: ServiceCardProps) {
         <CardContent className="pt-6">
           <h3 className="text-lg font-semibold">{service.name}</h3>
           <p className="text-2xl font-bold mt-2">{service.price?.toFixed(2) ?? "0.00"} €</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {service.duration} {t("services.minutes")}
+          </p>
         </CardContent>
         <CardFooter className="justify-end space-x-2">
           <Button

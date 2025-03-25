@@ -105,6 +105,9 @@ export default function ServicesPage() {
             <div key={service.id} className="mb-4 p-4 border rounded-lg">
               <h3 className="font-medium text-lg">{service.name}</h3>
               <p className="text-2xl font-bold my-2">{service.price?.toFixed(2) ?? "0.00"} €</p>
+              <p className="text-sm text-muted-foreground mb-2">
+                {service.duration} {t("services.minutes")}
+              </p>
               <div className="flex justify-end gap-2">
                 <Button
                   variant="ghost"
@@ -140,6 +143,7 @@ export default function ServicesPage() {
               <TableRow>
                 <TableHead>{t("services.name")}</TableHead>
                 <TableHead>{t("services.price")}</TableHead>
+                <TableHead>{t("services.duration")}</TableHead>
                 <TableHead className="w-[100px]">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -151,6 +155,7 @@ export default function ServicesPage() {
                     <TableCell><Skeleton className="h-6 w-[200px]" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-[100px]" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-[100px]" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-[100px]" /></TableCell>
                   </TableRow>
                 ))
               ) : currentServices.length > 0 ? (
@@ -158,6 +163,7 @@ export default function ServicesPage() {
                   <TableRow key={service.id}>
                     <TableCell className="font-medium">{service.name}</TableCell>
                     <TableCell>{service.price?.toFixed(2) ?? "0.00"} €</TableCell>
+                    <TableCell>{service.duration} {t("services.minutes")}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Button
@@ -182,7 +188,7 @@ export default function ServicesPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center py-4 text-muted-foreground">
+                  <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
                     {t("services.noResults")}
                   </TableCell>
                 </TableRow>
