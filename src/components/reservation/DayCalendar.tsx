@@ -456,6 +456,8 @@ export function DayCalendar({
                       const end = new Date(res.end ?? "")
                       const service = services.find(s => s.id === res.serviceId)
                       const { top, height } = calculateReservationPosition(start, end, earliestStart)
+                      const duration = end.getTime() - start.getTime()
+                      const isSingleLine = duration <= 15 * 60 * 1000 // 15 minutes in milliseconds
 
                       return (
                         <div
@@ -469,43 +471,47 @@ export function DayCalendar({
                           style={{
                             top: `${top}px`,
                             height: `${height}px`,
-                            zIndex: 10,
-                            pointerEvents: "auto"
+                            zIndex: 1,
+                            pointerEvents: "auto",
+                            display: isSingleLine ? "flex" : "block",
+                            alignItems: isSingleLine ? "center" : "flex-start"
                           }}
                           onClick={(e) => {
                             e.stopPropagation()
                             onReservationClick(res)
                           }}
                         >
-                          <div className="flex flex-col h-full">
-                            <div className="flex items-center gap-2">
-                              <Avatar className="h-6 w-6 rounded-md">
-                                <AvatarImage 
-                                  src={res.customer.image || ""} 
-                                  alt={`${res.customer.firstName} ${res.customer.lastName}`} 
-                                />
-                                <AvatarFallback className="text-xs bg-primary/10 text-primary dark:bg-primary/20">
-                                  {res.customer.firstName?.[0]}{res.customer.lastName?.[0]}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="font-medium text-sm truncate flex-1">
-                                {res.customer.firstName} {res.customer.lastName}
-                              </div>
-                              <div className="text-xs text-white/90">
-                                {format(start, "HH:mm")} - {format(end, "HH:mm")}
-                              </div>
-                            </div>
-
-                            {/* Hover Card */}
-                            <Card className={cn(
-                              "absolute z-[9999] w-64 opacity-0 scale-95 pointer-events-none",
-                              "group-hover/res:opacity-100 group-hover/res:scale-100",
-                              "transition-all duration-200 shadow-xl dark:border-border",
-                              "left-full top-0 ml-2 bg-background"
+                          <div className={cn(
+                            "flex gap-2 min-w-0",
+                            isSingleLine ? "items-center w-full" : "flex-col h-full"
+                          )}>
+                            <div className={cn(
+                              "flex items-center min-w-0",
+                              isSingleLine ? "w-full justify-between" : ""
                             )}>
-                              <div className="p-3 space-y-2">
-                                <div className="flex items-center gap-2 text-sm font-medium">
-                                  <Avatar className="h-6 w-6 rounded-md">
+                              {isSingleLine ? (
+                                <>
+                                  <div className="flex items-center min-w-0">
+                                    <Avatar className="h-6 w-6 rounded-md flex-shrink-0 mr-2">
+                                      <AvatarImage 
+                                        src={res.customer.image || ""} 
+                                        alt={`${res.customer.firstName} ${res.customer.lastName}`} 
+                                      />
+                                      <AvatarFallback className="text-xs bg-primary/10 text-primary dark:bg-primary/20">
+                                        {res.customer.firstName?.[0]}{res.customer.lastName?.[0]}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div className="font-medium text-sm truncate">
+                                      {res.customer.firstName} {res.customer.lastName}
+                                    </div>
+                                  </div>
+                                  <div className="text-xs text-white/90 whitespace-nowrap">
+                                    {format(start, "HH:mm")} - {format(end, "HH:mm")}
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <Avatar className="h-6 w-6 rounded-md flex-shrink-0">
                                     <AvatarImage 
                                       src={res.customer.image || ""} 
                                       alt={`${res.customer.firstName} ${res.customer.lastName}`} 
@@ -514,21 +520,52 @@ export function DayCalendar({
                                       {res.customer.firstName?.[0]}{res.customer.lastName?.[0]}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <span>{res.customer.firstName} {res.customer.lastName}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-sm">
-                                  <Clock className="h-4 w-4 text-primary" />
-                                  <span>
+                                  <div className="font-medium text-sm truncate flex-1 min-w-0 ml-2">
+                                    {res.customer.firstName} {res.customer.lastName}
+                                  </div>
+                                  <div className="text-xs text-white/90 whitespace-nowrap flex-shrink-0">
                                     {format(start, "HH:mm")} - {format(end, "HH:mm")}
-                                  </span>
-                                </div>
-                                <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-                                  <span className="font-medium">{service?.name}</span>
-                                  <span className="text-xs">{staff.firstName} {staff.lastName}</span>
-                                </div>
-                              </div>
-                            </Card>
+                                  </div>
+                                </>
+                              )}
+                            </div>
                           </div>
+
+                          {/* Hover Card */}
+                          <Card className={cn(
+                            "absolute z-[9999] w-64 opacity-0 scale-95 pointer-events-none",
+                            "group-hover/res:opacity-100 group-hover/res:scale-100",
+                            "transition-all duration-200 shadow-xl dark:border-border",
+                            "left-full top-0 ml-2 bg-background"
+                          )}
+                          style={{
+                            zIndex: 9999
+                          }}>
+                            <div className="p-3 space-y-2">
+                              <div className="flex items-center gap-2 text-sm font-medium">
+                                <Avatar className="h-6 w-6 rounded-md">
+                                  <AvatarImage 
+                                    src={res.customer.image || ""} 
+                                    alt={`${res.customer.firstName} ${res.customer.lastName}`} 
+                                  />
+                                  <AvatarFallback className="text-xs bg-primary/10 text-primary dark:bg-primary/20">
+                                    {res.customer.firstName?.[0]}{res.customer.lastName?.[0]}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span>{res.customer.firstName} {res.customer.lastName}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm">
+                                <Clock className="h-4 w-4 text-primary" />
+                                <span>
+                                  {format(start, "HH:mm")} - {format(end, "HH:mm")}
+                                </span>
+                              </div>
+                              <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+                                <span className="font-medium">{service?.name}</span>
+                                <span className="text-xs">{staff.firstName} {staff.lastName}</span>
+                              </div>
+                            </div>
+                          </Card>
                         </div>
                       )
                     })}

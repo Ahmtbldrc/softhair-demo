@@ -26,6 +26,7 @@ interface QuickReservationDialogProps {
   isSubmitting: boolean
   t: (key: string, params?: Record<string, string | number>) => string
   reservations: ReservationWithDetails[]
+  onSuccess?: () => void
 }
 
 export function QuickReservationDialog({
@@ -39,7 +40,8 @@ export function QuickReservationDialog({
   onSubmit,
   isSubmitting,
   t,
-  reservations
+  reservations,
+  onSuccess
 }: QuickReservationDialogProps) {
   // Find the next appointment for the selected staff on the selected date
   const nextAppointment = reservations
@@ -120,7 +122,7 @@ export function QuickReservationDialog({
               <FormField
                 control={form.control}
                 name="serviceId"
-                render={({ field }: { field: any }) => (
+                render={({ field }: { field: { onChange: (value: number) => void; value?: number } }) => (
                   <FormItem>
                     <FormLabel>{t("admin-reservation.service")}</FormLabel>
                     <Select 
@@ -150,11 +152,14 @@ export function QuickReservationDialog({
                 <FormField
                   control={form.control}
                   name="customer.firstName"
-                  render={({ field }: { field: any }) => (
+                  render={({ field }: { field: { value: string; onChange: (value: string) => void } }) => (
                     <FormItem>
                       <FormLabel>{t("admin-reservation.firstName")}</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input 
+                          value={field.value} 
+                          onChange={(e) => field.onChange(e.target.value)} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -164,11 +169,14 @@ export function QuickReservationDialog({
                 <FormField
                   control={form.control}
                   name="customer.lastName"
-                  render={({ field }: { field: any }) => (
+                  render={({ field }: { field: { value: string; onChange: (value: string) => void } }) => (
                     <FormItem>
                       <FormLabel>{t("admin-reservation.lastName")}</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input 
+                          value={field.value} 
+                          onChange={(e) => field.onChange(e.target.value)} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -178,11 +186,16 @@ export function QuickReservationDialog({
                 <FormField
                   control={form.control}
                   name="customer.email"
-                  render={({ field }: { field: any }) => (
+                  render={({ field }: { field: { value: string; onChange: (value: string) => void } }) => (
                     <FormItem>
                       <FormLabel>{t("admin-reservation.email")}</FormLabel>
                       <FormControl>
-                        <Input {...field} type="email" className="w-full" />
+                        <Input 
+                          value={field.value} 
+                          onChange={(e) => field.onChange(e.target.value)} 
+                          type="email" 
+                          className="w-full" 
+                        />
                       </FormControl>
                       {form.formState.errors.customer?.email && (
                         <p className="text-sm text-destructive mt-1">
@@ -196,14 +209,14 @@ export function QuickReservationDialog({
                 <FormField
                   control={form.control}
                   name="customer.phone"
-                  render={({ field }: { field: any }) => (
+                  render={({ field }: { field: { value: string | undefined; onChange: (value: string) => void } }) => (
                     <FormItem>
                       <FormLabel>{t("admin-reservation.phone")}</FormLabel>
                       <FormControl>
                         <PhoneInput
                           country={"ch"}
-                          value={form.watch("customer.phone")}
-                          onChange={(phone) => form.setValue("customer.phone", phone)}
+                          value={field.value}
+                          onChange={(phone) => field.onChange(phone)}
                           inputClass="!w-full !h-10 !text-base !border-input !bg-background !text-foreground !rounded-md !border-[1px] focus:!ring-2 focus:!ring-ring focus:!ring-offset-0"
                           containerClass="!w-full"
                           buttonClass="!h-10 !border-input !bg-background !border-[1px] !border-r-0"
@@ -238,7 +251,17 @@ export function QuickReservationDialog({
             </div>
 
             <DialogFooter>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                onClick={() => {
+                  form.handleSubmit((data) => {
+                    onSubmit(data)
+                    onSuccess?.()
+                    onOpenChange(false)
+                  })()
+                }}
+              >
                 {t("admin-reservation.bookAppointment")}
               </Button>
             </DialogFooter>
