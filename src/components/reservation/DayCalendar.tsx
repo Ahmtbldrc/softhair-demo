@@ -1,11 +1,11 @@
 "use client"
 
-import { format, isSameDay, setHours, addMinutes } from "date-fns"
+import { format, isSameDay} from "date-fns"
 import { cn } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ReservationWithDetails, StaffWithServices, Service } from "@/lib/types"
-import { Clock, User } from "lucide-react"
+import { Clock } from "lucide-react"
 import Image from "next/image"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import React, { useEffect, useState } from "react"
@@ -92,16 +92,16 @@ export function DayCalendar({
     }
   )
 
-  const getReservationsForStaffAndTime = (staffId: number, time: Date) => {
-    return reservations.filter(res => {
-      const resStart = new Date(res.start ?? "")
-      const resEnd = new Date(res.end ?? "")
-      return isSameDay(resStart, currentDate) &&
-        res.staffId === staffId &&
-        time >= resStart &&
-        time < resEnd
-    })
-  }
+  // const getReservationsForStaffAndTime = (staffId: number, time: Date) => {
+  //   return reservations.filter(res => {
+  //     const resStart = new Date(res.start ?? "")
+  //     const resEnd = new Date(res.end ?? "")
+  //     return isSameDay(resStart, currentDate) &&
+  //       res.staffId === staffId &&
+  //       time >= resStart &&
+  //       time < resEnd
+  //   })
+  // }
 
   const calculateReservationPosition = (start: Date, end: Date, earliestStart: number) => {
     const startMinutes = start.getHours() * 60 + start.getMinutes()
@@ -198,10 +198,10 @@ export function DayCalendar({
     return null
   }
 
-  const isBreakTime = (staff: StaffWithServices, time: Date) => {
-    const breakInfo = getBreakInfo(staff, time)
-    return Boolean(breakInfo)
-  }
+  // const isBreakTime = (staff: StaffWithServices, time: Date) => {
+  //   const breakInfo = getBreakInfo(staff, time)
+  //   return Boolean(breakInfo)
+  // }
 
   // Check if a time slot is available for booking
   const isSlotAvailable = (staff: StaffWithServices, time: Date) => {
