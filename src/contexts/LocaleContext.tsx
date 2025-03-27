@@ -10,8 +10,12 @@ import {
 import deLocale from "@/locales/de.json";
 import enLocale from "@/locales/en.json";
 
-type LocaleStructure = typeof deLocale;
 type LocaleKey = "de" | "en";
+
+// Define a more flexible type for the services object
+type LocaleStructure = {
+  [key: string]: string | LocaleStructure;
+};
 
 interface LocaleContextType {
   currentLocale: LocaleKey;
