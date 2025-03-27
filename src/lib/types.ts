@@ -144,6 +144,7 @@ export interface ReservationWithDetails extends Omit<Reservation, 'customer'> {
     id: number
     name: string
     price: number
+    duration: number
   }
   staff: {
     id: number

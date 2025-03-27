@@ -14,6 +14,7 @@ import { Service, StaffWithServices, ReservationWithDetails } from "@/lib/types"
 import { isStaffWorkingOnDay, getAvailableTimesForDay } from "@/lib/utils/staff-hours"
 import PhoneInput from "react-phone-input-2"
 import "react-phone-input-2/lib/style.css"
+import { useLocale } from "@/contexts/LocaleContext"
 
 interface NewReservationFormProps {
   form: UseFormReturn<ReservationFormData>
@@ -26,7 +27,6 @@ interface NewReservationFormProps {
   handlePrevWeek: () => void
   handleNextWeek: () => void
   handleNewReservation: (data: ReservationFormData) => Promise<void>
-  t: (key: string, params?: Record<string, string | number>) => string
 }
 
 export function NewReservationForm({
@@ -40,8 +40,8 @@ export function NewReservationForm({
   handlePrevWeek,
   handleNextWeek,
   handleNewReservation,
-  t
 }: NewReservationFormProps) {
+  const { t } = useLocale()
   return (
     <form onSubmit={form.handleSubmit(handleNewReservation)} className="space-y-6">
       <div className="space-y-4">
@@ -208,35 +208,40 @@ export function NewReservationForm({
                   <p className="text-xs text-muted-foreground">{format(day, "MMM d")}</p>
                 </CardHeader>
                 <CardContent className="p-2">
-                  <ScrollArea className="h-32 sm:h-40">
+                  <ScrollArea className="h-48 sm:h-56">
                     {form.watch("staffId") && isStaffWorkingOnDay(staffMembers.find(s => s.id === form.watch("staffId")), day) ? (
                       getAvailableTimesForDay(
                         day,
                         staffMembers.find(s => s.id === form.watch("staffId")),
-                        reservations
-                      ).map(({ time, available }) => {
-                        const isPastDateTime = time < new Date()
-                        const isFutureDateTime = time > addDays(new Date(), 30)
+                        reservations,
+                        services.find(s => s.id === form.watch("serviceId"))?.duration ?? 30
+                      ).map((timeSlot) => {
+                        const isPastDateTime = timeSlot.time < new Date()
+                        const isFutureDateTime = timeSlot.time > addDays(new Date(), 30)
                         return (
                           <Button
-                            key={time.toISOString()}
+                            key={timeSlot.time.toISOString()}
                             type="button"
                             variant="outline"
                             className={`w-full mb-1 ${
                               isPastDateTime || isFutureDateTime
                                 ? "line-through text-muted-foreground hover:no-underline cursor-not-allowed"
-                                : available 
+                                : timeSlot.available 
                                   ? form.watch("start") &&
-                                    isSameDay(form.watch("start"), time) &&
-                                    form.watch("start").getTime() === time.getTime()
+                                    isSameDay(form.watch("start"), timeSlot.time) &&
+                                    form.watch("start").getTime() === timeSlot.time.getTime()
                                     ? "bg-green-500 text-white hover:bg-green-600"
-                                    : "hover:bg-green-100"
-                                  : "bg-red-100 cursor-not-allowed"
+                                    : timeSlot.warning
+                                      ? "border-yellow-500 text-yellow-700 hover:bg-yellow-50"
+                                      : "hover:bg-green-100"
+                                  : timeSlot.isOccupied
+                                    ? "bg-red-100 text-red-700 cursor-not-allowed"
+                                    : "bg-muted text-muted-foreground cursor-not-allowed"
                             }`}
-                            onClick={() => !isPastDateTime && !isFutureDateTime && available && form.setValue("start", time)}
-                            disabled={isPastDateTime || isFutureDateTime || !available}
+                            onClick={() => !isPastDateTime && !isFutureDateTime && timeSlot.available && form.setValue("start", timeSlot.time)}
+                            disabled={isPastDateTime || isFutureDateTime || !timeSlot.available}
                           >
-                            {format(time, "HH:mm")}
+                            {format(timeSlot.time, "HH:mm")}
                           </Button>
                         )
                       })

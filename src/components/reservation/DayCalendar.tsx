@@ -68,19 +68,21 @@ export function DayCalendar({
     staff.weeklyHours?.[currentDay] || []
   )
 
-  const earliestStart = workingHours.reduce((earliest, slot) => {
+  const earliestStart: number = workingHours.reduce((earliest, slot) => {
     const [hour] = slot.start.split(':').map(Number)
     return hour < earliest ? hour : earliest
   }, 24)
 
-  const latestEnd = workingHours.reduce((latest, slot) => {
-    const [hour] = slot.end.split(':').map(Number)
-    return hour > latest ? hour : latest
+  const latestEnd: number = workingHours.reduce((latest, slot) => {
+    const [hour, minute = "0"] = slot.end.split(':').map(Number)
+    // Convert time to decimal hours for comparison
+    const timeInHours: number = Number(hour) + (Number(minute) / 60)
+    return timeInHours > latest ? timeInHours : latest
   }, 0)
 
   // Generate 15-minute slots for the working hours
   const timeSlots = Array.from(
-    { length: (latestEnd - earliestStart) * 4 }, 
+    { length: Math.ceil((latestEnd - earliestStart) * 4) }, 
     (_, i) => {
       const time = new Date(currentDate)
       const hour = earliestStart + Math.floor(i / 4)
@@ -293,7 +295,7 @@ export function DayCalendar({
         {/* Staff columns */}
         <div className="grid" style={{ gridTemplateColumns: `auto repeat(${filteredStaffMembers.length}, 1fr)` }}>
           {/* Empty cell for time column */}
-          <div className="w-20 h-16 border-b border-border bg-muted/5 dark:bg-muted/10" />
+          <div className="w-20 h-16 border-b border-border bg-background/95 dark:bg-background/95 backdrop-blur-sm sticky top-0 z-20" />
 
           {/* Staff headers */}
           {filteredStaffMembers.map((staff) => {
@@ -304,7 +306,7 @@ export function DayCalendar({
               <div
                 key={staff.id}
                 className={cn(
-                  "h-16 border-b border-l border-border p-2 flex items-center gap-3 bg-muted/5 dark:bg-muted/10 hover:bg-accent/50 dark:hover:bg-accent/25 transition-colors",
+                  "h-16 border-b border-l border-border p-2 flex items-center gap-3 bg-background/95 dark:bg-background/95 backdrop-blur-sm hover:bg-accent/50 dark:hover:bg-accent/25 transition-colors sticky top-0 z-20",
                   !staff.status && "opacity-50 bg-muted/20 dark:bg-muted/30"
                 )}
                 style={{ pointerEvents: "auto" }}
@@ -476,7 +478,7 @@ export function DayCalendar({
                           }}
                         >
                           <div className="flex flex-col h-full">
-                            <div className="flex items-center gap-2 mb-1">
+                            <div className="flex items-center gap-2">
                               <Avatar className="h-6 w-6 rounded-md">
                                 <AvatarImage 
                                   src={res.customer.image || ""} 
@@ -489,10 +491,9 @@ export function DayCalendar({
                               <div className="font-medium text-sm truncate flex-1">
                                 {res.customer.firstName} {res.customer.lastName}
                               </div>
-                            </div>
-                            <div className="text-xs space-y-0.5 mt-auto">
-                              <div className="font-medium">{service?.name}</div>
-                              <div>{format(start, "HH:mm")} - {format(end, "HH:mm")}</div>
+                              <div className="text-xs text-white/90">
+                                {format(start, "HH:mm")} - {format(end, "HH:mm")}
+                              </div>
                             </div>
 
                             {/* Hover Card */}

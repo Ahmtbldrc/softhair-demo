@@ -225,34 +225,43 @@ export default function AppointmentCalendar() {
                   isMobile={isMobile}
                   className="w-full"
                 />
-                <Dialog open={isNewReservationDialogOpen} onOpenChange={setIsNewReservationDialogOpen}>
+                <Dialog 
+                  open={isNewReservationDialogOpen} 
+                  onOpenChange={(open) => {
+                    setIsNewReservationDialogOpen(open)
+                    if (!open) {
+                      form.reset()
+                    }
+                  }}
+                >
                   <DialogTrigger asChild>
                     <Button className="w-full">{tWithParams("admin-reservation.newReservation")}</Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col overflow-hidden">
-                    <DialogHeader>
+                  <DialogContent className="sm:max-w-[1200px] h-[90vh] flex flex-col overflow-hidden p-0 mx-4">
+                    <DialogHeader className="px-6 py-4 border-b">
                       <DialogTitle>
                         {tWithParams("admin-reservation.newReservation")} - {currentBranch.name}
                       </DialogTitle>
                     </DialogHeader>
                     
-                    <ScrollArea className="flex-1 px-4">
-                      <NewReservationForm 
-                        form={form}
-                        services={services}
-                        staffMembers={staffMembers}
-                        reservations={reservations}
-                        weekStart={weekStart}
-                        weekEnd={weekEnd}
-                        days={days}
-                        handlePrevWeek={handlePrevWeek}
-                        handleNextWeek={handleNextWeek}
-                        handleNewReservation={handleNewReservation}
-                        t={tWithParams}
-                      />
+                    <ScrollArea className="flex-1">
+                      <div className="px-8">
+                        <NewReservationForm 
+                          form={form}
+                          services={services}
+                          staffMembers={staffMembers}
+                          reservations={reservations}
+                          weekStart={weekStart}
+                          weekEnd={weekEnd}
+                          days={days}
+                          handlePrevWeek={handlePrevWeek}
+                          handleNextWeek={handleNextWeek}
+                          handleNewReservation={handleNewReservation}
+                        />
+                      </div>
                     </ScrollArea>
 
-                    <DialogFooter className="mt-4 px-4 py-2">
+                    <DialogFooter className="px-6 py-4 border-t">
                       <Button onClick={() => setIsConfirmDialogOpen(true)}>
                         {tWithParams("admin-reservation.bookAppointment")}
                       </Button>
@@ -356,7 +365,15 @@ export default function AppointmentCalendar() {
 
         {/* Mobile New Reservation Button */}
         {isMobile && (
-          <Dialog open={isNewReservationDialogOpen} onOpenChange={setIsNewReservationDialogOpen}>
+          <Dialog 
+            open={isNewReservationDialogOpen} 
+            onOpenChange={(open) => {
+              setIsNewReservationDialogOpen(open)
+              if (!open) {
+                form.reset()
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button 
                 size="icon" 
@@ -365,30 +382,31 @@ export default function AppointmentCalendar() {
                 <Plus className="h-6 w-6" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col overflow-hidden">
-              <DialogHeader>
+            <DialogContent className="sm:max-w-[1200px] h-[90vh] flex flex-col overflow-hidden p-0 mx-4">
+              <DialogHeader className="px-6 py-4 border-b">
                 <DialogTitle>
                   {tWithParams("admin-reservation.newReservation")} - {currentBranch.name}
                 </DialogTitle>
               </DialogHeader>
               
-              <ScrollArea className="flex-1 px-4">
-                <NewReservationForm 
-                  form={form}
-                  services={services}
-                  staffMembers={staffMembers}
-                  reservations={reservations}
-                  weekStart={weekStart}
-                  weekEnd={weekEnd}
-                  days={days}
-                  handlePrevWeek={handlePrevWeek}
-                  handleNextWeek={handleNextWeek}
-                  handleNewReservation={handleNewReservation}
-                  t={tWithParams}
-                />
+              <ScrollArea className="flex-1">
+                <div className="px-8">
+                  <NewReservationForm 
+                    form={form}
+                    services={services}
+                    staffMembers={staffMembers}
+                    reservations={reservations}
+                    weekStart={weekStart}
+                    weekEnd={weekEnd}
+                    days={days}
+                    handlePrevWeek={handlePrevWeek}
+                    handleNextWeek={handleNextWeek}
+                    handleNewReservation={handleNewReservation}
+                  />
+                </div>
               </ScrollArea>
 
-              <DialogFooter className="mt-4 px-4 py-2">
+              <DialogFooter className="px-6 py-4 border-t">
                 <Button onClick={() => setIsConfirmDialogOpen(true)}>
                   {tWithParams("admin-reservation.bookAppointment")}
                 </Button>
