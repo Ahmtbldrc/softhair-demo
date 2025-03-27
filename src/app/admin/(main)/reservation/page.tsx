@@ -130,7 +130,6 @@ export default function AppointmentCalendar() {
     isMobile,
     currentDay,
     fetchDailyReservations,
-    viewType,
     setViewType
   } = useReservationCalendar(selectedBranchId, tWithParams)
 
