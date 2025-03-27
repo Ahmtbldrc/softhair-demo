@@ -47,8 +47,9 @@
     "bookNow": "Jetzt Buchen",
     "breakTimeRange": "Pause {start}-{end}",
     "clickToBook": "Klicken zum Buchen",
-    "inactive": "Inaktiv"
-  },
+    "inactive": "Inaktiv",
+    "confirm": "Bestätigen"
+    },
   "auth": {
     "logout": "Abmelden",
     "poweredBy": "Bereitgestellt von",
@@ -203,7 +204,11 @@
     "selectLanguages": "Sprachen auswählen",
     "languagesSelected": "Sprachen ausgewählt",
     "searchLanguages": "Sprachen suchen...",
-    "noLanguageFound": "Keine Sprache gefunden"
+    "noLanguageFound": "Keine Sprache gefunden",
+    "selectServices": "Dienstleistungen auswählen",
+    "selectServicesDescription": "Wählen Sie die Dienstleistungen aus, die dieser Mitarbeiter anbieten kann",
+    "searchServices": "Dienstleistungen suchen...",
+    "selected": "ausgewählt"
   },
   "admin-services": {
     "servicesDescription": "Dienstleistungsverwaltung",
@@ -325,7 +330,9 @@
         "october": "Oktober",
         "november": "November",
         "december": "Dezember"
-      }
+      },
+      "noAvailableSlots": "Keine verfügbaren Zeitfenster",
+      "noAvailableSlotsDescription": "An diesem Tag sind keine Mitarbeiter verfügbar"
     },
     "tooltips": {
       "clickToViewDetails": "Klicken Sie für Details",
@@ -351,6 +358,7 @@
     "back": "Zurück",
     "staffDetails": "Personaldetails",
     "viewStaffPersonalInformation": "Persönliche Informationen des Mitarbeiters anzeigen",
+    "enterStaffPersonalInformation": "Geben Sie Ihre persönlichen Informationen ein",
     "firstName": "Vorname",
     "lastName": "Nachname",
     "email": "E-Mail",
@@ -368,12 +376,34 @@
     "uploadImageDescription": "Laden Sie ein Profilbild für den Mitarbeiter hoch",
     "staffServices": "Meine Dienstleistungen",
     "viewStaffServices": "Dienstleistungen, die Sie anbieten können",
+    "staffServicesDescription": "Wählen Sie die Dienstleistungen aus, die Sie anbieten können",
     "noServicesAssigned": "Noch keine Dienstleistungen zugewiesen",
     "cancel": "Abbrechen",
     "updatePassword": "Passwort aktualisieren",
     "notAvailable": "Nicht verfügbar",
     "showPassword": "Passwort anzeigen",
-    "hidePassword": "Passwort verbergen"
+    "hidePassword": "Passwort verbergen",
+    "actions": "Aktionen",
+    "add": "Hinzufügen",
+    "addTimeSlot": "Zeitfenster hinzufügen",
+    "removeTimeSlot": "Zeitfenster entfernen",
+    "saveChanges": "Änderungen speichern",
+    "discard": "Verwerfen",
+    "discardConfirmTitle": "Änderungen verwerfen",
+    "discardConfirmDescription": "Sind Sie sicher, dass Sie alle Änderungen verwerfen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirmDiscard": "Ja, verwerfen",
+    "cancelDiscard": "Nein, weiter bearbeiten",
+    "uploadImage": "Bild hochladen",
+    "languages": "Sprachen",
+    "languagesDescription": "Wählen Sie die Sprachen aus, die der Mitarbeiter spricht",
+    "selectLanguages": "Sprachen auswählen",
+    "languagesSelected": "Sprachen ausgewählt",
+    "searchLanguages": "Sprachen suchen...",
+    "noLanguageFound": "Keine Sprache gefunden",
+    "selectServices": "Dienstleistungen auswählen",
+    "selectServicesDescription": "Wählen Sie die Dienstleistungen aus, die Sie anbieten können",
+    "searchServices": "Dienstleistungen suchen...",
+    "selected": "ausgewählt"
   },
   "staff-reservation": {
     "myReservations": "Meine Termine",

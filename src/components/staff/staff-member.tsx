@@ -50,75 +50,36 @@ export function StaffMember({ staff, onDelete, t, view }: StaffMemberProps) {
       return <span className="text-sm text-muted-foreground">-</span>;
     }
 
-    const visibleServices = staff.services.slice(0, 2);
-    const remainingServices = staff.services.slice(2);
-    const hasMoreServices = remainingServices.length > 0;
-
-    if (view === "table") {
-      return (
-        <div className="flex items-center gap-1">
-          {visibleServices.map((service) => (
-            <Badge
-              key={service.service.id}
-              variant="outline"
-              className="whitespace-nowrap"
-            >
-              {service.service.name}
+    return (
+      <HoverCard>
+        <HoverCardTrigger>
+          <div className="inline-block">
+            <Badge variant="outline" className="cursor-pointer">
+              {staff.services.length} {t("admin-staff.services")}
             </Badge>
-          ))}
-          {hasMoreServices && (
-            <HoverCard openDelay={200} closeDelay={100}>
-              <HoverCardTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-6 px-2 text-xs hover:bg-muted"
-                >
-                  +{remainingServices.length}
-                </Button>
-              </HoverCardTrigger>
-              <HoverCardContent side="top" align="start" className="w-auto p-2">
-                <div className="flex flex-col gap-1">
-                  {remainingServices.map((service) => (
+          </div>
+        </HoverCardTrigger>
+        <HoverCardContent side="top" align="start" className="w-auto max-w-[300px] p-0">
+          <Card className="border-0 shadow-none">
+            <div className="p-2 border-b">
+              <h4 className="font-medium text-sm">{t("admin-staff.services")}</h4>
+            </div>
+            <div className="max-h-[200px] overflow-y-auto">
+              <div className="p-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {staff.services.map((service) => (
                     <Badge
                       key={service.service.id}
                       variant="outline"
-                      className="whitespace-nowrap"
+                      className="whitespace-normal break-words text-xs"
                     >
                       {service.service.name}
                     </Badge>
                   ))}
                 </div>
-              </HoverCardContent>
-            </HoverCard>
-          )}
-        </div>
-      );
-    }
-
-    return (
-      <HoverCard openDelay={200} closeDelay={100}>
-        <HoverCardTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-6 px-2 text-xs hover:bg-muted"
-          >
-            +{staff.services.length}
-          </Button>
-        </HoverCardTrigger>
-        <HoverCardContent side="top" align="start" className="w-auto p-2">
-          <div className="flex flex-col gap-1">
-            {staff.services.map((service) => (
-              <Badge
-                key={service.service.id}
-                variant="outline"
-                className="whitespace-nowrap"
-              >
-                {service.service.name}
-              </Badge>
-            ))}
-          </div>
+              </div>
+            </div>
+          </Card>
         </HoverCardContent>
       </HoverCard>
     );

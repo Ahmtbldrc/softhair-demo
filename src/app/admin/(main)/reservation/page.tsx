@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -24,11 +24,35 @@ import {
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { isSameMonth } from "date-fns"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { StaffWithServices } from "@/lib/types"
 
-const DailyNavigation = ({ selectedDate, setSelectedDate }: { 
+const DailyNavigation = ({ 
+  selectedDate, 
+  setSelectedDate,
+  staffMembers,
+  currentDay
+}: { 
   selectedDate: Date
   setSelectedDate: (date: Date) => void
+  staffMembers: StaffWithServices[]
+  currentDay: string
 }) => {
+  const { t } = useLocale()
+
+  // Get localized day name
+  const getLocalizedDayName = (day: string) => {
+    const dayMap: { [key: string]: string } = {
+      'MON': t('admin-reservation.calendar.days.monday'),
+      'TUE': t('admin-reservation.calendar.days.tuesday'),
+      'WED': t('admin-reservation.calendar.days.wednesday'),
+      'THU': t('admin-reservation.calendar.days.thursday'),
+      'FRI': t('admin-reservation.calendar.days.friday'),
+      'SAT': t('admin-reservation.calendar.days.saturday'),
+      'SUN': t('admin-reservation.calendar.days.sunday')
+    }
+    return dayMap[day] || day
+  }
+
   const handlePrevDay = () => {
     const newDate = new Date(selectedDate)
     newDate.setDate(newDate.getDate() - 1)
@@ -41,13 +65,26 @@ const DailyNavigation = ({ selectedDate, setSelectedDate }: {
     setSelectedDate(newDate)
   }
 
+  // Check if any staff member is working on this day
+  const hasWorkingStaff = staffMembers.some(staff => {
+    const dayHours = staff.weeklyHours?.[currentDay]
+    return dayHours && dayHours.length > 0 && staff.status
+  })
+
   return (
     <div className="flex items-center justify-between mb-4">
       <Button variant="outline" onClick={handlePrevDay}>
         <ChevronLeft className="h-4 w-4" />
       </Button>
-      <div className="font-medium">
-        {selectedDate.toLocaleDateString()}
+      <div className="flex flex-col items-center gap-1">
+        <div className="font-medium">
+          {selectedDate.toLocaleDateString()} - {getLocalizedDayName(currentDay)}
+        </div>
+        {!hasWorkingStaff && (
+          <div className="text-sm text-muted-foreground">
+            {t('admin-reservation.calendar.noAvailableSlots')}
+          </div>
+        )}
       </div>
       <Button variant="outline" onClick={handleNextDay}>
         <ChevronRight className="h-4 w-4" />
@@ -91,10 +128,40 @@ export default function AppointmentCalendar() {
     selectedDate,
     setSelectedDate,
     isMobile,
+    currentDay,
+    fetchDailyReservations,
+    viewType,
+    setViewType
   } = useReservationCalendar(selectedBranchId, tWithParams)
+
+  // Sync calendarView with viewType
+  useEffect(() => {
+    setViewType(calendarView)
+  }, [calendarView, setViewType])
 
   const [isQuickBookDialogOpen, setIsQuickBookDialogOpen] = useState(false)
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<{ staffId: number; startTime: Date; endTime: Date } | null>(null)
+
+  // Add auto-refresh for new reservation form
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout
+
+    if (isNewReservationDialogOpen) {
+      // Initial fetch
+      fetchDailyReservations(selectedDate)
+
+      // Set up 5-second interval
+      intervalId = setInterval(() => {
+        fetchDailyReservations(selectedDate)
+      }, 5000)
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId)
+      }
+    }
+  }, [isNewReservationDialogOpen, selectedDate, fetchDailyReservations])
 
   // Get the current branch information
   const currentBranch = branches.find(branch => branch.id === selectedBranchId)
@@ -138,6 +205,8 @@ export default function AppointmentCalendar() {
             <DailyNavigation 
               selectedDate={selectedDate}
               setSelectedDate={setSelectedDate}
+              staffMembers={staffMembers}
+              currentDay={currentDay}
             />
             <DayCalendar
               currentDate={selectedDate}
@@ -193,15 +262,17 @@ export default function AppointmentCalendar() {
         <div className="flex flex-1">
           {/* Mini Calendar Sidebar */}
           {!isMobile && (
-            <aside className="hidden md:flex w-80 border-r bg-card flex-col h-screen sticky top-0">
-              <div className="p-8 flex flex-col gap-8 overflow-hidden h-full">
+            <aside className="hidden lg:flex w-72 xl:w-80 border-r bg-card flex-col h-screen sticky top-0">
+              <div className="p-4 xl:p-8 flex flex-col gap-4 xl:gap-8 overflow-hidden h-full">
                 <div>
-                  <h1 className="text-2xl font-semibold tracking-tight mb-2">{tWithParams("admin-reservation.reservationCalendar")}</h1>
+                  <h1 className="text-xl xl:text-2xl font-semibold tracking-tight mb-2">{tWithParams("admin-reservation.reservationCalendar")}</h1>
                   <p className="text-sm text-muted-foreground">{currentBranch.name}</p>
                 </div>
                 <ViewSwitcher 
                   view={calendarView}
-                  onChange={setCalendarView}
+                  onChange={(view) => {
+                    setCalendarView(view)
+                  }}
                   t={tWithParams}
                 />
                 <MiniCalendar
@@ -268,8 +339,8 @@ export default function AppointmentCalendar() {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-                <div className="border-t pt-8 flex-1 overflow-hidden">
-                  <h3 className="font-medium mb-6 text-lg">{t("admin-reservation.calendar.upcomingEvents")}</h3>
+                <div className="border-t pt-4 xl:pt-8 flex-1 overflow-hidden">
+                  <h3 className="font-medium mb-4 xl:mb-6 text-base xl:text-lg">{t("admin-reservation.calendar.upcomingEvents")}</h3>
                   <ScrollArea className="h-[calc(100%-2rem)]">
                     {reservations
                       .filter(res => {
@@ -288,7 +359,7 @@ export default function AppointmentCalendar() {
                         return (
                           <div
                             key={res.id}
-                            className="p-4 text-sm hover:bg-accent rounded-md cursor-pointer mb-3 space-y-2"
+                            className="p-3 xl:p-4 text-sm hover:bg-accent rounded-md cursor-pointer mb-2 xl:mb-3 space-y-1 xl:space-y-2"
                             onClick={() => handleReservationClick(res)}
                           >
                             <div className="flex items-center justify-between">
@@ -300,7 +371,7 @@ export default function AppointmentCalendar() {
                                 })}
                               </div>
                             </div>
-                            <div className="space-y-1">
+                            <div className="space-y-0.5 xl:space-y-1">
                               <div className="flex items-center justify-between">
                                 <div className="text-xs truncate">{service?.name}</div>
                                 <div className="text-xs text-muted-foreground whitespace-nowrap ml-2">

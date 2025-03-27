@@ -1,6 +1,6 @@
 "use client"
 
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, startOfDay, startOfWeek, endOfWeek } from "date-fns"
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfDay, startOfWeek, endOfWeek } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -82,7 +82,10 @@ export function MonthCalendar({
   const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
   
   // Get all days that should be shown in the calendar
-  const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd })
+  const days = eachDayOfInterval({ 
+    start: calendarStart, 
+    end: calendarEnd 
+  })
 
   // Group days into weeks
   const weeks = days.reduce<Date[][]>((weeks, day) => {
@@ -160,10 +163,14 @@ export function MonthCalendar({
 
   const getReservationsForDate = (date: Date) => {
     const dayStart = startOfDay(date)
+    const dayEnd = new Date(dayStart)
+    dayEnd.setHours(23, 59, 59, 999)
+
     return reservations.filter(res => {
-      const resDate = startOfDay(new Date(res.start ?? ""))
-      return isSameDay(resDate, dayStart) && 
-        (!selectedStaff || selectedStaff === "all" || res.staffId === Number(selectedStaff))
+      const resDate = new Date(res.start ?? "")
+      return resDate >= dayStart && 
+             resDate <= dayEnd && 
+             (!selectedStaff || selectedStaff === "all" || res.staffId === Number(selectedStaff))
     })
   }
 

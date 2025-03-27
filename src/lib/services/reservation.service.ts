@@ -105,6 +105,7 @@ export const getReservations = async (params: {
     endDate: string;
     staffId?: number;
     status?: boolean;
+    view?: 'day' | 'week' | 'month';
 }) => {
     let query = supabase
         .from('reservations')
@@ -115,8 +116,23 @@ export const getReservations = async (params: {
             branch:branches (*)
         `)
         .eq('branchId', params.branchId)
-        .gte('start', params.startDate)
-        .lte('start', params.endDate)
+
+    // Görünüme göre tarih aralığı kontrolü
+    if (params.view === 'day') {
+        // Günlük görünüm: Sadece seçili günün randevuları
+        query = query
+            .gte('start', params.startDate)
+            .lt('start', params.endDate)
+    } else if (params.view === 'week') {
+        // Haftalık görünüm: Haftanın başlangıcı ile bitişi arasındaki randevular
+        query = query
+            .or(`start.gte.${params.startDate},end.lte.${params.endDate}`)
+    } else {
+        // Aylık görünüm: Ayın başlangıcı ile bitişi arasındaki randevular
+        query = query
+            .gte('start', params.startDate)
+            .lt('start', params.endDate)
+    }
 
     if (params.staffId) {
         query = query.eq('staffId', params.staffId)

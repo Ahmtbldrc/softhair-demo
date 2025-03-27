@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ReservationWithDetails, StaffWithServices, Service } from "@/lib/types"
-import { Clock } from "lucide-react"
+import { Clock, Calendar } from "lucide-react"
 import Image from "next/image"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import React, { useEffect, useState } from "react"
@@ -208,7 +208,6 @@ export function DayCalendar({
     // Check if the date is in the past
     const now = new Date()
     const isToday = isSameDay(time, now)
-    const isPastDate = time < now
 
     // If it's today, check if the time is in the past
     if (isToday) {
@@ -221,11 +220,6 @@ export function DayCalendar({
       if (slotHour < currentHour || (slotHour === currentHour && slotMinutes < currentMinutes)) {
         return false
       }
-    }
-
-    // If it's a past date, it's not available
-    if (isPastDate) {
-      return false
     }
 
     // Staff must be working at this hour
@@ -273,6 +267,26 @@ export function DayCalendar({
   }
 
   const currentTimePosition = calculateCurrentTimePosition()
+
+  // Check if any staff member is working on this day
+  const hasWorkingStaff = staffMembers.some(staff => {
+    const dayHours = staff.weeklyHours?.[currentDay]
+    return dayHours && dayHours.length > 0 && staff.status
+  })
+
+  if (!hasWorkingStaff) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[600px] bg-card rounded-lg border">
+        <div className="flex items-center gap-2 text-lg font-semibold text-muted-foreground">
+          <Calendar className="h-5 w-5" />
+          <span>{t('admin-reservation.calendar.noAvailableSlots')}</span>
+        </div>
+        <p className="text-sm text-muted-foreground mt-2">
+          {t('admin-reservation.calendar.noAvailableSlotsDescription')}
+        </p>
+      </div>
+    )
+  }
 
   return (
     <ScrollArea className="h-[calc(100vh-16rem)]">

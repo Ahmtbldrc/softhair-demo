@@ -3,12 +3,12 @@
 import { useLocale } from "@/contexts/LocaleContext";
 import Link from "next/link";
 
-export default function Footer() {
+export default function Footer({ className }: { className?: string }) {
   const { t } = useLocale();
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full border-t bg-background py-3 flex justify-center items-center">
+    <footer className={`w-full border-t bg-background py-3 flex justify-center items-center ${className || ''}`}>
       <div className="container">
         <p className="text-sm text-center">
           © {currentYear}{" "}

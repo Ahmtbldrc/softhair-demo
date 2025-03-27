@@ -47,7 +47,8 @@
     "bookNow": "Book Now",
     "breakTimeRange": "Break {start}-{end}",
     "clickToBook": "Click to Book",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "confirm": "Confirm"
   },
   "auth": {
     "logout": "Logout",
@@ -203,7 +204,11 @@
     "selectLanguages": "Select languages",
     "languagesSelected": "languages selected",
     "searchLanguages": "Search languages...",
-    "noLanguageFound": "No language found"
+    "noLanguageFound": "No language found",
+    "selectServices": "Select Services",
+    "selectServicesDescription": "Choose the services this staff member can provide",
+    "searchServices": "Search services...",
+    "selected": "selected"
   },
   "admin-staff-edit":{
     "back": "Back",
@@ -396,7 +401,9 @@
         "october": "October",
         "november": "November",
         "december": "December"
-      }
+      },
+      "noAvailableSlots": "No Available Slots",
+      "noAvailableSlotsDescription": "No staff members are available on this day"
     },
     "tooltips": {
       "clickToViewDetails": "Click to view details",
@@ -422,6 +429,7 @@
     "back": "Back",
     "staffDetails": "Staff Details",
     "viewStaffPersonalInformation": "View the staff member's personal information",
+    "enterStaffPersonalInformation": "Enter your personal information",
     "firstName": "First Name",
     "lastName": "Last Name",
     "email": "Email",
@@ -439,12 +447,34 @@
     "uploadImageDescription": "Upload a profile image for the staff member",
     "staffServices": "My Services",
     "viewStaffServices": "Services you can provide",
+    "staffServicesDescription": "Select the services you can provide",
     "noServicesAssigned": "No services assigned yet",
     "cancel": "Cancel",
     "updatePassword": "Update Password",
     "notAvailable": "Not available",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "actions": "Actions",
+    "add": "Add",
+    "addTimeSlot": "Add time slot",
+    "removeTimeSlot": "Remove time slot",
+    "saveChanges": "Save changes",
+    "discard": "Discard",
+    "discardConfirmTitle": "Discard Changes",
+    "discardConfirmDescription": "Are you sure you want to discard all changes? This action cannot be undone.",
+    "confirmDiscard": "Yes, discard",
+    "cancelDiscard": "No, keep editing",
+    "uploadImage": "Upload image",
+    "languages": "Languages",
+    "languagesDescription": "Select the languages that the staff member can speak",
+    "selectLanguages": "Select languages",
+    "languagesSelected": "languages selected",
+    "searchLanguages": "Search languages...",
+    "noLanguageFound": "No language found",
+    "selectServices": "Select Services",
+    "selectServicesDescription": "Choose the services you can provide",
+    "searchServices": "Search services...",
+    "selected": "selected"
   },
   "staff-reservation":{
     "myReservations": "My Reservations",

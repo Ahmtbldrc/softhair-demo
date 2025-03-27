@@ -44,21 +44,26 @@ export function MiniCalendar({
 
   // Calculate selected range based on view
   const selectedRange = React.useMemo(() => {
+    if (!selected) return undefined
+
     if (view === "month") {
       return {
-        from: startOfMonth(currentDate),
-        to: endOfMonth(currentDate)
+        from: startOfMonth(selected),
+        to: endOfMonth(selected)
       }
     } else if (view === "week") {
-      const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 })
-      const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 })
       return {
-        from: weekStart,
-        to: weekEnd
+        from: startOfWeek(selected, { weekStartsOn: 1 }),
+        to: endOfWeek(selected, { weekStartsOn: 1 })
+      }
+    } else {
+      // Günlük görünüm için sadece seçili günü döndür
+      return {
+        from: selected,
+        to: selected
       }
     }
-    return undefined
-  }, [view, currentDate])
+  }, [view, selected])
 
   // Görünüm veya tarih değiştiğinde month state'ini güncelle
   React.useEffect(() => {
@@ -100,6 +105,7 @@ export function MiniCalendar({
 
   // Handle month change
   const handleMonthChange = (newMonth: Date) => {
+    if (view === "week") return // Haftalık görünümde ay değişikliğini engelle
     setMonth(newMonth)
     if (view === "month") {
       onSelect?.(startOfMonth(newMonth))
@@ -134,15 +140,10 @@ export function MiniCalendar({
       setMonth(monthStart)
       onSelect?.(monthStart)
     } else if (view === "week") {
-      // Önce mevcut haftanın başlangıcını bul
       const currentWeekStart = startOfWeek(currentDate, { weekStartsOn: 1 })
-      
-      // Bir sonraki/önceki haftanın başlangıcını hesapla
       const newWeekStart = action === "prev"
         ? subWeeks(currentWeekStart, 1)
         : addWeeks(currentWeekStart, 1)
-      
-      // Takvim görünümünü ve seçili tarihi güncelle
       setMonth(newWeekStart)
       onSelect?.(newWeekStart)
     } else {
@@ -155,19 +156,29 @@ export function MiniCalendar({
 
   // Modifiers for highlighting
   const modifiers = React.useMemo(() => {
-    if ((view === "month" || view === "week") && selectedRange?.from && selectedRange?.to) {
+    if (!selectedRange?.from || !selectedRange?.to) return undefined
+
+    if (view === "month") {
       const days = eachDayOfInterval({
-        start: selectedRange.from,
-        end: selectedRange.to
+        start: startOfMonth(selectedRange.from),
+        end: endOfMonth(selectedRange.from)
       })
       return { selected: days }
+    } else if (view === "week") {
+      const days = eachDayOfInterval({
+        start: startOfWeek(selectedRange.from, { weekStartsOn: 1 }),
+        end: endOfWeek(selectedRange.from, { weekStartsOn: 1 })
+      })
+      return { selected: days }
+    } else {
+      // Günlük görünüm için sadece seçili günü vurgula
+      return { selected: [selectedRange.from] }
     }
-    return undefined
   }, [view, selectedRange])
 
   // Common props for DayPicker
   const commonProps = {
-    showOutsideDays: true,
+    showOutsideDays: true, // Tüm görünümlerde dış günleri göster
     className: cn("p-3", className),
     weekStartsOn: 1 as 0 | 1 | 2 | 3 | 4 | 5 | 6,
     month,
@@ -205,11 +216,16 @@ export function MiniCalendar({
         "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
       ),
       day_range_end: "day-range-end",
-      day_selected:
-        "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-      day_today: "bg-accent text-accent-foreground",
-      day_outside:
-        "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
+      day_selected: cn(
+        view === "day" 
+          ? "bg-blue-900 text-white hover:bg-blue-800 hover:text-white focus:bg-blue-800 focus:text-white"
+          : "bg-accent text-accent-foreground hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+      ),
+      day_today: "border-2 border-primary font-semibold",
+      day_outside: cn(
+        "text-muted-foreground opacity-50",
+        "hover:bg-accent hover:text-accent-foreground"
+      ),
       day_disabled: "text-muted-foreground opacity-50",
       day_range_middle:
         "aria-selected:bg-accent aria-selected:text-accent-foreground",
@@ -232,9 +248,10 @@ export function MiniCalendar({
     modifiers,
     modifiersStyles: {
       selected: {
-        backgroundColor: 'var(--accent)',
-        color: 'var(--accent-foreground)',
-        borderRadius: view === "week" ? '0px' : undefined
+        backgroundColor: view === "day" ? 'rgb(30 58 138)' : 'var(--accent)',
+        color: view === "day" ? 'white' : 'var(--accent-foreground)',
+        borderRadius: view === "week" ? '0px' : undefined,
+        fontWeight: view === "day" ? '600' : undefined
       }
     }
   }
@@ -246,6 +263,7 @@ export function MiniCalendar({
         mode="single"
         selected={selected}
         onSelect={handleSelect}
+        disabled={undefined}
       />
     )
   }
@@ -257,9 +275,15 @@ export function MiniCalendar({
       selected={selectedRange}
       onSelect={(range) => {
         if (range?.from) {
-          handleSelect(range.from)
+          if (view === "week") {
+            const weekStart = startOfWeek(range.from, { weekStartsOn: 1 })
+            handleSelect(weekStart)
+          } else {
+            handleSelect(range.from)
+          }
         }
       }}
+      disabled={disabled}
     />
   )
 }

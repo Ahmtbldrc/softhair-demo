@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { Service, TimeSlot, WeeklyHours, Roles } from "@/lib/types"
 import { validateStaffForm, ValidationError } from "@/lib/utils/staff-validation"
@@ -71,10 +71,19 @@ export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
   const [staffImage, setStaffImage] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [showDiscardDialog, setShowDiscardDialog] = useState(false)
+  const [showServicesDialog, setShowServicesDialog] = useState(false)
   const [originalStaff, setOriginalStaff] = useState<StaffFormState | null>(null)
   const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState<ValidationError[]>([])
   const [selectedServices, setSelectedServices] = useState<number[]>([])
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const filteredServices = useMemo(() => 
+    services?.filter(service =>
+      service.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    ) ?? [],
+    [services, searchQuery]
+  )
 
   useEffect(() => {
     if (!branchId) return
@@ -482,6 +491,12 @@ export function useStaffForm({ branchId, staffId, t }: UseStaffFormProps) {
     setStaff,
     setShowPassword,
     setShowDiscardDialog,
-    handleFormValueChange
+    handleFormValueChange,
+    setSelectedServices,
+    searchQuery,
+    setSearchQuery,
+    filteredServices,
+    showServicesDialog,
+    setShowServicesDialog
   }
 } 

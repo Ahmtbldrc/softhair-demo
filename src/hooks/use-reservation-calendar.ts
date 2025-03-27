@@ -34,7 +34,7 @@ interface ReservationParams {
 }
 
 export function useReservationCalendar(branchId: number, t: (key: string, params?: Record<string, string | number>) => string) {
-  const [currentDate, setCurrentDate] = useState(new Date())
+  const [currentDate] = useState(new Date())
   const [reservations, setReservations] = useState<ReservationWithDetails[]>([])
   const [staffMembers, setStaffMembers] = useState<StaffWithServices[]>([])
   const [services, setServices] = useState<Service[]>([])
@@ -47,28 +47,61 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [isMobile, setIsMobile] = useState(false)
+  const [viewType, setViewType] = useState<"month" | "week" | "day">("day")
 
   const form = useReservationForm()
   const mail = useMail()
 
-  const weekStart = startOfWeek(currentDate)
-  const weekEnd = endOfWeek(currentDate)
-  const days = eachDayOfInterval({ start: weekStart, end: weekEnd })
+  const weekStart = useMemo(() => startOfWeek(selectedDate), [selectedDate])
+  const weekEnd = useMemo(() => endOfWeek(selectedDate), [selectedDate])
+  const days = useMemo(() => eachDayOfInterval({ start: weekStart, end: weekEnd }), [weekStart, weekEnd])
 
+  // Get current day name
+  const dayOfWeek = selectedDate.getDay()
+  const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+  const currentDay = dayNames[dayOfWeek]
 
   const fetchDailyReservations = useCallback(async (date: Date) => {
     if (!branchId) return;
     
-    const dayStart = startOfDay(date);
-    const dayEnd = endOfDay(date);
+    console.log(`Fetching reservations for ${viewType} view at ${new Date().toLocaleTimeString()}`)
+    
+    let startDate: Date
+    let endDate: Date
+    
+    switch (viewType) {
+      case "month":
+        startDate = new Date(date.getFullYear(), date.getMonth(), 1)
+        endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59)
+        break
+      case "week":
+        startDate = startOfWeek(date)
+        endDate = endOfWeek(date)
+        break
+      case "day":
+      default:
+        startDate = startOfDay(date)
+        endDate = endOfDay(date)
+        break
+    }
     
     try {
-      const result = await getReservations({
+      const { data: { user } } = await supabase.auth.getUser()
+      const userRole = user?.user_metadata?.role
+      const staffId = user?.user_metadata?.staffId
+
+      const params: ReservationParams = {
         branchId: Number(branchId),
-        startDate: dayStart.toISOString(),
-        endDate: dayEnd.toISOString(),
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
         status: true
-      })
+      }
+
+      if (userRole === 'staff' && staffId) {
+        params.staffId = Number(staffId)
+      }
+
+      const result = await getReservations(params)
 
       if (result.error) {
         throw new Error(result.error)
@@ -81,21 +114,21 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
         defaultMessage: t("admin-reservation.fetchReservationsErrorDescription")
       })
     }
-  }, [branchId]);
-
-  useEffect(() => {
-    if (isMobile) {
-      fetchDailyReservations(selectedDate);
-    }
-  }, [isMobile, selectedDate, fetchDailyReservations]);
+  }, [branchId, t, viewType]);
 
   useEffect(() => {
     if (branchId) {
       fetchStaff()
       fetchServices()
-      fetchReservations()
+      fetchDailyReservations(selectedDate)
+
+      const intervalId = setInterval(() => {
+        fetchDailyReservations(selectedDate)
+      }, 5000)
+
+      return () => clearInterval(intervalId)
     }
-  }, [currentDate, branchId])
+  }, [branchId, selectedDate, fetchDailyReservations, viewType])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -142,51 +175,14 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
     }
   }
 
-  const fetchReservations = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      const userRole = user?.user_metadata?.role
-      const staffId = user?.user_metadata?.staffId
-
-      const params: ReservationParams = {
-        branchId: Number(branchId),
-        startDate: weekStart.toISOString(),
-        endDate: weekEnd.toISOString(),
-        status: true
-      }
-
-      if (userRole === 'staff' && staffId) {
-        params.staffId = Number(staffId)
-      }
-
-      const result = await getReservations(params)
-
-      if (result.error) {
-        throw new Error(result.error)
-      }
-
-      // Sort reservations by start time
-      const sortedReservations = result.data?.sort((a, b) => {
-        const dateA = new Date(a.start ?? "")
-        const dateB = new Date(b.start ?? "")
-        return dateA.getTime() - dateB.getTime()
-      }) ?? []
-
-      setReservations(sortedReservations)
-    } catch (error) {
-      handleError(error, {
-        title: t("admin-reservation.fetchReservationsError"),
-        defaultMessage: t("admin-reservation.fetchReservationsErrorDescription")
-      })
-    }
-  }
-
   const handlePrevWeek = () => {
-    setCurrentDate(addDays(currentDate, -7))
+    const newDate = addDays(selectedDate, -7)
+    setSelectedDate(newDate)
   }
 
   const handleNextWeek = () => {
-    setCurrentDate(addDays(currentDate, 7))
+    const newDate = addDays(selectedDate, 7)
+    setSelectedDate(newDate)
   }
 
   const handleReservationClick = (reservation: ReservationWithDetails) => {
@@ -283,6 +279,47 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
     }
 
     try {
+      // Fetch latest reservations to check for conflicts
+      const startTime = startOfDay(data.start)
+      const endTime = endOfDay(data.start)
+
+      const checkResult = await getReservations({
+        branchId: Number(branchId),
+        startDate: startTime.toISOString(),
+        endDate: endTime.toISOString(),
+        staffId: Number(data.staffId),
+        status: true
+      })
+
+      if (checkResult.error) {
+        throw new Error(checkResult.error)
+      }
+
+      // Check for overlapping reservations
+      const hasOverlap = checkResult.data?.some(reservation => {
+        const reservationStart = new Date(reservation.start ?? "")
+        const reservationEnd = new Date(reservationStart.getTime() + (service.duration ?? 30) * 60000)
+        const newReservationStart = new Date(data.start)
+        const newReservationEnd = new Date(newReservationStart.getTime() + (service.duration ?? 30) * 60000)
+
+        return (
+          (newReservationStart >= reservationStart && newReservationStart < reservationEnd) ||
+          (newReservationEnd > reservationStart && newReservationEnd <= reservationEnd) ||
+          (newReservationStart <= reservationStart && newReservationEnd >= reservationEnd)
+        )
+      })
+
+      if (hasOverlap) {
+        handleError(new Error(t("admin-reservation.slotNotAvailable")), {
+          title: t("admin-reservation.error"),
+          defaultMessage: t("admin-reservation.slotNotAvailableDescription")
+        })
+        setIsSubmitting(false)
+        setIsConfirmDialogOpen(false)
+        setIsNewReservationDialogOpen(false)
+        return
+      }
+
       const result = await createReservation({
         serviceId: Number(data.serviceId),
         staffId: Number(data.staffId),
@@ -297,7 +334,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
       }
 
       setIsSuccessDialogOpen(true)
-      fetchReservations()
+      fetchDailyReservations(selectedDate)
 
       // Get staff member information - first try from staffMembers array
       let staffMember = staffMembers.find(s => s.id === Number(data.staffId))
@@ -317,7 +354,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
               id: staffData.id,
               firstName: staffData.firstName,
               lastName: staffData.lastName
-            } as StaffWithServices // Cast to any to avoid type errors since we only need these fields for the email
+            } as StaffWithServices
           }
         } catch (err) {
           console.error("Error fetching staff member:", err)
@@ -336,7 +373,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
             staffMember?.firstName || "",
             staffMember?.lastName || "",
             data.customer.firstName || ""
-            )
+          )
         })
       }
     } catch (error) {
@@ -350,12 +387,52 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
     }
   }
 
-  const filteredReservations = filterReservationsByStaff(reservations, selectedStaff ? Number(selectedStaff) : null)
-  const sortedReservations = sortReservationsByDate(filteredReservations)
+  const filteredReservations = useMemo(() => {
+    // First filter by staff
+    let filtered = filterReservationsByStaff(reservations, selectedStaff ? Number(selectedStaff) : null)
+
+    // Then filter by view type and date
+    switch (viewType) {
+      case "month":
+        filtered = filtered.filter(reservation => {
+          const reservationDate = new Date(reservation.start ?? "")
+          return (
+            reservationDate.getMonth() === selectedDate.getMonth() &&
+            reservationDate.getFullYear() === selectedDate.getFullYear()
+          )
+        })
+        break
+      case "week":
+        filtered = filtered.filter(reservation => {
+          const reservationDate = new Date(reservation.start ?? "")
+          return (
+            reservationDate >= weekStart &&
+            reservationDate <= weekEnd
+          )
+        })
+        break
+      case "day":
+        filtered = filtered.filter(reservation => {
+          const reservationDate = new Date(reservation.start ?? "")
+          return (
+            reservationDate.getDate() === selectedDate.getDate() &&
+            reservationDate.getMonth() === selectedDate.getMonth() &&
+            reservationDate.getFullYear() === selectedDate.getFullYear()
+          )
+        })
+        break
+    }
+
+    return filtered
+  }, [reservations, selectedStaff, viewType, selectedDate, weekStart, weekEnd])
+
+  const sortedReservations = useMemo(() => {
+    return sortReservationsByDate(filteredReservations)
+  }, [filteredReservations])
 
   const memoizedDailyReservations = useMemo(() => {
-    if (!isMobile) return reservations
-    return reservations.filter(reservation => {
+    if (!isMobile) return sortedReservations
+    return sortedReservations.filter(reservation => {
       const reservationDate = new Date(reservation.start ?? "")
       return (
         reservationDate.getDate() === selectedDate.getDate() &&
@@ -363,7 +440,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
         reservationDate.getFullYear() === selectedDate.getFullYear()
       )
     })
-  }, [reservations, selectedDate, isMobile])
+  }, [sortedReservations, selectedDate, isMobile])
 
   return {
     currentDate,
@@ -396,5 +473,9 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
     setSelectedDate,
     isMobile,
     dailyReservations: memoizedDailyReservations,
+    currentDay,
+    viewType,
+    setViewType,
+    fetchDailyReservations,
   }
 } 

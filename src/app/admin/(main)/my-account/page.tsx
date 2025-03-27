@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from "next/image"
-import { ChevronLeft, Upload, Plus, X, CloudUpload, Loader2, Clock, Eye, EyeOff } from "lucide-react"
+import { ChevronLeft, Upload, Plus, X, CloudUpload, Loader2, Clock, Eye, EyeOff, ChevronRight, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -44,6 +44,17 @@ import {
 import { getActiveServices } from "@/lib/services/service.service";
 import { LANGUAGES } from "@/lib/constants"
 import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog"
 
 const staffData: StaffType = {
   id: 0,
@@ -88,6 +99,8 @@ export default function MyAccount() {
   const [originalStaff, setOriginalStaff] = useState<StaffType>(staffData);
   const [showPassword, setShowPassword] = useState(false);
   const [lastEmailUpdate, setLastEmailUpdate] = useState<Date | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [filteredServices, setFilteredServices] = useState<{ id: number; name: string; status: boolean }[]>([]);
 
   const handleServiceChange = (serviceId: number) => {
     setSelectedServices(prevSelectedServices =>
@@ -361,6 +374,15 @@ export default function MyAccount() {
     getCurrentUserAndStaff();
   }, [router, selectedBranchId]);
 
+  useEffect(() => {
+    if (services) {
+      const filtered = services.filter(service =>
+        service.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredServices(filtered);
+    }
+  }, [services, searchQuery]);
+
   const handleDiscard = () => {
     setShowDiscardDialog(true);
   };
@@ -381,7 +403,7 @@ export default function MyAccount() {
             <Link href="/admin">
               <Button variant="outline" size="icon" className="h-7 w-7">
                 <ChevronLeft className="h-4 w-4" />
-                <span className="sr-only">{t("admin-staff-edit.back")}</span>
+                <span className="sr-only">{t("staff-my-account.back")}</span>
               </Button>
             </Link>
             <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
@@ -393,16 +415,16 @@ export default function MyAccount() {
               <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
                 <Card>
                   <CardHeader>
-                    <CardTitle>{t("admin-staff-edit.staffDetails")}</CardTitle>
+                    <CardTitle>{t("staff-my-account.staffDetails")}</CardTitle>
                     <CardDescription>
-                      {t("admin-staff-edit.enterStaffPersonalInformation")}
+                      {t("staff-my-account.enterStaffPersonalInformation")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-6">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
-                          <Label htmlFor="firstName">{t("admin-staff-edit.firstName")}</Label>
+                          <Label htmlFor="firstName">{t("staff-my-account.firstName")}</Label>
                           <Input
                             id="firstName"
                             type="text"
@@ -415,7 +437,7 @@ export default function MyAccount() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="lastName">{t("admin-staff-edit.lastName")}</Label>
+                          <Label htmlFor="lastName">{t("staff-my-account.lastName")}</Label>
                           <Input
                             id="lastName"
                             type="text"
@@ -429,7 +451,7 @@ export default function MyAccount() {
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="email">{t("admin-staff-edit.email")}</Label>
+                        <Label htmlFor="email">{t("staff-my-account.email")}</Label>
                         <Input
                           id="email"
                           type="email"
@@ -442,7 +464,7 @@ export default function MyAccount() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="username">{t("admin-staff-edit.username")}</Label>
+                        <Label htmlFor="username">{t("staff-my-account.username")}</Label>
                         <Input
                           id="username"
                           type="text"
@@ -455,7 +477,7 @@ export default function MyAccount() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="password">{t("admin-staff-edit.password")}</Label>
+                        <Label htmlFor="password">{t("staff-my-account.password")}</Label>
                         <div className="relative flex items-center">
                           <Input
                             id="password"
@@ -481,7 +503,7 @@ export default function MyAccount() {
                               <Eye className="h-4 w-4 text-muted-foreground hover:text-foreground" />
                             )}
                             <span className="sr-only">
-                              {showPassword ? "Hide password" : "Show password"}
+                              {showPassword ? t("staff-my-account.hidePassword") : t("staff-my-account.showPassword")}
                             </span>
                           </Button>
                         </div>
@@ -491,9 +513,9 @@ export default function MyAccount() {
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>{t("admin-staff-edit.weeklyHours")}</CardTitle>
+                    <CardTitle>{t("staff-my-account.weeklyHours")}</CardTitle>
                     <CardDescription>
-                      {t("admin-staff-edit.weeklyHoursDescription")}
+                      {t("staff-my-account.weeklyHoursDescription")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -501,9 +523,9 @@ export default function MyAccount() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="w-[100px]">{t("admin-staff-edit.day")}</TableHead>
-                            <TableHead>{t("admin-staff-edit.hours")}</TableHead>
-                            <TableHead className="text-right">{t("admin-staff-edit.actions")}</TableHead>
+                            <TableHead className="w-[100px]">{t("staff-my-account.day")}</TableHead>
+                            <TableHead>{t("staff-my-account.hours")}</TableHead>
+                            <TableHead className="text-right">{t("staff-my-account.actions")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -513,7 +535,7 @@ export default function MyAccount() {
                               <TableCell>
                                 {staff.weeklyHours[day].length === 0 ? (
                                   <span className="text-muted-foreground">
-                                    {t("admin-staff-edit.unavailable")}
+                                    {t("staff-my-account.unavailable")}
                                   </span>
                                 ) : (
                                   <div className="flex flex-col space-y-2">
@@ -559,7 +581,7 @@ export default function MyAccount() {
                                           }
                                         >
                                           <X className="h-4 w-4" />
-                                          <span className="sr-only">{t("admin-staff-edit.removeTimeSlot")}</span>
+                                          <span className="sr-only">{t("staff-my-account.removeTimeSlot")}</span>
                                         </Button>
                                       </div>
                                     ))}
@@ -574,7 +596,7 @@ export default function MyAccount() {
                                   onClick={() => addTimeSlot(day)}
                                 >
                                   <Plus className="h-4 w-4 mr-2" />
-                                  {t("admin-staff-edit.add")}
+                                  {t("staff-my-account.add")}
                                 </Button>
                               </TableCell>
                             </TableRow>
@@ -591,8 +613,8 @@ export default function MyAccount() {
                               {day}
                               <span className="ml-auto">
                                 {staff.weeklyHours[day].length === 0
-                                  ? t("admin-staff-edit.unavailable")
-                                  : `${staff.weeklyHours[day].length} slot(s)`}
+                                  ? t("staff-my-account.unavailable")
+                                  : `${staff.weeklyHours[day].length} ${t("admin-staff.slots")}`}
                               </span>
                             </Button>
                           </PopoverTrigger>
@@ -634,7 +656,7 @@ export default function MyAccount() {
                                     onClick={() => removeTimeSlot(day, index)}
                                   >
                                     <X className="h-4 w-4" />
-                                    <span className="sr-only">{t("admin-staff-edit.removeTimeSlot")}</span>
+                                    <span className="sr-only">{t("staff-my-account.removeTimeSlot")}</span>
                                   </Button>
                                 </div>
                               ))}
@@ -646,7 +668,7 @@ export default function MyAccount() {
                                 className="w-full"
                               >
                                 <Plus className="h-4 w-4 mr-2" />
-                                {t("admin-staff-edit.addTimeSlot")}
+                                {t("staff-my-account.addTimeSlot")}
                               </Button>
                             </div>
                           </PopoverContent>
@@ -659,7 +681,7 @@ export default function MyAccount() {
               <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
                 <Card>
                   <CardHeader>
-                    <CardTitle>{t("admin-staff-edit.staffStatus")}</CardTitle>
+                    <CardTitle>{t("staff-my-account.staffStatus")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Select
@@ -672,17 +694,17 @@ export default function MyAccount() {
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="true">{t("admin-staff-edit.active")}</SelectItem>
-                        <SelectItem value="false">{t("admin-staff-edit.passive")}</SelectItem>
+                        <SelectItem value="true">{t("staff-my-account.active")}</SelectItem>
+                        <SelectItem value="false">{t("staff-my-account.passive")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>{t("admin-staff.languages")}</CardTitle>
+                    <CardTitle>{t("staff-my-account.languages")}</CardTitle>
                     <CardDescription>
-                      {t("admin-staff.languagesDescription")}
+                      {t("staff-my-account.languagesDescription")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -714,9 +736,9 @@ export default function MyAccount() {
                 </Card>
                 <Card className="overflow-hidden">
                   <CardHeader>
-                    <CardTitle>{t("admin-staff-edit.staffImage")}</CardTitle>
+                    <CardTitle>{t("staff-my-account.staffImage")}</CardTitle>
                     <CardDescription>
-                      {t("admin-staff-edit.uploadImageDescription")}
+                      {t("staff-my-account.uploadImageDescription")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -743,7 +765,7 @@ export default function MyAccount() {
                         <Label htmlFor="picture" className="cursor-pointer">
                           <div className="flex items-center gap-2 rounded-md bg-muted px-4 py-2 hover:bg-muted/80">
                             <Upload className="h-4 w-4" />
-                            <span>{t("admin-staff-edit.uploadImage")}</span>
+                            <span>{t("staff-my-account.uploadImage")}</span>
                           </div>
                           <Input
                             id="picture"
@@ -759,45 +781,96 @@ export default function MyAccount() {
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>{t("admin-staff-edit.staffServices")}</CardTitle>
+                    <CardTitle>{t("staff-my-account.staffServices")}</CardTitle>
                     <CardDescription>
-                      {t("admin-staff-edit.staffServicesDescription")}
+                      {t("staff-my-account.staffServicesDescription")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid gap-4">
-                      {services?.map((service) => (
-                        <div
-                          key={service.id}
-                          className="flex items-center space-x-2"
-                        >
-                          <Checkbox
-                            id={service.id.toString()}
-                            checked={selectedServices.includes(service.id)}
-                            onCheckedChange={() => handleServiceChange(service.id)}
-                          /> 
-                          <label
-                            htmlFor={service.id.toString()}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {service.name}
-                          </label>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="w-full justify-between">
+                          <div className="flex items-center gap-2">
+                            <span>{t("staff-my-account.selectServices")}</span>
+                            {selectedServices.length > 0 && (
+                              <Badge variant="secondary">
+                                {selectedServices.length} {t("staff-my-account.selected")}
+                              </Badge>
+                            )}
+                          </div>
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>{t("staff-my-account.selectServices")}</DialogTitle>
+                          <DialogDescription>
+                            {t("staff-my-account.selectServicesDescription")}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="relative">
+                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder={t("staff-my-account.searchServices")}
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="pl-8"
+                            />
+                          </div>
+                          <div className="max-h-[400px] overflow-y-auto">
+                            <div className="grid gap-2">
+                              {filteredServices.map((service) => (
+                                <div
+                                  key={service.id}
+                                  className={cn(
+                                    "flex items-center space-x-2 p-2 rounded-md hover:bg-muted cursor-pointer",
+                                    selectedServices.includes(service.id) && "bg-primary/10"
+                                  )}
+                                  onClick={() => handleServiceChange(service.id)}
+                                >
+                                  <Checkbox
+                                    id={service.id.toString()}
+                                    checked={selectedServices.includes(service.id)}
+                                    onCheckedChange={() => handleServiceChange(service.id)}
+                                    className="pointer-events-none"
+                                  />
+                                  <label
+                                    htmlFor={service.id.toString()}
+                                    className="text-sm font-medium leading-none cursor-pointer flex-1"
+                                  >
+                                    {service.name}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <DialogClose asChild>
+                              <Button variant="outline">
+                                {t("common.cancel")}
+                              </Button>
+                            </DialogClose>
+                            <Button>
+                              {t("common.confirm")}
+                            </Button>
+                          </DialogFooter>
                         </div>
-                      ))}
-                    </div>
+                      </DialogContent>
+                    </Dialog>
                   </CardContent>
                 </Card>
               </div>
             </div>
             <div className="flex items-center justify-end gap-2 mt-4">
               <Button type="button" variant="outline" onClick={handleDiscard}>
-                {t("admin-staff-edit.discard")}
+                {t("staff-my-account.discard")}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                {t("admin-staff-edit.saveChanges")}
+                {t("staff-my-account.saveChanges")}
               </Button>
             </div>
           </form>
@@ -808,18 +881,18 @@ export default function MyAccount() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t("admin-staff-edit.discardConfirmTitle")}
+              {t("staff-my-account.discardConfirmTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t("admin-staff-edit.discardConfirmDescription")}
+              {t("staff-my-account.discardConfirmDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>
-              {t("admin-staff-edit.cancelDiscard")}
+              {t("staff-my-account.cancelDiscard")}
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmDiscard}>
-              {t("admin-staff-edit.confirmDiscard")}
+              {t("staff-my-account.confirmDiscard")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

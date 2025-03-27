@@ -1,4 +1,4 @@
-import { ChevronLeft, Upload, Plus, X, CloudUpload, Loader2, Clock, Eye, EyeOff } from "lucide-react"
+import { ChevronLeft, Upload, Plus, X, CloudUpload, Loader2, Clock, Eye, EyeOff, ChevronRight, Search } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -36,6 +36,16 @@ import {
 } from "@/components/ui/alert-dialog"
 import { LANGUAGES } from "@/lib/constants"
 import { Badge } from "@/components/ui/badge"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog"
 
 
 interface StaffFormProps {
@@ -49,7 +59,6 @@ const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const
 export function StaffForm({ branchId, staffId, t }: StaffFormProps) {
   const {
     staff,
-    services,
     staffImageName,
     isSubmitting,
     showDiscardDialog,
@@ -66,7 +75,10 @@ export function StaffForm({ branchId, staffId, t }: StaffFormProps) {
     handleConfirmDiscard,
     setStaff,
     setShowPassword,
-    setShowDiscardDialog
+    setShowDiscardDialog,
+    searchQuery,
+    setSearchQuery,
+    filteredServices,
   } = useStaffForm({ branchId, staffId, t })
 
   return (
@@ -459,26 +471,77 @@ export function StaffForm({ branchId, staffId, t }: StaffFormProps) {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid gap-4">
-                      {services?.map((service) => (
-                        <div
-                          key={service.id}
-                          className="flex items-center space-x-2"
-                        >
-                          <Checkbox
-                            id={service.id.toString()}
-                            checked={selectedServices.includes(service.id)}
-                            onCheckedChange={() => handleServiceChange(service.id)}
-                          />
-                          <label
-                            htmlFor={service.id.toString()}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {service.name}
-                          </label>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="w-full justify-between">
+                          <div className="flex items-center gap-2">
+                            <span>{t("admin-staff.selectServices")}</span>
+                            {selectedServices.length > 0 && (
+                              <Badge variant="secondary">
+                                {selectedServices.length} {t("admin-staff.selected")}
+                              </Badge>
+                            )}
+                          </div>
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>{t("admin-staff.selectServices")}</DialogTitle>
+                          <DialogDescription>
+                            {t("admin-staff.selectServicesDescription")}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="relative">
+                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder={t("admin-staff.searchServices")}
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="pl-8"
+                            />
+                          </div>
+                          <div className="max-h-[400px] overflow-y-auto">
+                            <div className="grid gap-2">
+                              {filteredServices.map((service) => (
+                                <div
+                                  key={service.id}
+                                  className={cn(
+                                    "flex items-center space-x-2 p-2 rounded-md hover:bg-muted cursor-pointer",
+                                    selectedServices.includes(service.id) && "bg-primary/10"
+                                  )}
+                                  onClick={() => handleServiceChange(service.id)}
+                                >
+                                  <Checkbox
+                                    id={service.id.toString()}
+                                    checked={selectedServices.includes(service.id)}
+                                    onCheckedChange={() => handleServiceChange(service.id)}
+                                    className="pointer-events-none"
+                                  />
+                                  <label
+                                    htmlFor={service.id.toString()}
+                                    className="text-sm font-medium leading-none cursor-pointer flex-1"
+                                  >
+                                    {service.name}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <DialogClose asChild>
+                              <Button variant="outline">
+                                {t("common.cancel")}
+                              </Button>
+                            </DialogClose>
+                            <Button>
+                              {t("common.confirm")}
+                            </Button>
+                          </DialogFooter>
                         </div>
-                      ))}
-                    </div>
+                      </DialogContent>
+                    </Dialog>
                   </CardContent>
                 </Card>
               </div>
