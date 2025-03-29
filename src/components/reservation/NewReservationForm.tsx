@@ -90,7 +90,7 @@ export function NewReservationForm({
           <div>
             <Label htmlFor="phone">{t("admin-reservation.phone")}</Label>
             <PhoneInput
-              country={"ch"}
+              country={"de"}
               value={form.watch("customer.phone")}
               onChange={(phone) => form.setValue("customer.phone", phone)}
               inputClass="!w-full !h-10 !text-base !border-input !bg-background !text-foreground !rounded-md !border-[1px] focus:!ring-2 focus:!ring-ring focus:!ring-offset-0"

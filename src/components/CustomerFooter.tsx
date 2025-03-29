@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Facebook, Instagram, Phone, Mail, MapPin } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -35,7 +36,7 @@ const Footer = () => {
     },
     { 
       key: 'instagram', 
-      href: 'https://www.instagram.com/royalteam_buchs?igsh=bTNhZG1sanU4emJq',
+      href: 'https://www.instagram.com/stylinglounge61?igsh=MXB2amVheXJvaWJmMg%3D%3D&utm_source=qr',
       icon: Instagram,
       ariaLabel: 'footer.followInstagram'
     }
@@ -67,8 +68,14 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Logo ve Sosyal Medya */}
           <div className="flex flex-col items-center space-y-6">
-            <Link href="/" className="text-3xl font-bold metal-text">
-              Royal Team
+            <Link href="/" className="w-32 h-16">
+              <Image
+                src="/image/Logo-2007.png"
+                alt="Styling Lounge 61 Logo"
+                width={200}
+                height={100}
+                className="object-contain"
+              />
             </Link>
             <p className="text-gray-400 text-center">{t('footer.slogan')}</p>
             <div className="flex space-x-4">

@@ -68,11 +68,16 @@ export default function Home() {
   const [prices, setPrices] = useState<ServiceDetails[]>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const images = [
-    '/image/slide/slide-1.jpg',
-    '/image/slide/slide-2.jpg',
-    '/image/slide/slide-3.jpg',
-    '/image/slide/slide-4.jpg',
-    '/image/slide/slide-5.jpg',
+    '/image/slide/slide-1.webp',
+    '/image/slide/slide-2.webp',
+    '/image/slide/slide-3.webp',
+    '/image/slide/slide-4.webp',
+    '/image/slide/slide-5.webp',
+    '/image/slide/slide-6.webp',
+    '/image/slide/slide-7.webp',
+    '/image/slide/slide-8.webp',
+    '/image/slide/slide-9.webp',
+    '/image/slide/slide-10.webp',
   ]
   const [, setIsHovered] = useState(false)
   const [direction, setDirection] = useState(0)
@@ -916,7 +921,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm text-zinc-400">{t('contact.phone')}</p>
-                      <a href="tel:0815588456" className="text-lg font-semibold metal-text hover:text-zinc-300 transition-colors">081 558 84 56</a>
+                      <a href="tel:08913926220" className="text-lg font-semibold metal-text hover:text-zinc-300 transition-colors">089 - 13926220</a>
                     </div>
                   </div>
                 </div>
@@ -932,7 +937,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm text-zinc-400">{t('contact.email')}</p>
-                      <a href="mailto:info@royalcoiffeur.ch" className="text-lg font-semibold metal-text hover:text-zinc-300 transition-colors">info@royalcoiffeur.ch</a>
+                      <a href="mailto:info@stylinglounge61.de" className="text-lg font-semibold metal-text hover:text-zinc-300 transition-colors">info@stylinglounge61.de</a>
                     </div>
                   </div>
                 </div>
@@ -949,7 +954,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm text-zinc-400">{t('contact.address')}</p>
-                      <p className="text-lg font-semibold metal-text">Bahnhofstrasse 21A, 9470 Buchs</p>
+                      <p className="text-lg font-semibold metal-text">Arnulfstraße 61, 80636 München, Im Mercedes Benz Turm</p>
                     </div>
                   </div>
                 </div>
@@ -958,16 +963,16 @@ export default function Home() {
                   <h3 className="text-xl font-semibold mb-4 metal-text">{t('contact.hours')}</h3>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="p-3 rounded-xl bg-zinc-800/30">
-                      <p className="text-sm text-zinc-400">Mo - Do</p>
+                      <p className="text-sm text-zinc-400">Mo - Di</p>
+                      <p className="font-medium text-sm">09:00 - 18:00</p>
+                    </div>
+                    <div className="p-3 rounded-xl bg-zinc-800/30">
+                      <p className="text-sm text-zinc-400">Mi - Fr</p>
                       <p className="font-medium text-sm">09:00 - 19:00</p>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-800/30">
-                      <p className="text-sm text-zinc-400">Freitag</p>
-                      <p className="font-medium text-sm">09:00 - 20:00</p>
-                    </div>
-                    <div className="p-3 rounded-xl bg-zinc-800/30">
-                      <p className="text-sm text-zinc-400">Samstag</p>
-                      <p className="font-medium text-sm">09:00 - 17:30</p>
+                      <p className="text-sm text-zinc-400">Sa / Feiertage</p>
+                      <p className="font-medium text-sm">Geschlossen</p>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-800/30">
                       <p className="text-sm text-zinc-400">So / Feiertage</p>
@@ -981,7 +986,7 @@ export default function Home() {
             <div className="contact-map h-auto rounded-2xl overflow-hidden relative bg-zinc-900/50 backdrop-blur-sm border border-zinc-800">
               <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent z-10 pointer-events-none"></div>
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d347207.5423096114!2d8.866279589062495!3d47.16649240000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479b31c9c3214b95%3A0x29f7bed73615ad91!2sRoyal%20Team%20-%20Coiffeur%20Salon!5e0!3m2!1sde!2sch!4v1739011318652!5m2!1sde!2sch"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2662.148714721142!2d11.5363435!3d48.1459381!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479e761b1f22a853%3A0x4e80b9399bf8d01c!2sSTYLING%20LOUNGE%2061%20FRISEURE%20IM%20MERCEDES-BENZ%20CENTER!5e0!3m2!1sde!2sch!4v1743025042918!5m2!1sde!2sch"
                 className="w-full aspect-square lg:aspect-auto lg:h-full"
 
                 style={{ border: 0 }}

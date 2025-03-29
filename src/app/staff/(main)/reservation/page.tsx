@@ -531,7 +531,7 @@ export default function ReservationPage() {
                           <div>
                             <Label htmlFor="phone">{t("staff-reservation.phone")}</Label>
                             <PhoneInput
-                              country={'ch'}
+                              country={'de'}
                               value={newReservation.customer.phone}
                               onChange={(phone) => setNewReservation({
                                 ...newReservation, 
@@ -1094,7 +1094,7 @@ export default function ReservationPage() {
                     <div>
                       <Label htmlFor="phone">{t("staff-reservation.phone")}</Label>
                       <PhoneInput
-                        country={'ch'}
+                        country={'de'}
                         value={newReservation.customer.phone}
                         onChange={(phone) => setNewReservation({
                           ...newReservation, 

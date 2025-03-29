@@ -301,7 +301,7 @@ export default function Team() {
           </div>
         </div>
       </section>
-      <section ref={aboutRef} className="min-h-screen flex flex-col items-center justify-center px-4 py-4 mb-16">
+      <section ref={aboutRef} className="min-h-screen flex flex-col items-center justify-center px-4 py-24 mb-32">
         <div className="container mx-auto">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
             <div className="w-full lg:w-1/2 space-y-6">
@@ -335,21 +335,28 @@ export default function Team() {
                 </div>
               </div>
 
-              <p className="text-base md:text-lg leading-relaxed">
+              <p className="text-base md:text-m leading-relaxed">
                 {t("team.about.description1")}
               </p>
-              <p className="text-base md:text-lg leading-relaxed">
+              <p className="text-base md:text-m leading-relaxed">
                 {t("team.about.description2")}
+              </p>
+              <p className="text-base md:text-m leading-relaxed">
+                {t("team.about.description3")}
+              </p>
+              <p className="text-base md:text-m leading-relaxed">
+                {t("team.about.description4")}
               </p>
             </div>
             <div className="w-full lg:w-1/2">
-              <div className="relative aspect-[4/3] w-full">
+              <div className="relative aspect-[2.8/4] w-full">
                 <Image 
-                  src="/image/team-1.jpg" 
+                  src="/image/team-1.JPG" 
                   alt="Team" 
                   fill
                   className="rounded-lg neon-card object-cover"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+                  priority
                 />
               </div>
             </div>

@@ -18,8 +18,6 @@ const images = [
   '/image/gallery/g-5.jpg',
   '/image/gallery/g-6.jpg',
   '/image/gallery/g-7.jpg',
-  '/image/gallery/g-8.jpg',
-  '/image/gallery/g-9.jpg',
 ]
 
 const ITEMS_PER_PAGE = 6
@@ -115,9 +113,15 @@ export default function Gallery() {
           </div>
           <div ref={galleryRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {getCurrentPageImages().map((src, index) => (
-              <Card key={`${currentPage}-${index}`} className="gallery-image neon-card overflow-hidden">
-                <CardContent className="p-0">
-                  <Image src={src} alt={`Gallery image ${index + 1}`} width={300} height={300} className="w-full h-auto" />
+              <Card key={`${currentPage}-${index}`} className="gallery-image neon-card overflow-hidden aspect-[3/4]">
+                <CardContent className="p-0 h-full">
+                  <Image 
+                    src={src} 
+                    alt={`Gallery image ${index + 1}`} 
+                    width={400} 
+                    height={533} 
+                    className="w-full h-full object-cover" 
+                  />
                 </CardContent>
               </Card>
             ))}

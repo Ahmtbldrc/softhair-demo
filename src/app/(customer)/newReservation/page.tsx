@@ -246,12 +246,22 @@ export default function NewReservation() {
       let currentTime = parse(slot.start, 'HH:mm', day)
       const endTime = parse(slot.end, 'HH:mm', day)
 
-      while (currentTime <= subMinutes(endTime, 30)) {
-        const hasConflict = existingAppointments.some((apt) =>
-          apt.staffId === selectedStaff &&
-          isSameDay(apt.start, day) &&
-          format(currentTime, "HH:mm") === format(new Date(apt.start), "HH:mm")
-        )
+      while (currentTime <= subMinutes(endTime, 15)) {
+        const hasConflict = existingAppointments.some((apt) => {
+          const aptStart = new Date(apt.start)
+          const aptEnd = new Date(apt.end)
+          const slotTime = new Date(currentTime)
+          const slotEndTime = addMinutes(slotTime, service.duration)
+          
+          const isBeforeAppointment = slotTime < aptStart && slotEndTime > aptStart
+          const isDuringAppointment = slotTime >= aptStart && slotTime < aptEnd
+          
+          return (
+            apt.staffId === selectedStaff &&
+            isSameDay(aptStart, day) &&
+            (isBeforeAppointment || isDuringAppointment)
+          )
+        })
 
         const isPastDateTime = currentTime < now
         const isFutureDateTime = currentTime > oneMonthFromNow
@@ -261,7 +271,7 @@ export default function NewReservation() {
           available: !hasConflict && !isPastDateTime && !isFutureDateTime
         })
 
-        currentTime = addMinutes(currentTime, 30)
+        currentTime = addMinutes(currentTime, 15)
       }
     })
 
@@ -371,90 +381,6 @@ export default function NewReservation() {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">{t("newReservation.customerInformation")}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="firstName">{t("newReservation.firstName")}</Label>
-                  <Input
-                    id="firstName"
-                    value={customerInfo.firstName}
-                    onChange={(e) => setCustomerInfo({...customerInfo, firstName: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">{t("newReservation.lastName")}</Label>
-                  <Input
-                    id="lastName"
-                    value={customerInfo.lastName}
-                    onChange={(e) => setCustomerInfo({...customerInfo, lastName: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email">{t("newReservation.email")}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={customerInfo.email}
-                    onChange={(e) => setCustomerInfo({...customerInfo, email: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="phone">{t("newReservation.phone")}</Label>
-                  {isPhoneInputReady ? (
-                    <PhoneInput
-                      country={'ch'}
-                      value={customerInfo.phone}
-                      onChange={(phone) => setCustomerInfo({
-                        ...customerInfo,
-                        phone: phone
-                      })}
-                      inputClass="!w-full !h-10 !text-base !border-input !bg-background !text-foreground"
-                      containerClass="!w-full"
-                      buttonClass="!h-10 !border-input !bg-background"
-                      dropdownClass="!bg-popover !text-foreground"
-                      searchClass="!bg-background !text-foreground"
-                      enableSearch={true}
-                      inputProps={{
-                        id: 'phone',
-                      }}
-                      inputStyle={{
-                        width: '100%',
-                        height: '40px',
-                        fontSize: '16px',
-                        borderRadius: '6px',
-                      }}
-                      buttonStyle={{
-                        borderRadius: '6px 0 0 6px',
-                      }}
-                    />
-                  ) : (
-                    <div className="h-10 bg-background rounded-md animate-pulse" />
-                  )}
-                </div>
-                <div className="md:col-span-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="kvkk"
-                      checked={isKvkkAccepted}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setIsKvkkDialogOpen(true)
-                        } else {
-                          setIsKvkkAccepted(false)
-                        }
-                      }}
-                    />
-                    <label
-                      htmlFor="kvkk"
-                      className="text-sm text-muted-foreground cursor-pointer"
-                    >
-                      {t("newReservation.kvkkConsent")}
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
             <div>
               <Label htmlFor="branch">{t("newReservation.selectBranch")}</Label>
               <Select 
@@ -551,63 +477,167 @@ export default function NewReservation() {
                 </div>
               </div>
             )}
-          </div>
-          {selectedService && selectedStaff && (
-            <div className="mt-6">
-              <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
-                <Button onClick={handlePrevWeek} className="mb-2 sm:mb-0">
-                  &lt; {t("newReservation.previousWeek")}
-                </Button>
-                <h2 className="text-lg font-semibold text-center">
-                  {format(weekStart, 'dd.MM.yyyy')} - {format(weekEnd, 'dd.MM.yyyy')}
-                </h2>
-                <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">
-                  {t("newReservation.nextWeek")} &gt;
-                </Button>
+            {selectedService && selectedStaff && (
+              <div className="mt-6">
+                <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
+                  <Button onClick={handlePrevWeek} className="mb-2 sm:mb-0">
+                    &lt; {t("newReservation.previousWeek")}
+                  </Button>
+                  <h2 className="text-lg font-semibold text-center">
+                    {format(weekStart, 'dd.MM.yyyy')} - {format(weekEnd, 'dd.MM.yyyy')}
+                  </h2>
+                  <Button onClick={handleNextWeek} className="mt-2 sm:mt-0">
+                    {t("newReservation.nextWeek")} &gt;
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 select-none">
+                  {days.map((day) => (
+                    <Card key={day.toString()} className="p-2">
+                      <CardHeader className="p-2">
+                        <CardTitle className="text-sm">{format(day, 'EEE')}</CardTitle>
+                        <p className="text-xs text-muted-foreground">{format(day, 'MMM d')}</p>
+                      </CardHeader>
+                      <CardContent className="p-2">
+                        <ScrollArea className="h-32 sm:h-40">
+                          {isStaffWorkingOnDay(selectedStaff, day) ? (
+                            getAvailableTimesForDay(day).map(({ time, available }) => {
+                              const isPastDateTime = time < new Date()
+                              const isFutureDateTime = time > addDays(new Date(), 30)
+                              return (
+                                <Button
+                                  key={time.toISOString()}
+                                  variant="outline"
+                                  className={`w-full mb-1 ${
+                                    isPastDateTime || isFutureDateTime
+                                      ? 'line-through text-muted-foreground hover:no-underline cursor-not-allowed'
+                                      : available 
+                                        ? selectedTime && isSameDay(selectedTime, time) && selectedTime.getTime() === time.getTime()
+                                          ? 'bg-green-500 text-white hover:bg-green-600'
+                                          : 'hover:bg-green-100'
+                                        : existingAppointments.some(apt => {
+                                            const aptStart = new Date(apt.start)
+                                            const aptEnd = new Date(apt.end)
+                                            return isSameDay(aptStart, time) && time >= aptStart && time < aptEnd
+                                          })
+                                          ? 'bg-red-100 cursor-not-allowed'
+                                          : 'opacity-50 text-muted-foreground hover:no-underline cursor-not-allowed'
+                                  }`}
+                                  onClick={() => !isPastDateTime && !isFutureDateTime && available && setSelectedTime(time)}
+                                  disabled={isPastDateTime || isFutureDateTime || !available}
+                                >
+                                  {format(time, 'HH:mm')}
+                                </Button>
+                              )
+                            })
+                          ) : (
+                            <p className="text-xs text-muted-foreground">{t("newReservation.notAvailable")}</p>
+                          )}
+                        </ScrollArea>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 select-none">
-                {days.map((day) => (
-                  <Card key={day.toString()} className="p-2">
-                    <CardHeader className="p-2">
-                      <CardTitle className="text-sm">{format(day, 'EEE')}</CardTitle>
-                      <p className="text-xs text-muted-foreground">{format(day, 'MMM d')}</p>
-                    </CardHeader>
-                    <CardContent className="p-2">
-                      <ScrollArea className="h-32 sm:h-40">
-                        {isStaffWorkingOnDay(selectedStaff, day) ? (
-                          getAvailableTimesForDay(day).map(({ time, available }) => {
-                            const isPastDateTime = time < new Date()
-                            const isFutureDateTime = time > addDays(new Date(), 30)
+            )}
+            {selectedTime && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">{t("newReservation.customerInformation")}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">{t("newReservation.firstName")}</Label>
+                    <Input
+                      id="firstName"
+                      value={customerInfo.firstName}
+                      onChange={(e) => setCustomerInfo({...customerInfo, firstName: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">{t("newReservation.lastName")}</Label>
+                    <Input
+                      id="lastName"
+                      value={customerInfo.lastName}
+                      onChange={(e) => setCustomerInfo({...customerInfo, lastName: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">{t("newReservation.email")}</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={customerInfo.email}
+                      onChange={(e) => setCustomerInfo({...customerInfo, email: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">{t("newReservation.phone")}</Label>
+                    {isPhoneInputReady ? (
+                      <PhoneInput
+                        country={'de'}
+                        value={customerInfo.phone}
+                        onChange={(phone) => setCustomerInfo({
+                          ...customerInfo,
+                          phone: phone
+                        })}
+                        inputClass="!w-full !h-10 !text-base !border-input !bg-background !text-foreground"
+                        containerClass="!w-full"
+                        buttonClass="!h-10 !border-input !bg-background"
+                        dropdownClass="!bg-popover !text-foreground"
+                        searchClass="!bg-background !text-foreground"
+                        enableSearch={true}
+                        inputProps={{
+                          id: 'phone',
+                        }}
+                        inputStyle={{
+                          width: '100%',
+                          height: '40px',
+                          fontSize: '16px',
+                          borderRadius: '6px',
+                        }}
+                        buttonStyle={{
+                          borderRadius: '6px 0 0 6px',
+                        }}
+                      />
+                    ) : (
+                      <div className="h-10 bg-background rounded-md animate-pulse" />
+                    )}
+                  </div>
+                  <div className="md:col-span-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="kvkk"
+                        checked={isKvkkAccepted}
+                        onCheckedChange={(checked: boolean) => {
+                          setIsKvkkAccepted(checked)
+                        }}
+                      />
+                      <label
+                        htmlFor="kvkk"
+                        className="text-sm text-muted-foreground cursor-pointer"
+                      >
+                        {t("newReservation.kvkkConsent").split(/\b(Datenschutzbestimmungen|Personal Data Protection Law terms)\b/).map((part, index) => {
+                          if (part === "Datenschutzbestimmungen" || part === "Personal Data Protection Law terms") {
                             return (
-                              <Button
-                                key={time.toISOString()}
-                                variant="outline"
-                                className={`w-full mb-1 ${
-                                  isPastDateTime || isFutureDateTime
-                                    ? 'line-through text-muted-foreground hover:no-underline cursor-not-allowed'
-                                    : available 
-                                      ? selectedTime && isSameDay(selectedTime, time) && selectedTime.getTime() === time.getTime()
-                                        ? 'bg-green-500 text-white hover:bg-green-600'
-                                        : 'hover:bg-green-100'
-                                      : 'bg-red-100 cursor-not-allowed'
-                                }`}
-                                onClick={() => !isPastDateTime && !isFutureDateTime && available && setSelectedTime(time)}
-                                disabled={isPastDateTime || isFutureDateTime || !available}
+                              <span
+                                key={index}
+                                className="underline cursor-pointer"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  setIsKvkkDialogOpen(true)
+                                }}
                               >
-                                {format(time, 'HH:mm')}
-                              </Button>
+                                {part}
+                              </span>
                             )
-                          })
-                        ) : (
-                          <p className="text-xs text-muted-foreground">{t("newReservation.notAvailable")}</p>
-                        )}
-                      </ScrollArea>
-                    </CardContent>
-                  </Card>
-                ))}
+                          }
+                          return part
+                        })}
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </CardContent>
         <CardFooter>
           <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>

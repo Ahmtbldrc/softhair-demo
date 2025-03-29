@@ -25,7 +25,7 @@
     "allRightsReserved": "All rights reserved",
     "language": "Language",
     "bookAppointment": "Book Appointment",
-    "brand": "Royal Team",
+    "brand": "Styling Lounge 61",
     "navigation": "Navigation Menu",
     "selectBranch": "Select Branch",
     "edit": "Edit",
@@ -561,7 +561,7 @@
     "title": "About Us",
     "subtitle": "Experience the Art of Professional Haircare",
     "content": {
-      "intro": "Royal Team is your",
+      "intro": "Styling Lounge 61 is your",
       "trustedPartner": "trusted partner",
       "for": "for perfect styling. With",
       "experience": "years of experience",
@@ -590,7 +590,7 @@
     "team": "Team"
   },
   "hero": {
-    "title": "Royal Team",
+    "title": "Styling Lounge 61",
     "subtitle": {
       "part1": "Your Style, ",
       "part2": "Our Passion"
@@ -603,12 +603,12 @@
     "followFacebook": "Follow us on Facebook",
     "followInstagram": "Follow us on Instagram",
     "followTwitter": "Follow us on Twitter",
-    "phone": "081 558 84 56",
-    "email": "info@royalcoiffeur.ch",
-    "addressOneLine": "Bahnhofstrasse 21A, 9470 Buchs, Switzerland",
-    "street": "Bahnhofstrasse 21A",
-    "city": "9470 Buchs",
-    "country": "Switzerland"
+    "phone": "089-13926220",
+    "email": "info@stylinglounge61.de",
+    "addressOneLine": "Arnulfstraße 61, 80636 München, Im Mercedes Benz Turm",
+    "street": "Arnulfstraße 61",
+    "city": "80636 München",
+    "country": "Germany"
   },
   "newReservation": {
     "title": "New Reservation",
@@ -650,7 +650,7 @@
     },
     "kvkkConsent": "I have read and accept the Personal Data Protection Law terms.",
     "kvkkTitle": "Privacy Policy",
-    "kvkkText": "**PRIVACY POLICY**\n\n**1. Data Controller**\nAt Royal Coiffeur, we place great importance on the protection and confidentiality of your personal data. Therefore, we inform you about the processing of your personal data in accordance with the Swiss Data Protection Act (DSG) and, where applicable, the General Data Protection Regulation (GDPR).\n\n**2. Collection and Processing of Personal Data**\nWe collect and process the following personal data:\n- First name, last name\n- Email address\n- Phone number\n- IP address and browser information\n- Website usage data (cookies)\n\n**3. Purpose of Processing Personal Data**\nYour personal data is processed for the following purposes:\n- Provision and optimization of our services\n- Compliance with legal obligations\n- Marketing and communication measures\n- Improvement of user experience\n\n**4. Disclosure of Personal Data**\nYour personal data may be shared with the following third parties in compliance with legal regulations:\n- Authorities and public institutions in Switzerland\n- Service providers and partner companies\n- IT service providers and hosting providers\n\n**5. Transfer Abroad**\nIf the transfer of personal data to countries outside Switzerland is necessary, we ensure that legal requirements are met, particularly through the conclusion of appropriate data protection agreements.\n\n**6. Retention Period**\nPersonal data is only stored as long as necessary for the respective purposes or as required by legal retention obligations.\n\n**7. Your Rights**\nIn accordance with the DSG and, where applicable, the GDPR, you have the following rights:\n- Right to access your stored data\n- Right to correct inaccurate data\n- Right to delete your data\n- Right to restrict processing\n- Right to object to data processing\n\nPlease direct inquiries to info@royalcoiffeur.ch.\n\n**8. Cookies and Tracking Technologies**\nOur website uses cookies to analyze and improve user experience. Details can be found in our cookie policy.\n\n**9. Changes to the Privacy Policy**\nWe reserve the right to update this privacy policy as needed. Please review it regularly.\n\n**10. Contact**\nIf you have any questions, you can reach us at 081 558 84 56.",
+    "kvkkText": "**PRIVACY POLICY**\n\n**1. Data Controller**\nAt Stiyling Lounge 61, we place great importance on the protection and confidentiality of your personal data. Therefore, we inform you about the processing of your personal data in accordance with the Swiss Data Protection Act (DSG) and, where applicable, the General Data Protection Regulation (GDPR).\n\n**2. Collection and Processing of Personal Data**\nWe collect and process the following personal data:\n- First name, last name\n- Email address\n- Phone number\n- IP address and browser information\n- Website usage data (cookies)\n\n**3. Purpose of Processing Personal Data**\nYour personal data is processed for the following purposes:\n- Provision and optimization of our services\n- Compliance with legal obligations\n- Marketing and communication measures\n- Improvement of user experience\n\n**4. Disclosure of Personal Data**\nYour personal data may be shared with the following third parties in compliance with legal regulations:\n- Authorities and public institutions in Switzerland\n- Service providers and partner companies\n- IT service providers and hosting providers\n\n**5. Transfer Abroad**\nIf the transfer of personal data to countries outside Switzerland is necessary, we ensure that legal requirements are met, particularly through the conclusion of appropriate data protection agreements.\n\n**6. Retention Period**\nPersonal data is only stored as long as necessary for the respective purposes or as required by legal retention obligations.\n\n**7. Your Rights**\nIn accordance with the DSG and, where applicable, the GDPR, you have the following rights:\n- Right to access your stored data\n- Right to correct inaccurate data\n- Right to delete your data\n- Right to restrict processing\n- Right to object to data processing\n\nPlease direct inquiries to info@stylinglounge61.de \n\n**8. Cookies and Tracking Technologies**\nOur website uses cookies to analyze and improve user experience. Details can be found in our cookie policy.\n\n**9. Changes to the Privacy Policy**\nWe reserve the right to update this privacy policy as needed. Please review it regularly.\n\n**10. Contact**\nIf you have any questions, you can reach us at 081 558 84 56.",
     "kvkkAccept": "I have read and accept",
     "staffLanguages": "Languages spoken"
   },
@@ -688,8 +688,10 @@
     },
     "about": {
       "title": "About Us",
-      "description1": "Our experienced team of stylists and colorists specializes in giving you the perfect look. With years of experience and continuous training, we are always up to date with the latest hairstyle trends.",
-      "description2": "We place great importance on individual consultation and cater to your personal wishes to ensure that you leave our salon with a radiant smile."
+      "description1": "Welcome to Styling Lounge 61, your first-class hairdressing salon in the heart of Munich. Our salon, located in the stylish Mercedes Benz Center, combines modern design with an inviting ambience that invites you to relax and feel good.",
+      "description2": "Our experienced and passionate team is made up of highly skilled stylists who excel in creativity and craftsmanship. We offer a wide range of services from fashionable haircuts and innovative color techniques to luxurious grooming treatments. We use only the highest quality products to ensure that your hair not only looks great, but also feels healthy and well cared for.",
+      "description3": "We attach great importance to advising each customer individually and responding to their personal wishes. Our aim is to emphasize your natural beauty and perfectly accentuate your individual style. Whether classic, modern or extravagant - you are in the best hands with us.",
+      "description4": "Visit us and experience exclusive hair care at the highest level. Let our team pamper you and enjoy a break from everyday life. Styling Lounge 61 - your partner for beauty and well-being"
     }
   },
   "gallery": {

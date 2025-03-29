@@ -214,7 +214,7 @@ export function QuickReservationDialog({
                       <FormLabel>{t("admin-reservation.phone")}</FormLabel>
                       <FormControl>
                         <PhoneInput
-                          country={"ch"}
+                          country={"de"}
                           value={field.value}
                           onChange={(phone) => field.onChange(phone)}
                           inputClass="!w-full !h-10 !text-base !border-input !bg-background !text-foreground !rounded-md !border-[1px] focus:!ring-2 focus:!ring-ring focus:!ring-offset-0"
