@@ -242,7 +242,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
       if (service && staffMember && reservation.customer.email) {
         await mail.sendMail({
           to: reservation.customer.email,
-          subject: "Ihre Reservation bei Royal Team Coiffeur wurde storniert - " + format(reservation.start ?? "", "dd.MM.yyyy") + " um " + format(reservation.start ?? "", "HH:mm"),
+          subject: "Ihre Reservation bei Styling Lounge 61 wurde storniert - " + format(reservation.start ?? "", "dd.MM.yyyy") + " um " + format(reservation.start ?? "", "HH:mm"),
           html: getReservationCancellationTemplate(
             new Date(reservation.start ?? ""),
             service.name ?? "",
@@ -365,7 +365,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
       if (data.customer.email && staffMember) {
         await mail.sendMail({
           to: data.customer.email,
-          subject: "Bestätigung Ihrer Reservation bei Royal Team Coiffeur - " + format(data.start, "dd.MM.yyyy") + " um " + format(data.start, "HH:mm"),
+          subject: "Bestätigung Ihrer Reservation bei Styling Lounge 61 - " + format(data.start, "dd.MM.yyyy") + " um " + format(data.start, "HH:mm"),
           html: getReservationConfirmationTemplate(
             data.start,
             service.name ?? "",

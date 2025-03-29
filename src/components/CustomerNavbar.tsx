@@ -74,7 +74,7 @@ const Navbar = () => {
         <div className="container mx-auto px-4 py-4">
           <Image
             src="/image/Logo-2007.png"
-            alt="Royal Team Logo"
+            alt="Styling Lounge 61 Logo"
             width={150}
             height={50}
             className="object-contain"
@@ -91,7 +91,7 @@ const Navbar = () => {
         <Link href="/">
           <Image
             src="/image/Logo-2007.png"
-            alt="Royal Team Logo"
+            alt="Styling Lounge 61 Logo"
             width={120}
             height={50}
             className="object-contain"
@@ -144,7 +144,7 @@ const Navbar = () => {
               <Link href="/">
                 <Image
                   src="/image/Logo-2007.png"
-                  alt="Royal Team Logo"
+                  alt="Styling Lounge 61 Logo"
                   width={120}
                   height={40}
                   className="object-contain"

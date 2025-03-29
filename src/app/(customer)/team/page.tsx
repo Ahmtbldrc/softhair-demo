@@ -351,7 +351,7 @@ export default function Team() {
             <div className="w-full lg:w-1/2">
               <div className="relative aspect-[2.8/4] w-full">
                 <Image 
-                  src="/image/team-1.JPG" 
+                  src="/image/team-1.jpg" 
                   alt="Team" 
                   fill
                   className="rounded-lg neon-card object-cover"

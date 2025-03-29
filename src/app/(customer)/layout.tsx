@@ -8,8 +8,8 @@ import BackToTop from '@/components/BackToTop'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Royal Team - Ihr Friseur',
-  description: 'Professionelle Haarpflege und Styling in Berlin',
+  title: 'Styling Lounge 61 - Ihr Friseur in München',
+  description: 'Professionelle Haarpflege und Styling in München',
 }
 
 export default function RootLayout({

@@ -330,7 +330,7 @@ export default function NewReservation() {
 
     mail.sendMail({
       to: customerInfo.email,
-      subject: `Bestätigung Ihrer Reservation bei Royal Team Coiffeur - ${format(selectedTime, "dd.MM.yyyy")} um ${format(selectedTime, "HH:mm")}`,
+      subject: `Bestätigung Ihrer Reservation bei Styling Lounge 61 - ${format(selectedTime, "dd.MM.yyyy")} um ${format(selectedTime, "HH:mm")}`,
       html: getReservationConfirmationTemplate(
         selectedTime,
         service?.name || '',

@@ -844,7 +844,7 @@ export default function Home() {
                     </div>
                     <div className="flex-shrink-0">
                       <span className="price-value text-2xl font-bold metal-text whitespace-nowrap">
-                        {price.price - 5} €
+                        {price.price} €
                       </span>
                     </div>
                   </div>
