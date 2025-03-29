@@ -171,14 +171,14 @@ export default function KadirPage() {
               variant="outline"
               onClick={() => router.push("/waitlist/form")}
             >
-              Lass uns treffen?
+                Warteliste
             </Button>
             <Button 
               className="w-full h-12 bg-black text-white border-2 border-black hover:bg-black/90 transition-all duration-300 hover:shadow-lg hover:shadow-black/20 hover:-translate-y-0.5 font-bold tracking-wide rounded-xl flex items-center justify-center"
               variant="outline"
               onClick={() => window.open('https://wa.me/16508700942', '_blank')}
             >
-              Chatten Sie jetzt mit TellMin KI !
+              Tellmin
               <Image
                 src="/image/tellmin-logo.png"
                 alt="TellMin Logo"
