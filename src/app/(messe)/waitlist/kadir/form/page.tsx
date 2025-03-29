@@ -1,17 +1,10 @@
 "use client";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Inter } from "next/font/google";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-});
 
 const backgroundStyle = `
   html, body {

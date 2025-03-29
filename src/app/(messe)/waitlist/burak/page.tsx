@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Inter } from "next/font/google";
-import { FaLinkedin, FaInstagram, FaGlobe } from "react-icons/fa";
+import { FaInstagram, FaGlobe } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Footer from "@/components/Footer";
 
