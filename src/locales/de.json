@@ -406,6 +406,10 @@
     "selected": "ausgewählt"
   },
   "staff-reservation": {
+    "reservationCalendar": "Terminkalender",
+    "reservationCalendarDescription": "Verwalten Sie Ihre Termine",
+    "selectStaff": "Personal auswählen",
+    "allStaff": "Alle Mitarbeiter",
     "myReservations": "Meine Termine",
     "welcome": "Willkommen, ",
     "previousWeek": "Vorherige",
@@ -442,7 +446,76 @@
     "reservationConfirmedDescription": "Ihr Termin wurde erfolgreich gebucht.",
     "reservationConfirmedMail": "Eine Bestätigungs-E-Mail wurde gesendet an",
     "close": "Schließen",
-    "noAppointments": "Keine Termine für heute"
+    "noAppointments": "Keine Termine für heute",
+    "calendar": {
+      "month": "Monat",
+      "week": "Woche",
+      "day": "Tag",
+      "today": "Heute",
+      "viewSwitcher": "Ansicht wechseln",
+      "upcomingEvents": "Kommende Termine",
+      "noEvents": "Keine kommenden Termine",
+      "moreEvents": "weitere",
+      "loading": "Kalender wird geladen...",
+      "selectDate": "Datum auswählen",
+      "days": {
+        "monday": "Montag",
+        "tuesday": "Dienstag",
+        "wednesday": "Mittwoch",
+        "thursday": "Donnerstag",
+        "friday": "Freitag",
+        "saturday": "Samstag",
+        "sunday": "Sonntag"
+      },
+      "timeSlots": {
+        "morning": "Vormittag",
+        "afternoon": "Nachmittag",
+        "evening": "Abend",
+        "noAvailableSlots": "Keine verfügbaren Zeitfenster"
+      },
+      "navigation": {
+        "previousMonth": "Vorheriger Monat",
+        "nextMonth": "Nächster Monat",
+        "previousWeek": "Vorherige Woche",
+        "nextWeek": "Nächste Woche",
+        "previousDay": "Vorheriger Tag",
+        "nextDay": "Nächster Tag"
+      },
+      "months": {
+        "january": "Januar",
+        "february": "Februar",
+        "march": "März",
+        "april": "April",
+        "may": "Mai",
+        "june": "Juni",
+        "july": "Juli",
+        "august": "August",
+        "september": "September",
+        "october": "Oktober",
+        "november": "November",
+        "december": "Dezember"
+      },
+      "noAvailableSlots": "Keine verfügbaren Zeitfenster",
+      "noAvailableSlotsDescription": "An diesem Tag sind keine Mitarbeiter verfügbar"
+    },
+    "tooltips": {
+      "clickToViewDetails": "Klicken Sie für Details",
+      "dragToReschedule": "Ziehen zum Verschieben",
+      "staffMember": "Mitarbeiter",
+      "service": "Dienstleistung",
+      "duration": "Dauer",
+      "price": "Preis"
+    },
+    "confirmDialog": {
+      "reschedule": {
+        "title": "Termin verschieben",
+        "description": "Möchten Sie diesen Termin wirklich verschieben?",
+        "confirm": "Ja, verschieben",
+        "cancel": "Nein, beibehalten"
+      }
+    },
+    "quickBook": "Schnellbuchung",
+    "selectService": "Wählen Sie einen Service"
   },
   "services": {
     "haircut": {

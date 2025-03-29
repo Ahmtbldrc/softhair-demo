@@ -477,6 +477,10 @@
     "selected": "selected"
   },
   "staff-reservation":{
+    "reservationCalendar": "Reservation Calendar",
+    "reservationCalendarDescription": "Manage your reservations",
+    "selectStaff": "Select Staff",
+    "allStaff": "All Staff",
     "myReservations": "My Reservations",
     "welcome": "Welcome, ",
     "previousWeek": "Previous",
@@ -491,7 +495,7 @@
     "phone": "Phone",
     "cancelReservation": "Cancel Reservation",
     "confirmCancellationDescription": "Are you sure you want to cancel the reservation?",
-    "confirmCancellationDescription-2": "This action cannot be undone.This will permanently cancel the reservation.",
+    "confirmCancellationDescription-2": "This action cannot be undone.",
     "noKeepReservation": "No, keep the reservation",
     "yesCancelReservation": "Yes, cancel the reservation",
     "newReservation": "New Reservation",
@@ -513,7 +517,76 @@
     "reservationConfirmedDescription": "Your reservation has been successfully booked.",
     "reservationConfirmedMail": "An email confirmation has been sent to",
     "close": "Close",
-    "noAppointments": "No appointments for today"
+    "noAppointments": "No appointments for today",
+    "calendar": {
+      "month": "Month",
+      "week": "Week",
+      "day": "Day",
+      "today": "Today",
+      "viewSwitcher": "View Switcher",
+      "upcomingEvents": "Upcoming Events",
+      "noEvents": "No upcoming events",
+      "moreEvents": "more",
+      "loading": "Loading calendar...",
+      "selectDate": "Select Date",
+      "days": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      },
+      "timeSlots": {
+        "morning": "Morning",
+        "afternoon": "Afternoon",
+        "evening": "Evening",
+        "noAvailableSlots": "No available slots"
+      },
+      "navigation": {
+        "previousMonth": "Previous month",
+        "nextMonth": "Next month",
+        "previousWeek": "Previous week",
+        "nextWeek": "Next week",
+        "previousDay": "Previous day",
+        "nextDay": "Next day"
+      },
+      "months": {
+        "january": "January",
+        "february": "February",
+        "march": "March",
+        "april": "April",
+        "may": "May",
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "september": "September",
+        "october": "October",
+        "november": "November",
+        "december": "December"
+      },
+      "noAvailableSlots": "No Available Slots",
+      "noAvailableSlotsDescription": "No staff members are available on this day"
+    },
+    "tooltips": {
+      "clickToViewDetails": "Click to view details",
+      "dragToReschedule": "Drag to reschedule",
+      "staffMember": "Staff member",
+      "service": "Service",
+      "duration": "Duration",
+      "price": "Price"
+    },
+    "confirmDialog": {
+      "reschedule": {
+        "title": "Reschedule Appointment",
+        "description": "Are you sure you want to reschedule this appointment?",
+        "confirm": "Yes, reschedule",
+        "cancel": "No, keep as is"
+      }
+    },
+    "quickBook": "Quick Booking",
+    "selectService": "Select a service"
   },
   "services": {
     "title": "Services",

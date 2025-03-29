@@ -410,7 +410,7 @@ export function DayCalendar({
                         ? "bg-background dark:bg-muted/5" 
                         : "bg-muted/5 dark:bg-muted/10",
                       !staff.status && "bg-muted/20 dark:bg-muted/30 opacity-50",
-                      !isWorking && !isBreak && "bg-muted/10 dark:bg-muted/20",
+                      !isWorking && !isBreak && "bg-gray-100 dark:bg-neutral-900",
                       isBreak && "bg-orange-100 dark:bg-orange-900/20",
                       isAvailable && staff.status && "hover:bg-primary/10 dark:hover:bg-primary/20 cursor-pointer",
                       // Add border-b only if next slot is not a break
