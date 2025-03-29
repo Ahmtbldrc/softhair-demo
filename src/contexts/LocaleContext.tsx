@@ -6,6 +6,7 @@ import {
   ReactNode,
   useState,
   useCallback,
+  useEffect,
 } from "react";
 import deLocale from "@/locales/de.json";
 import enLocale from "@/locales/en.json";
@@ -36,13 +37,16 @@ interface LocaleProviderProps {
 }
 
 export function LocaleProvider({ children }: LocaleProviderProps) {
-  const [currentLocale, setCurrentLocale] = useState<LocaleKey>(() => {
-    if (typeof window !== "undefined") {
-      const savedLocale = localStorage.getItem("NEXT_LOCALE");
-      return (savedLocale as LocaleKey) || "de";
+  const [currentLocale, setCurrentLocale] = useState<LocaleKey>("de");
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    const savedLocale = localStorage.getItem("NEXT_LOCALE");
+    if (savedLocale && (savedLocale === "de" || savedLocale === "en")) {
+      setCurrentLocale(savedLocale as LocaleKey);
     }
-    return "de";
-  });
+    setIsClient(true);
+  }, []);
 
   const availableLocales: LocaleKey[] = ["de", "en"];
 
@@ -90,6 +94,11 @@ export function LocaleProvider({ children }: LocaleProviderProps) {
     changeLocale,
     t,
   };
+
+  // Only render children after client-side initialization
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <LocaleContext.Provider value={value}>

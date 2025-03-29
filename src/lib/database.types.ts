@@ -33,6 +33,7 @@ export type Database = {
       reservations: {
         Row: {
           branchId: number | null
+          createdat: string | null
           customer: Json | null
           end: string | null
           id: number
@@ -43,6 +44,7 @@ export type Database = {
         }
         Insert: {
           branchId?: number | null
+          createdat?: string | null
           customer?: Json | null
           end?: string | null
           id?: number
@@ -53,6 +55,7 @@ export type Database = {
         }
         Update: {
           branchId?: number | null
+          createdat?: string | null
           customer?: Json | null
           end?: string | null
           id?: number
@@ -310,6 +313,39 @@ export type Database = {
             referencedColumns: ["staffId"]
           },
         ]
+      }
+      waitlists: {
+        Row: {
+          createdAt: string
+          email: string | null
+          id: number
+          name: string | null
+          phone: string | null
+          salonSoftware: string | null
+          saloonName: string | null
+          staffCount: number | null
+        }
+        Insert: {
+          createdAt?: string
+          email?: string | null
+          id?: number
+          name?: string | null
+          phone?: string | null
+          salonSoftware?: string | null
+          saloonName?: string | null
+          staffCount?: number | null
+        }
+        Update: {
+          createdAt?: string
+          email?: string | null
+          id?: number
+          name?: string | null
+          phone?: string | null
+          salonSoftware?: string | null
+          saloonName?: string | null
+          staffCount?: number | null
+        }
+        Relationships: []
       }
     }
     Views: {

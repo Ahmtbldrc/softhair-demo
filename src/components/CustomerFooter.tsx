@@ -29,12 +29,6 @@ const Footer = () => {
 
   const socialLinks = [
     { 
-      key: 'facebook', 
-      href: 'https://www.facebook.com/share/1BmxbrLzw8/?mibextid=wwXIfr',
-      icon: Facebook,
-      ariaLabel: 'footer.followFacebook'
-    },
-    { 
       key: 'instagram', 
       href: 'https://www.instagram.com/stylinglounge61?igsh=MXB2amVheXJvaWJmMg%3D%3D&utm_source=qr',
       icon: Instagram,

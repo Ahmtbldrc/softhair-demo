@@ -90,10 +90,10 @@ VERSION:3.0
 N:Aydogdu;Burak;;;
 FN:Burak Aydogdu
 TEL;TYPE=CELL:+491746161163
-EMAIL:burak@tellmin.de
-URL:https://www.instagram.com/tellmin_/
-URL:https://tellmin.eu
-PHOTO;VALUE=URL:https://demo.softsidedigital.com/image/burak.jpg
+EMAIL:info@softsidedigital.com
+URL:https://www.instagram.com/softsidedigital/
+URL:https://www.softsidedigital.com
+PHOTO;VALUE=URL:https://demo.softsidedigital.com/image/softside.png
 END:VCARD`;
 
   const blob = new Blob([vcf], { type: 'text/vcard' });
@@ -127,7 +127,7 @@ export default function KadirPage() {
             <div className="flex flex-col items-center space-y-4">
               <div className="relative w-56 h-56 overflow-hidden border-2 border-white/20 rounded-xl">
                 <Image
-                  src="/image/burak.jpg"
+                  src="/image/softside.png"
                   alt="Profile"
                   fill
                   className="object-cover"
@@ -152,11 +152,11 @@ export default function KadirPage() {
               </div>
               <div className={`text-center space-y-2 ${inter.className}`}>
                 <h2 className="text-3xl font-bold dark:bg-gradient-to-r dark:from-gray-400 dark:via-white dark:to-gray-400 bg-gradient-to-r from-black via-gray-200 to-black animate-gradient bg-[length:200%_100%] bg-clip-text text-transparent hover:opacity-80 transition-opacity">
-                  Burak Aydogdu
+                  Softside Digital
                 </h2>
                 <div className="space-y-2 text-gray-400">
-                  <a href="mailto:burak@tellmin.de" className="text-base hover:text-white transition-colors block">
-                  burak@tellmin.de
+                  <a href="mailto:info@softsidedigital.com" className="text-base hover:text-white transition-colors block">
+                  info@softsidedigital.com
                   </a>
                   <a href="tel:+491746161163" className="text-base hover:text-white transition-colors block">
                     +49 174 6161163
@@ -188,10 +188,13 @@ export default function KadirPage() {
               />
             </Button>
             <div className="flex justify-center gap-6 mt-2">
-              <a href="https://www.instagram.com/tellmin_/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+             <a href="https://www.linkedin.com/company/softside-digital/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                <FaLinkedin size={24} />
+              </a>
+              <a href="https://www.instagram.com/softsidedigital/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                 <FaInstagram size={24} />
               </a>
-              <a href="https://tellmin.eu" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+              <a href="https://www.softsidedigital.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                 <FaGlobe size={24} />
               </a>
             </div>
