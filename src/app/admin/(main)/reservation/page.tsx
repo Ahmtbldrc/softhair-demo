@@ -21,7 +21,7 @@ import {
   ViewSwitcher,
   QuickReservationDialog
 } from "@/components/reservation"
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus, RotateCcw } from "lucide-react"
 import { isSameMonth } from "date-fns"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { StaffWithServices } from "@/lib/types"
@@ -65,30 +65,50 @@ const DailyNavigation = ({
     setSelectedDate(newDate)
   }
 
+  const handleToday = () => {
+    setSelectedDate(new Date())
+  }
+
   // Check if any staff member is working on this day
   const hasWorkingStaff = staffMembers.some(staff => {
     const dayHours = staff.weeklyHours?.[currentDay]
     return dayHours && dayHours.length > 0 && staff.status
   })
 
+  // Check if selected date is today
+  const isToday = selectedDate.toDateString() === new Date().toDateString()
+
   return (
-    <div className="flex items-center justify-between mb-4">
-      <Button variant="outline" onClick={handlePrevDay}>
-        <ChevronLeft className="h-4 w-4" />
-      </Button>
-      <div className="flex flex-col items-center gap-1">
-        <div className="font-medium">
-          {selectedDate.toLocaleDateString()} - {getLocalizedDayName(currentDay)}
-        </div>
-        {!hasWorkingStaff && (
-          <div className="text-sm text-muted-foreground">
-            {t('admin-reservation.calendar.noAvailableSlots')}
+    <div className="flex items-center justify-center mb-4 relative">
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="icon" onClick={handlePrevDay}>
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex flex-col items-center gap-1">
+          <div className="text-lg font-semibold">
+            {selectedDate.toLocaleDateString()} - {getLocalizedDayName(currentDay)}
           </div>
-        )}
+          {!hasWorkingStaff && (
+            <div className="text-sm text-muted-foreground">
+              {t('admin-reservation.calendar.noAvailableSlots')}
+            </div>
+          )}
+        </div>
+        <Button variant="outline" size="icon" onClick={handleNextDay}>
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
-      <Button variant="outline" onClick={handleNextDay}>
-        <ChevronRight className="h-4 w-4" />
-      </Button>
+      {!isToday && (
+        <Button 
+          variant="default" 
+          size="sm"
+          onClick={handleToday}
+          className="text-sm absolute right-0 top-0 bg-primary hover:bg-primary/90"
+        >
+          <RotateCcw className="h-4 w-4 mr-2" />
+          {t('admin-reservation.calendar.today')}
+        </Button>
+      )}
     </div>
   )
 }

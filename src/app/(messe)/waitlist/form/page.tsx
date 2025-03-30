@@ -35,8 +35,8 @@ const backgroundStyle = `
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow-x: hidden;
   }
 
   .bg-pattern {
@@ -59,11 +59,11 @@ const backgroundStyle = `
     position: relative;
     z-index: 2;
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
+    padding: 1rem;
     margin: 0;
   }
 
@@ -149,7 +149,7 @@ export default function FormPage() {
   
   return (
     <main 
-      className="fixed inset-0 w-full h-full flex flex-col"
+      className="min-h-screen w-full flex flex-col"
       style={{
         background: "radial-gradient(circle at center, #1E40AF, #000000)",
       }}
@@ -158,11 +158,11 @@ export default function FormPage() {
         {backgroundStyle}
       </style>
       <div className="bg-pattern"></div>
-      <div className="content flex-1">
-        <Card className="w-[400px] bg-white/5 border-white/20 card-shadow">
+      <div className="content">
+        <Card className="w-full max-w-[400px] bg-white/5 border-white/20 card-shadow">
           <CardContent className="pt-6">
             <div className="flex flex-col items-center space-y-6">
-              <h2 className={`text-2xl font-bold text-white text-center ${inter.className}`}>
+              <h2 className={`text-xl md:text-2xl font-bold text-white text-center ${inter.className}`}>
                 Ich möchte mich auf die Warteliste setzen 😊
               </h2>
               <div className="w-full space-y-4">

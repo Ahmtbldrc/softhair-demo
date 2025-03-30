@@ -108,8 +108,8 @@ export function DayCalendar({
     const endMinutes = end.getHours() * 60 + end.getMinutes()
     const startFromMinutes = earliestStart * 60
     
-    const topPosition = ((startMinutes - startFromMinutes) / 15) * 32 // 32px per 15 minutes
-    const height = ((endMinutes - startMinutes) / 15) * 32 // 32px per 15 minutes
+    const topPosition = ((startMinutes - startFromMinutes) / 15) * 12 // 12px per 15 minutes
+    const height = ((endMinutes - startMinutes) / 15) * 12 // 12px per 15 minutes
     
     return { top: topPosition, height }
   }
@@ -258,10 +258,10 @@ export function DayCalendar({
       return null
     }
 
-    // Calculate position in pixels (32px per 15 minutes)
+    // Calculate position in pixels (12px per 15 minutes)
     // Add 64px offset for the header row (h-16 = 64px)
     const minutesFromStart = currentTimeInMinutes - startTimeInMinutes
-    const position = (minutesFromStart / 15) * 32 + 64
+    const position = (minutesFromStart / 15) * 12 + 64
 
     return position
   }
@@ -366,12 +366,12 @@ export function DayCalendar({
               {/* Time indicator */}
               <div
                 className={cn(
-                  "w-20 border-b border-border pr-4 text-sm text-right flex items-center justify-end group",
+                  "w-20 border-b border-border pr-4 text-[10px] text-right flex items-center justify-end group",
                   timeIndex % 4 === 0 ? "text-muted-foreground" : "text-transparent group-hover:text-muted-foreground",
                   "transition-colors duration-200"
                 )}
                 style={{ 
-                  height: "2rem",
+                  height: "0.75rem",
                   pointerEvents: "auto"
                 }}
               >
@@ -410,7 +410,7 @@ export function DayCalendar({
                         ? "bg-background dark:bg-muted/5" 
                         : "bg-muted/5 dark:bg-muted/10",
                       !staff.status && "bg-muted/20 dark:bg-muted/30 opacity-50",
-                      !isWorking && !isBreak && "bg-gray-100 dark:bg-neutral-900",
+                      !isWorking && !isBreak && "bg-gray-300 dark:bg-neutral-700",
                       isBreak && "bg-orange-100 dark:bg-orange-900/20",
                       isAvailable && staff.status && "hover:bg-primary/10 dark:hover:bg-primary/20 cursor-pointer",
                       // Add border-b only if next slot is not a break
@@ -418,7 +418,7 @@ export function DayCalendar({
                       // Add border-l always
                       "border-l",
                       "border-border",
-                      "h-8"
+                      "h-3"
                     )}
                     style={{
                       pointerEvents: isAvailable && staff.status ? "auto" : "none"
@@ -448,10 +448,10 @@ export function DayCalendar({
 
                     {/* Floating time indicator */}
                     <div className={cn(
-                      "absolute left-0 -ml-20 w-20 pr-4 text-sm text-muted-foreground text-right",
+                      "absolute left-0 -ml-20 w-20 pr-4 text-[10px] text-muted-foreground text-right",
                       "opacity-0 group-hover:opacity-100 transition-opacity duration-200",
                       "pointer-events-none z-50 bg-background/80 backdrop-blur-sm",
-                      "h-8 flex items-center justify-end"
+                      "h-3 flex items-center justify-end"
                     )}>
                       {format(time, "HH:mm")}
                     </div>
@@ -477,7 +477,7 @@ export function DayCalendar({
                         <div
                           key={res.id}
                           className={cn(
-                            "absolute left-1.5 right-1.5 px-2.5 py-1.5 rounded-md cursor-pointer",
+                            "absolute left-1.5 right-1.5 px-1.5 py-0.5 rounded-md cursor-pointer",
                             "transition-all duration-200 group/res",
                             "text-white shadow-sm hover:shadow-md",
                             getServiceColor(res.serviceId ?? 0, res.id)
@@ -505,39 +505,28 @@ export function DayCalendar({
                             )}>
                               {isSingleLine ? (
                                 <>
-                                  <div className="flex items-center min-w-0">
-                                    <Avatar className="h-6 w-6 rounded-md flex-shrink-0 mr-2">
-                                      <AvatarImage 
-                                        src={res.customer.image || ""} 
-                                        alt={`${res.customer.firstName} ${res.customer.lastName}`} 
-                                      />
-                                      <AvatarFallback className="text-xs bg-primary/10 text-primary dark:bg-primary/20">
-                                        {res.customer.firstName?.[0]}{res.customer.lastName?.[0]}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                    <div className="font-medium text-sm truncate">
-                                      {res.customer.firstName} {res.customer.lastName}
-                                    </div>
+                                  <div className="font-medium text-[10px] truncate flex-1">
+                                    {res.customer.firstName} {res.customer.lastName}
                                   </div>
-                                  <div className="text-xs text-white/90 whitespace-nowrap">
+                                  <div className="text-[8px] text-white/90 whitespace-nowrap flex-shrink-0 ml-1">
                                     {format(start, "HH:mm")} - {format(end, "HH:mm")}
                                   </div>
                                 </>
                               ) : (
                                 <>
-                                  <Avatar className="h-6 w-6 rounded-md flex-shrink-0">
+                                  <Avatar className="h-4 w-4 rounded-md flex-shrink-0">
                                     <AvatarImage 
                                       src={res.customer.image || ""} 
                                       alt={`${res.customer.firstName} ${res.customer.lastName}`} 
                                     />
-                                    <AvatarFallback className="text-xs bg-primary/10 text-primary dark:bg-primary/20">
+                                    <AvatarFallback className="text-[10px] bg-primary/10 text-primary dark:bg-primary/20">
                                       {res.customer.firstName?.[0]}{res.customer.lastName?.[0]}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <div className="font-medium text-sm truncate flex-1 min-w-0 ml-2">
+                                  <div className="font-medium text-[10px] truncate flex-1 min-w-0 ml-1">
                                     {res.customer.firstName} {res.customer.lastName}
                                   </div>
-                                  <div className="text-xs text-white/90 whitespace-nowrap flex-shrink-0">
+                                  <div className="text-[8px] text-white/90 whitespace-nowrap flex-shrink-0">
                                     {format(start, "HH:mm")} - {format(end, "HH:mm")}
                                   </div>
                                 </>
