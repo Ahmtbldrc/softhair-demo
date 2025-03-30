@@ -8,7 +8,7 @@ interface MesseLayoutProps {
 export default function MesseLayout({ children }: MesseLayoutProps) {
   return (
     <div className="min-h-screen bg-white">
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto">
         {children}
       </main>
       <Toaster richColors position="top-center" />
