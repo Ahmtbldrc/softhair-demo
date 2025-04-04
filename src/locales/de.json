@@ -3,7 +3,8 @@
     "dashboard": "Dashboard",
     "staff": "Mitarbeiter",
     "services": "Dienstleistungen",
-    "reservations": "Termine"
+    "reservations": "Termine",
+    "customers": "Kunden"
   },
   "staff": {
     "myAccount": "Mein Konto",
@@ -48,8 +49,9 @@
     "breakTimeRange": "Pause {start}-{end}",
     "clickToBook": "Klicken zum Buchen",
     "inactive": "Inaktiv",
-    "confirm": "Bestätigen"
-    },
+    "confirm": "Bestätigen",
+    "success": "Erfolg"
+  },
   "auth": {
     "logout": "Abmelden",
     "poweredBy": "Bereitgestellt von",
@@ -728,5 +730,37 @@
     "appointments": "Termine",
     "selectStaff": "Personal auswählen",
     "allStaff": "Alle Personal"
+  },
+  "customers": {
+    "title": "Kunden",
+    "newCustomer": "Neuer Kunde",
+    "editCustomer": "Kunde bearbeiten",
+    "deleteCustomer": "Kunde löschen",
+    "search": "Kunden suchen...",
+    "loading": "Kunden werden geladen...",
+    "noCustomers": "Keine Kunden gefunden",
+    "name": "Name",
+    "surname": "Nachname",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "gender": "Geschlecht",
+    "male": "Männlich",
+    "female": "Weiblich",
+    "actions": "Aktionen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "confirmDelete": "Sind Sie sicher, dass Sie diesen Kunden löschen möchten?",
+    "deleteWarning": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "error": {
+      "title": "Fehler",
+      "description": "Beim Laden der Kundendaten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+      "retry": "Erneut versuchen"
+    },
+    "editDescription": "Kundeninformationen aktualisieren",
+    "updateSuccess": "Kundeninformationen wurden erfolgreich aktualisiert",
+    "createDescription": "Geben Sie die Details für den neuen Kunden ein",
+    "deleteSuccess": "Kunde wurde erfolgreich gelöscht"
   }
 }

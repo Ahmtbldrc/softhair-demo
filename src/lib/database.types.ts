@@ -30,11 +30,45 @@ export type Database = {
         }
         Relationships: []
       }
+      customers: {
+        Row: {
+          createdAt: string | null
+          email: string | null
+          gender: string
+          id: number
+          name: string
+          phone: string | null
+          surname: string
+          updatedAt: string | null
+        }
+        Insert: {
+          createdAt?: string | null
+          email?: string | null
+          gender: string
+          id?: never
+          name: string
+          phone?: string | null
+          surname: string
+          updatedAt?: string | null
+        }
+        Update: {
+          createdAt?: string | null
+          email?: string | null
+          gender?: string
+          id?: never
+          name?: string
+          phone?: string | null
+          surname?: string
+          updatedAt?: string | null
+        }
+        Relationships: []
+      }
       reservations: {
         Row: {
           branchId: number | null
           createdat: string | null
           customer: Json | null
+          customerId: number | null
           end: string | null
           id: number
           serviceId: number
@@ -46,6 +80,7 @@ export type Database = {
           branchId?: number | null
           createdat?: string | null
           customer?: Json | null
+          customerId?: number | null
           end?: string | null
           id?: number
           serviceId: number
@@ -57,6 +92,7 @@ export type Database = {
           branchId?: number | null
           createdat?: string | null
           customer?: Json | null
+          customerId?: number | null
           end?: string | null
           id?: number
           serviceId?: number

@@ -77,6 +77,9 @@ const NavLinks = React.memo(({ onClick }: { onClick?: () => void }) => {
       <NavLink href="/admin" onClick={onClick}>
         {t("admin.dashboard")}
       </NavLink>
+      <NavLink href="/admin/customers" onClick={onClick}>
+        {t("admin.customers")}
+      </NavLink>
     </>
   );
 });
