@@ -506,7 +506,7 @@ export function DayCalendar({
                               {isSingleLine ? (
                                 <>
                                   <div className="font-medium text-[10px] truncate flex-1">
-                                    {res.customer.firstName} {res.customer.lastName}
+                                    {res.customer.name} {res.customer.surname}
                                   </div>
                                   <div className="text-[8px] text-white/90 whitespace-nowrap flex-shrink-0 ml-1">
                                     {format(start, "HH:mm")} - {format(end, "HH:mm")}
@@ -514,17 +514,14 @@ export function DayCalendar({
                                 </>
                               ) : (
                                 <>
-                                  <Avatar className="h-4 w-4 rounded-md flex-shrink-0">
-                                    <AvatarImage 
-                                      src={res.customer.image || ""} 
-                                      alt={`${res.customer.firstName} ${res.customer.lastName}`} 
-                                    />
+                                  <Avatar className="h-4 w-4">
+                                    <AvatarImage src="" alt={`${res.customer.name} ${res.customer.surname}`} />
                                     <AvatarFallback className="text-[10px] bg-primary/10 text-primary dark:bg-primary/20">
-                                      {res.customer.firstName?.[0]}{res.customer.lastName?.[0]}
+                                      {res.customer.name[0]}{res.customer.surname[0]}
                                     </AvatarFallback>
                                   </Avatar>
                                   <div className="font-medium text-[10px] truncate flex-1 min-w-0 ml-1">
-                                    {res.customer.firstName} {res.customer.lastName}
+                                    {res.customer.name} {res.customer.surname}
                                   </div>
                                   <div className="text-[8px] text-white/90 whitespace-nowrap flex-shrink-0">
                                     {format(start, "HH:mm")} - {format(end, "HH:mm")}
@@ -548,14 +545,24 @@ export function DayCalendar({
                               <div className="flex items-center gap-2 text-sm font-medium">
                                 <Avatar className="h-6 w-6 rounded-md">
                                   <AvatarImage 
-                                    src={res.customer.image || ""} 
-                                    alt={`${res.customer.firstName} ${res.customer.lastName}`} 
+                                    src="" 
+                                    alt={`${res.customer.name} ${res.customer.surname}`} 
                                   />
                                   <AvatarFallback className="text-xs bg-primary/10 text-primary dark:bg-primary/20">
-                                    {res.customer.firstName?.[0]}{res.customer.lastName?.[0]}
+                                    {res.customer.name[0]}{res.customer.surname[0]}
                                   </AvatarFallback>
                                 </Avatar>
-                                <span>{res.customer.firstName} {res.customer.lastName}</span>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Avatar className="h-6 w-6">
+                                      <AvatarImage src="" alt={`${res.customer.name} ${res.customer.surname}`} />
+                                      <AvatarFallback className="text-xs bg-primary/10 text-primary dark:bg-primary/20">
+                                        {res.customer.name[0]}{res.customer.surname[0]}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <span>{res.customer.name} {res.customer.surname}</span>
+                                  </div>
+                                </div>
                               </div>
                               <div className="flex items-center gap-2 text-sm">
                                 <Clock className="h-4 w-4 text-primary" />

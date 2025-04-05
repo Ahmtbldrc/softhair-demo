@@ -15,6 +15,12 @@ import { isStaffWorkingOnDay, getAvailableTimesForDay } from "@/lib/utils/staff-
 import PhoneInput from "react-phone-input-2"
 import "react-phone-input-2/lib/style.css"
 import { useLocale } from "@/contexts/LocaleContext"
+import { searchCustomers } from "@/lib/services/customer.service"
+import { useState, useEffect } from "react"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Check, ChevronsUpDown } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface NewReservationFormProps {
   form: UseFormReturn<ReservationFormData>
@@ -42,10 +48,116 @@ export function NewReservationForm({
   handleNewReservation,
 }: NewReservationFormProps) {
   const { t } = useLocale()
+  const [searchTerm, setSearchTerm] = useState("")
+  const [customers, setCustomers] = useState<any[]>([])
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    const searchCustomer = async () => {
+      const { data, error } = await searchCustomers(searchTerm)
+      if (!error && data) {
+        setCustomers(data)
+      } else {
+        setCustomers([])
+      }
+    }
+
+    if (searchTerm.length >= 2) {
+      searchCustomer()
+    } else {
+      setCustomers([])
+    }
+  }, [searchTerm])
+
+  const getHighlightedText = (text: string, highlight: string) => {
+    if (!highlight.trim()) return text
+    const regex = new RegExp(`(${highlight.split(' ').join('|')})`, 'gi')
+    return text.split(regex).map((part, i) => 
+      regex.test(part) ? <span key={i} className="bg-yellow-100 dark:bg-yellow-800">{part}</span> : part
+    )
+  }
+
   return (
     <form onSubmit={form.handleSubmit(handleNewReservation)} className="space-y-6">
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">{t("admin-reservation.customerInformation")}</h3>
+        
+        {/* Customer Search */}
+        <div className="space-y-2">
+          <Label>{t("admin-reservation.searchCustomer")}</Label>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="w-full justify-between bg-background"
+              >
+                {searchTerm
+                  ? customers.find((customer) => 
+                      `${customer.name} ${customer.surname} ${customer.email} ${customer.phone}`.toLowerCase().includes(searchTerm.toLowerCase())
+                    )?.name || searchTerm
+                  : t("admin-reservation.searchCustomerPlaceholder")}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0" align="start">
+              <Command>
+                <CommandInput 
+                  placeholder={t("admin-reservation.searchCustomerPlaceholder")}
+                  value={searchTerm}
+                  onValueChange={(value) => {
+                    setSearchTerm(value)
+                    if (value.length >= 2) {
+                      setOpen(true)
+                    }
+                  }}
+                />
+                <CommandEmpty className="p-2">{t("admin-reservation.noCustomerFound")}</CommandEmpty>
+                <CommandGroup className="max-h-[300px] overflow-auto">
+                  {customers.map((customer) => (
+                    <CommandItem
+                      key={customer.id}
+                      value={`${customer.name} ${customer.surname} ${customer.email} ${customer.phone}`}
+                      onSelect={() => {
+                        form.setValue("customer.firstName", customer.name)
+                        form.setValue("customer.lastName", customer.surname)
+                        form.setValue("customer.email", customer.email)
+                        form.setValue("customer.phone", customer.phone || "")
+                        setSearchTerm(`${customer.name} ${customer.surname}`)
+                        setOpen(false)
+                      }}
+                      className="flex items-center gap-2 p-2 cursor-pointer hover:bg-accent"
+                    >
+                      <Check
+                        className={cn(
+                          "h-4 w-4",
+                          searchTerm && `${customer.name} ${customer.surname} ${customer.email} ${customer.phone}`.toLowerCase().includes(searchTerm.toLowerCase())
+                            ? "opacity-100"
+                            : "opacity-0"
+                        )}
+                      />
+                      <div className="flex flex-col">
+                        <span className="font-medium">
+                          {customer.name} {customer.surname}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {customer.email}
+                        </span>
+                        {customer.phone && (
+                          <span className="text-sm text-muted-foreground">
+                            {customer.phone}
+                          </span>
+                        )}
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="firstName">{t("admin-reservation.firstName")}</Label>

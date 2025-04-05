@@ -64,12 +64,51 @@ export const createReservation = async (reservationData: {
     const formattedStart = startDayjs.format('YYYY-MM-DD HH:mm:ss');
     const formattedEnd = endDayjs.format('YYYY-MM-DD HH:mm:ss');
     const formattedCreatedAt = now.format('YYYY-MM-DD HH:mm:ss');
+
+    // First, check if customer exists
+    const { data: existingCustomer, error: existingCustomerError } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('email', reservationData.customer.email)
+        .single();
+
+    let customerData;
+
+    if (existingCustomer) {
+        // Use existing customer
+        customerData = existingCustomer;
+    } else {
+        // Create new customer if doesn't exist
+        const { data: newCustomer, error: customerError } = await supabase
+            .from('customers')
+            .insert({
+                name: reservationData.customer.firstName,
+                surname: reservationData.customer.lastName,
+                email: reservationData.customer.email,
+                phone: reservationData.customer.phone,
+                gender: 'male', // Default gender
+                updatedAt: formattedCreatedAt
+            })
+            .select()
+            .single();
+
+        if (customerError) {
+            console.error('Error creating customer:', customerError);
+            return { error: 'Failed to create customer' };
+        }
+
+        customerData = newCustomer;
+    }
     
     const reservationPayload = {
-        ...reservationData,
+        serviceId: reservationData.serviceId,
+        staffId: reservationData.staffId,
+        branchId: reservationData.branchId,
         start: formattedStart,
         end: formattedEnd,
-        createdat: formattedCreatedAt
+        createdat: formattedCreatedAt,
+        customerId: customerData.id,
+        status: reservationData.status
     };
    
     const { data, error } = await supabase
@@ -107,7 +146,8 @@ export const getReservations = async (params: {
     status?: boolean;
     view?: 'day' | 'week' | 'month';
 }) => {
-    let query = supabase
+    // Önce rezervasyonları al
+    let reservationsQuery = supabase
         .from('reservations')
         .select(`
             *,
@@ -119,37 +159,68 @@ export const getReservations = async (params: {
 
     // Görünüme göre tarih aralığı kontrolü
     if (params.view === 'day') {
-        // Günlük görünüm: Sadece seçili günün randevuları
-        query = query
+        reservationsQuery = reservationsQuery
             .gte('start', params.startDate)
             .lt('start', params.endDate)
     } else if (params.view === 'week') {
-        // Haftalık görünüm: Haftanın başlangıcı ile bitişi arasındaki randevular
-        query = query
+        reservationsQuery = reservationsQuery
             .or(`start.gte.${params.startDate},end.lte.${params.endDate}`)
     } else {
-        // Aylık görünüm: Ayın başlangıcı ile bitişi arasındaki randevular
-        query = query
+        reservationsQuery = reservationsQuery
             .gte('start', params.startDate)
             .lt('start', params.endDate)
     }
 
     if (params.staffId) {
-        query = query.eq('staffId', params.staffId)
+        reservationsQuery = reservationsQuery.eq('staffId', params.staffId)
     }
 
     if (params.status !== undefined) {
-        query = query.eq('status', params.status)
+        reservationsQuery = reservationsQuery.eq('status', params.status)
     }
 
-    const { data, error } = await query
+    const { data: reservations, error: reservationsError } = await reservationsQuery
 
-    if (error) {
-        console.error('Error fetching reservations:', error.message)
-        return { error: error.message }
+    if (reservationsError) {
+        console.error('Error fetching reservations:', reservationsError.message)
+        return { error: reservationsError.message }
     }
 
-    return { data: data as ReservationWithDetails[] }
+    // Müşteri bilgilerini ayrı bir sorgu ile al
+    const { data: customers, error: customersError } = await supabase
+        .from('customers')
+        .select('*')
+
+    if (customersError) {
+        console.error('Error fetching customers:', customersError.message)
+        return { error: customersError.message }
+    }
+
+    // Rezervasyonları ve müşteri bilgilerini birleştir
+    const transformedData = reservations.map(reservation => {
+        const customer = customers.find(c => c.id === reservation.customerId) || {
+            id: 0,
+            name: 'Unknown',
+            surname: 'Customer',
+            email: '',
+            phone: '',
+            gender: ''
+        }
+
+        return {
+            ...reservation,
+            customer: {
+                id: customer.id,
+                name: customer.name,
+                surname: customer.surname,
+                email: customer.email,
+                phone: customer.phone,
+                gender: customer.gender
+            }
+        }
+    })
+
+    return { data: transformedData as ReservationWithDetails[] }
 }
 
 export const getDailyIncomeForWeeks = async (branchId: number) => {

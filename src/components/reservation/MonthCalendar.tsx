@@ -256,7 +256,7 @@ export function MonthCalendar({
                                 {format(startTime, "HH:mm")}
                               </span>
                               <span className="truncate flex-1">
-                                {res.customer.firstName} {res.customer.lastName}
+                                {res.customer.name} {res.customer.surname}
                               </span>
                             </div>
                             
@@ -276,7 +276,7 @@ export function MonthCalendar({
                                   </div>
                                   <div className="flex items-center gap-2 text-sm">
                                     <User className="h-4 w-4 text-primary" />
-                                    <span>{res.customer.firstName} {res.customer.lastName}</span>
+                                    <span>{res.customer.name} {res.customer.surname}</span>
                                   </div>
                                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <span className="font-medium">{service?.name}</span>
@@ -380,7 +380,7 @@ export function MonthCalendar({
                         {format(startTime, "HH:mm")}
                       </span>
                       <span className="truncate flex-1">
-                        {res.customer.firstName} {res.customer.lastName}
+                        {res.customer.name} {res.customer.surname}
                       </span>
                     </div>
                     
@@ -400,7 +400,7 @@ export function MonthCalendar({
                           </div>
                           <div className="flex items-center gap-2 text-sm">
                             <User className="h-4 w-4 text-primary" />
-                            <span>{res.customer.firstName} {res.customer.lastName}</span>
+                            <span>{res.customer.name} {res.customer.surname}</span>
                           </div>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <span className="font-medium">{service?.name}</span>

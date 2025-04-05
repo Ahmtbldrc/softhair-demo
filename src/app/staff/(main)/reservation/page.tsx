@@ -430,7 +430,7 @@ export default function ReservationPage() {
                               </div>
                               <div className="text-right">
                                 <p className="font-medium">
-                                  {reservation.customer.firstName} {reservation.customer.lastName}
+                                  {reservation.customer.name} {reservation.customer.surname}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
                                   {service?.price} €
@@ -860,8 +860,8 @@ export default function ReservationPage() {
                         {t("staff-reservation.customerInformation")}
                       </h3>
                       <p>
-                        {t("staff-reservation.name")}: {selectedReservation.customer.firstName}{" "}
-                        {selectedReservation.customer.lastName}
+                        {t("staff-reservation.name")}: {selectedReservation.customer.name}{" "}
+                        {selectedReservation.customer.surname}
                       </p>
                       <p>
                         {t("staff-reservation.email")}: {selectedReservation.customer.email}

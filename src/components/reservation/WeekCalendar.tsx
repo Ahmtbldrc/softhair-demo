@@ -163,7 +163,7 @@ export function WeekCalendar({
                 <div>
                   <div className="font-medium text-[13px] flex items-center gap-1.5">
                     <User className="h-3.5 w-3.5 text-primary/70 group-hover:text-primary transition-colors" />
-                    {reservation.customer.firstName} {reservation.customer.lastName}
+                    {reservation.customer.name} {reservation.customer.surname}
                   </div>
                   <div className="text-[11px] text-muted-foreground">
                     {reservation.customer.phone}
@@ -277,7 +277,7 @@ export function WeekCalendar({
                                   <div className="text-[12px] font-medium truncate flex items-center gap-1.5">
                                     <span>{format(time, "HH:mm")}</span>
                                     <span className="text-white/80">•</span>
-                                    <span className="truncate">{slotReservations[0].customer.firstName} {slotReservations[0].customer.lastName}</span>
+                                    <span className="truncate">{slotReservations[0].customer.name} {slotReservations[0].customer.surname}</span>
                                   </div>
                                   <div className="flex items-center gap-1">
                                     <span className="text-[11px] bg-white/20 px-1.5 py-0.5 rounded">
@@ -325,7 +325,7 @@ export function WeekCalendar({
                     <div>
                       <div className="font-medium text-[13px] flex items-center gap-1.5">
                         <User className="h-3.5 w-3.5 text-primary/70" />
-                        {reservation.customer.firstName} {reservation.customer.lastName}
+                        {reservation.customer.name} {reservation.customer.surname}
                       </div>
                       <div className="text-[11px] text-muted-foreground">
                         {reservation.customer.phone}
@@ -391,7 +391,7 @@ function AppointmentCard({
         <div className="text-[12px] font-medium truncate flex items-center gap-1.5">
           <span>{format(new Date(reservation.start ?? ""), "HH:mm")}</span>
           <span className="text-white/80">•</span>
-          <span className="truncate">{reservation.customer.firstName} {reservation.customer.lastName}</span>
+          <span className="truncate">{reservation.customer.name} {reservation.customer.surname}</span>
         </div>
       </div>
 
@@ -415,7 +415,7 @@ function AppointmentCard({
           </div>
           <div className="flex items-center gap-2 text-sm">
             <User className="h-4 w-4 text-primary" />
-            <span>{reservation.customer.firstName} {reservation.customer.lastName}</span>
+            <span>{reservation.customer.name} {reservation.customer.surname}</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span className="font-medium">{service?.name}</span>

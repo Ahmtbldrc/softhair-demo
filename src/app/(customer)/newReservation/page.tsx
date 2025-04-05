@@ -300,6 +300,24 @@ export default function NewReservation() {
       setIsSubmitting(false)
       return
     }
+
+    // Check if customer exists with the provided email
+    const { data: existingCustomer, error: customerCheckError } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('email', customerInfo.email)
+      .single()
+
+    if (customerCheckError && customerCheckError.code !== 'PGRST116') { // PGRST116 is "not found" error
+      console.error("Error checking customer:", customerCheckError)
+      toast({
+        title: "Error",
+        description: t("newReservation.errors.checkCustomer"),
+        variant: "destructive",
+      })
+      setIsSubmitting(false)
+      return
+    }
     
     const reservationData = {
       serviceId: selectedService,
@@ -313,6 +331,16 @@ export default function NewReservation() {
         phone: customerInfo.phone,
       },
       status: true
+    }
+
+    // If customer exists, use their existing record
+    if (existingCustomer) {
+      reservationData.customer = {
+        firstName: existingCustomer.name,
+        lastName: existingCustomer.surname,
+        email: existingCustomer.email,
+        phone: existingCustomer.phone || customerInfo.phone,
+      }
     }
 
     const { error } = await createReservation(reservationData)
@@ -337,7 +365,7 @@ export default function NewReservation() {
         service?.price || 0,
         staffMembers.find(s => s.id === selectedStaff)?.firstName || '',
         staffMembers.find(s => s.id === selectedStaff)?.lastName || '',
-        customerInfo.firstName || ''
+        reservationData.customer.firstName || ''
       )
     })
     setIsSubmitting(false)

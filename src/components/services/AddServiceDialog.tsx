@@ -55,7 +55,6 @@ export function AddServiceDialog({
       status: true,
       branchId: selectedBranchId ? selectedBranchId : 0,
       duration: 30,
-      isServiceGroup: false,
       subServiceIds: null
     }
   });

@@ -249,7 +249,7 @@ export function useReservationCalendar(branchId: number, t: (key: string, params
             service.price ?? 0,
             staffMember.firstName ?? "",
             staffMember.lastName ?? "",
-            reservation.customer.firstName ?? ""          )
+            reservation.customer.name ?? ""          )
         })
       }
 

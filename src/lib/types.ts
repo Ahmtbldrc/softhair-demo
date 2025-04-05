@@ -134,11 +134,11 @@ export interface StaffFormData extends Omit<Staff, 'id' | 'userId' | 'created_at
 export interface ReservationWithDetails extends Omit<Reservation, 'customer'> {
   customer: {
     id: number
-    firstName: string
-    lastName: string
+    name: string
+    surname: string
     email: string
     phone: string
-    image?: string | null
+    gender: string
   }
   service: {
     id: number

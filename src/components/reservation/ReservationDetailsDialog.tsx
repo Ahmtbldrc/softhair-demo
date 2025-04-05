@@ -83,11 +83,20 @@ export function ReservationDetailsDialog({
                 <h3 className="font-semibold">{t("admin-reservation.price")}</h3>
                 <p>{services.find(s => s.id === selectedReservation.serviceId)?.price} €</p>
               </div>
-              <div>
-                <h3 className="font-semibold mb-2">{t("admin-reservation.customerInformation")}</h3>
-                <p>{t("admin-reservation.name")}: {selectedReservation.customer.firstName} {selectedReservation.customer.lastName}</p>
-                <p>{t("admin-reservation.email")}: {selectedReservation.customer.email}</p>
-                <p>{t("admin-reservation.phone")}: {selectedReservation.customer.phone}</p>
+              <div className="mb-4">
+                <h3 className="font-semibold">{t("admin-reservation.customer")}</h3>
+                <div className="flex items-center space-x-4">
+                  <Avatar>
+                    <AvatarFallback>{selectedReservation.customer.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-medium">{selectedReservation.customer.name} {selectedReservation.customer.surname}</h3>
+                    <p className="text-sm text-muted-foreground">{selectedReservation.customer.email}</p>
+                    {selectedReservation.customer.phone && (
+                      <p className="text-sm text-muted-foreground">{selectedReservation.customer.phone}</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </CardContent>
             <CardFooter>

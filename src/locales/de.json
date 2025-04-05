@@ -353,7 +353,10 @@
       }
     },
     "quickBook": "Schnellbuchung",
-    "selectService": "Wählen Sie einen Service"
+    "selectService": "Wählen Sie einen Service",
+    "searchCustomer": "Kunde suchen",
+    "searchCustomerPlaceholder": "Nach Name, E-Mail oder Telefon suchen...",
+    "noCustomerFound": "Kein Kunde gefunden"
   },
   "staff-my-account": {
     "myAccount": "Mein Konto",

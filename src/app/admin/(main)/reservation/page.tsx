@@ -382,7 +382,7 @@ export default function AppointmentCalendar() {
                             onClick={() => handleReservationClick(res)}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-medium text-primary">{res.customer.firstName} {res.customer.lastName}</span>
+                              <span className="font-medium text-primary">{res.customer.name} {res.customer.surname}</span>
                               <div className="text-xs text-muted-foreground whitespace-nowrap ml-2">
                                 {startTime.toLocaleDateString(undefined, { 
                                   day: 'numeric',

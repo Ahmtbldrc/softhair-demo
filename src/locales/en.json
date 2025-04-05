@@ -424,7 +424,10 @@
       }
     },
     "quickBook": "Quick Booking",
-    "selectService": "Select a service"
+    "selectService": "Select a service",
+    "searchCustomer": "Search Customer",
+    "searchCustomerPlaceholder": "Search by name, email or phone...",
+    "noCustomerFound": "No customer found"
   },
   "staff-my-account":{
     "myAccount": "My Account",
@@ -731,13 +734,14 @@
     "selectBranch": "Select Branch",
     "chooseBranch": "Choose a branch",
     "errors": {
-      "selectAll": "Please select a service, staff, and time.",
-      "serviceNotFound": "Selected service not found.",
-      "fetchServices": "Failed to fetch services. Please try again.",
-      "fetchStaff": "Failed to fetch staff. Please try again.",
-      "fetchAppointments": "Failed to fetch existing appointments. Please try again.",
-      "createReservation": "Failed to create reservation. Please try again.",
-      "fetchBranches": "Error fetching branches"
+      "selectAll": "Please select all required fields",
+      "serviceNotFound": "Selected service not found",
+      "fetchBranches": "Failed to fetch branches",
+      "fetchServices": "Failed to fetch services",
+      "fetchAppointments": "Failed to fetch appointments",
+      "fetchStaff": "Failed to fetch staff members",
+      "createReservation": "Failed to create reservation",
+      "checkCustomer": "Failed to check customer information"
     },
     "kvkkConsent": "I have read and accept the Personal Data Protection Law terms.",
     "kvkkTitle": "Privacy Policy",
