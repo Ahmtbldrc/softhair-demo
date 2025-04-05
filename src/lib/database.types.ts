@@ -174,6 +174,7 @@ export type Database = {
           name: string | null
           price: number | null
           status: boolean
+          subServiceIds: number[] | null
         }
         Insert: {
           branchId?: number | null
@@ -182,6 +183,7 @@ export type Database = {
           name?: string | null
           price?: number | null
           status?: boolean
+          subServiceIds?: number[] | null
         }
         Update: {
           branchId?: number | null
@@ -190,6 +192,7 @@ export type Database = {
           name?: string | null
           price?: number | null
           status?: boolean
+          subServiceIds?: number[] | null
         }
         Relationships: [
           {
@@ -613,6 +616,16 @@ export type Database = {
         Returns: {
           active: number
           passive: number
+        }[]
+      }
+      get_services_with_subservices: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: number
+          name: string
+          duration: number
+          price: number
+          sub_services: Json
         }[]
       }
       get_weekly_visitors: {

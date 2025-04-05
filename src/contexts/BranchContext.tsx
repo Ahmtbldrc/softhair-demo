@@ -24,7 +24,14 @@ interface BranchProviderProps {
 export function BranchProvider({ children }: BranchProviderProps) {
   const pathname = usePathname();
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [selectedBranchId, setSelectedBranchId] = useState<number>(0);
+  const [selectedBranchId, setSelectedBranchId] = useState<number>(() => {
+    // Try to get from localStorage first
+    if (typeof window !== 'undefined') {
+      const storedBranchId = localStorage.getItem('selectedBranchId');
+      return storedBranchId ? parseInt(storedBranchId) : 0;
+    }
+    return 0;
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   const refreshBranches = async () => {
@@ -45,7 +52,12 @@ export function BranchProvider({ children }: BranchProviderProps) {
       setBranches(branchesResult.data ?? []);
       
       if (user?.user_metadata?.selectedBranchId) {
-        setSelectedBranchId(user.user_metadata.selectedBranchId);
+        const newBranchId = user.user_metadata.selectedBranchId;
+        setSelectedBranchId(newBranchId);
+        // Store in localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('selectedBranchId', newBranchId.toString());
+        }
       }
     } catch (error) {
       console.error("Error fetching branch data:", error);
@@ -78,6 +90,10 @@ export function BranchProvider({ children }: BranchProviderProps) {
       }
 
       setSelectedBranchId(branchId);
+      // Store in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('selectedBranchId', branchId.toString());
+      }
       toast({
         title: "Success",
         description: "Branch selected successfully"

@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase"
 import { Service, ServiceAppointmentStatistics } from "@/lib/database.aliases"
+import { ServiceWithBranch } from "@/lib/types"
 
 export async function createService(service: Omit<Service, 'id' | 'created_at' | 'updated_at'>) {
   const { data, error } = await supabase
@@ -44,17 +45,37 @@ export async function deleteService(id: number) {
 }
 
 export async function getActiveServices(branchId: number) {
-  const { data, error } = await supabase
-    .from("services")
-    .select("*")
-    .eq("branchId", branchId)
-    .eq("status", true)
+  console.log("getActiveServices called with branchId:", branchId);
+  try {
+    const { data, error } = await supabase
+      .from("services")
+      .select(`
+        *,
+        branch:branches (
+          id,
+          name
+        )
+      `)
+      .eq("branchId", branchId)
+      .eq("status", true);
 
-  if (error) {
-    return { error: error.message }
+    console.log("Supabase query result:", { data, error });
+
+    if (error) {
+      console.error("Error fetching services:", error);
+      return { error: error.message };
+    }
+
+    if (!data || data.length === 0) {
+      console.log("No services found for branchId:", branchId);
+      return { data: [] };
+    }
+
+    return { data: data as ServiceWithBranch[] };
+  } catch (err) {
+    console.error("Failed to fetch active services:", err);
+    return { error: "Failed to fetch active services" };
   }
-
-  return { data: data as Service[] }
 }
 
 export async function getAllServices(branchId: number) {

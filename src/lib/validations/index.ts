@@ -48,7 +48,9 @@ export const serviceSchema = z.object({
   duration: z.number()
     .min(5, 'Duration must be at least 5 minutes')
     .max(180, 'Duration cannot exceed 180 minutes')
-    .multipleOf(5, 'Duration must be in increments of 5 minutes')
+    .multipleOf(5, 'Duration must be in increments of 5 minutes'),
+  isServiceGroup: z.boolean().default(false),
+  subServiceIds: z.array(z.number()).nullable().default(null)
 })
 
 // Branch Schema

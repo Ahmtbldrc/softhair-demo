@@ -28,6 +28,13 @@ import { DeleteServiceDialog } from "@/components/services/DeleteServiceDialog";
 import { AddServiceDialog } from "@/components/services/AddServiceDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ServiceWithBranch } from "@/lib/types";
+import { supabase } from "@/lib/supabase";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { Badge } from "@/components/ui/badge";
 
 export default function ServicesPage() {
   const { t } = useLocale();
@@ -42,9 +49,11 @@ export default function ServicesPage() {
   const itemsPerPage = 10;
 
   const fetchServices = async () => {
+    console.log("Fetching services for branchId:", selectedBranchId);
     setIsLoading(true);
     try {
       const result = await getActiveServices(selectedBranchId);
+      console.log("Services fetch result:", result);
       if (result.error) {
         throw new Error(result.error);
       }
@@ -57,8 +66,24 @@ export default function ServicesPage() {
   };
 
   useEffect(() => {
+    console.log("Selected branch ID changed:", selectedBranchId);
     fetchServices();
   }, [selectedBranchId]);
+
+  // Add a new useEffect to handle initial load
+  useEffect(() => {
+    const initializeServices = async () => {
+      if (!selectedBranchId) {
+        // If no branch is selected, try to get the user's selected branch
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user?.user_metadata?.selectedBranchId) {
+          fetchServices();
+        }
+      }
+    };
+
+    initializeServices();
+  }, []);
 
   const handleEditClick = (service: Service) => {
     setSelectedService(service);
@@ -142,6 +167,7 @@ export default function ServicesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>{t("services.name")}</TableHead>
+                <TableHead>{t("services.subservices")}</TableHead>
                 <TableHead>{t("services.price")}</TableHead>
                 <TableHead>{t("services.duration")}</TableHead>
                 <TableHead className="w-[100px]">{t("common.actions")}</TableHead>
@@ -153,6 +179,7 @@ export default function ServicesPage() {
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={index}>
                     <TableCell><Skeleton className="h-6 w-[200px]" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-[150px]" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-[100px]" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-[100px]" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-[100px]" /></TableCell>
@@ -162,8 +189,53 @@ export default function ServicesPage() {
                 currentServices.map((service) => (
                   <TableRow key={service.id}>
                     <TableCell className="font-medium">{service.name}</TableCell>
-                    <TableCell>{service.price?.toFixed(2) ?? "0.00"} €</TableCell>
-                    <TableCell>{service.duration} {t("services.minutes")}</TableCell>
+                    <TableCell className="whitespace-nowrap w-[150px]">
+                      {service.subServiceIds?.length ? (
+                        <HoverCard>
+                          <HoverCardTrigger>
+                            <div className="inline-block">
+                              <Badge 
+                                variant="outline" 
+                                className="cursor-pointer hover:bg-muted hover:text-primary transition-colors"
+                              >
+                                {service.subServiceIds.length} {t("services.services")}
+                              </Badge>
+                            </div>
+                          </HoverCardTrigger>
+                          <HoverCardContent 
+                            className="w-[500px] p-4" 
+                            sideOffset={5}
+                            side="top"
+                            align="start"
+                            avoidCollisions={true}
+                            collisionPadding={20}
+                          >
+                            <div className="space-y-2">
+                              <h4 className="text-sm font-semibold">{t("services.subservices")}</h4>
+                              <div className="flex flex-wrap gap-2">
+                                {service.subServiceIds.map((id) => {
+                                  const subService = services.find(s => s.id === id);
+                                  return subService ? (
+                                    <span 
+                                      key={id} 
+                                      className="text-xs bg-muted px-3 py-1.5 rounded-full whitespace-normal"
+                                    >
+                                      {subService.name}
+                                    </span>
+                                  ) : null;
+                                })}
+                              </div>
+                            </div>
+                          </HoverCardContent>
+                        </HoverCard>
+                      ) : '-'}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap w-[120px]">
+                      {service.price?.toFixed(2) ?? "0.00"} €
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap w-[120px]">
+                      {service.duration} {t("services.minutes")}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Button
